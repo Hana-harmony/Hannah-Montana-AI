@@ -20,6 +20,7 @@ uv run uvicorn hannah_montana_ai.main:app --reload
 ```bash
 uv run python scripts/collect_training_data.py --reuse-existing-raw --news-sleep-seconds 1.0
 uv run python scripts/build_augmented_training_data.py
+uv run python scripts/build_gold_evaluation_data.py
 uv run python scripts/train_ml_model.py
 uv run python scripts/evaluate_ml_model.py
 ```

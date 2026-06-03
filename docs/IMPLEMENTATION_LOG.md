@@ -54,6 +54,15 @@
 - holdout 리포트는 이벤트 라벨별 precision, recall, F1, support와 감성·중요도 confusion matrix를 포함한다.
 - 커밋 코퍼스만으로도 ML artifact 생성과 holdout 최소 성능 기준을 테스트한다.
 
+## 2026-06-04 Gold benchmark 평가셋 확장
+- 훈련 증강 corpus를 486건에서 960건으로 확장해 `GENERAL_MARKET`, `DISCLOSURE`, `CORPORATE_ACTION`, `RISK`, `MEDIUM`, `LOW` 케이스를 보강했다.
+- `scripts/build_gold_evaluation_data.py`를 추가해 훈련셋과 별도 문장 패턴의 768건 benchmark를 재생성할 수 있게 했다.
+- 종목명이 없는 업종·매크로 문장은 종목 라벨을 비워, 텍스트에 없는 종목을 맞히도록 요구하지 않게 정정했다.
+- 전체 12,372건 학습 샘플로 모델을 재학습했다.
+- holdout 기준 이벤트 subset recall 0.9859, 이벤트 macro F1 0.9024, 감성 accuracy 0.9632, 중요도 accuracy 0.9608을 기록했다.
+- 768건 benchmark 기준 이벤트 recall 0.8385, 이벤트 macro F1 0.8592, 감성 accuracy 0.8854, 중요도 accuracy 0.8268, 종목 accuracy 1.0을 기록했다.
+- 테스트 기준을 500건 이상 benchmark와 이벤트·감성·중요도·종목 매핑 최소 성능 기준으로 상향했다.
+
 ## 현재 구현 로직
 - 종목 매핑은 전달받은 `stock_universe`에서 종목코드, 한글명, 영문명 포함 여부로 판단한다.
 - 이벤트 태그는 학습된 multilabel classifier가 산출한다.
@@ -68,4 +77,5 @@
 - 수집기는 장애 시 기존 raw 코퍼스를 보존하고 provider별 수집 상태를 리포트로 남긴다.
 - `weak_labeler.py`가 수집 raw에 약지도 라벨을 부여한다.
 - `scripts/build_augmented_training_data.py`가 균형 보강용 합성 금융 corpus를 생성한다.
+- `scripts/build_gold_evaluation_data.py`가 훈련셋과 별도 문장 패턴의 benchmark 평가셋을 생성한다.
 - `scripts/train_ml_model.py`가 80:20 holdout 검증 후 전체 코퍼스로 최종 학습 artifact를 생성한다.

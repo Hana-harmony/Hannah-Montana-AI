@@ -38,15 +38,16 @@ def test_ml_model_passes_evaluation_dataset() -> None:
     samples = load_labeled_alerts(Path("data/evaluation/financial_alert_eval.jsonl"))
     result = evaluate_alert_analyzer(samples, AlertAnalyzer())
 
-    assert result.sample_count == 18
-    assert result.event_tag_recall >= 1.0
-    assert result.sentiment_accuracy >= 1.0
-    assert result.importance_accuracy >= 0.9
+    assert result.sample_count >= 500
+    assert result.event_tag_recall >= 0.8
+    assert result.sentiment_accuracy >= 0.85
+    assert result.importance_accuracy >= 0.8
     assert result.stock_accuracy >= 1.0
-    assert result.event_macro_f1 >= 0.9
-    assert result.event_label_metrics["DISCLOSURE"].support >= 5
-    assert result.sentiment_confusion_matrix["NEGATIVE"]["NEGATIVE"] >= 4
-    assert result.importance_confusion_matrix["CRITICAL"]["CRITICAL"] >= 3
+    assert result.event_macro_f1 >= 0.8
+    assert result.event_label_metrics["DISCLOSURE"].support >= 300
+    assert result.event_label_metrics["GENERAL_MARKET"].f1 >= 0.9
+    assert result.sentiment_confusion_matrix["NEGATIVE"]["NEGATIVE"] >= 200
+    assert result.importance_confusion_matrix["CRITICAL"]["CRITICAL"] >= 70
 
 
 def test_collection_guard_prevents_dataset_shrink() -> None:

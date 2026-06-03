@@ -1,78 +1,92 @@
 {
-  "sample_count": 18,
-  "event_tag_recall": 1.0,
-  "sentiment_accuracy": 1.0,
-  "importance_accuracy": 0.9444444444444444,
+  "sample_count": 768,
+  "event_tag_recall": 0.8385416666666666,
+  "sentiment_accuracy": 0.8854166666666666,
+  "importance_accuracy": 0.8268229166666666,
   "stock_accuracy": 1.0,
-  "event_macro_f1": 0.9403096903096902,
+  "event_macro_f1": 0.8592101121358015,
   "event_label_metrics": {
     "CAPITAL_ACTION": {
-      "precision": 1.0,
-      "recall": 1.0,
-      "f1": 1.0,
-      "support": 2
+      "precision": 0.7272727272727273,
+      "recall": 0.6666666666666666,
+      "f1": 0.6956521739130435,
+      "support": 72
     },
     "CONTRACT": {
-      "precision": 1.0,
+      "precision": 0.75,
       "recall": 1.0,
-      "f1": 1.0,
-      "support": 3
+      "f1": 0.8571428571428571,
+      "support": 72
     },
     "CORPORATE_ACTION": {
-      "precision": 1.0,
+      "precision": 0.8648648648648649,
       "recall": 1.0,
-      "f1": 1.0,
-      "support": 2
+      "f1": 0.927536231884058,
+      "support": 96
     },
     "DISCLOSURE": {
-      "precision": 0.8571428571428571,
-      "recall": 1.0,
-      "f1": 0.923076923076923,
-      "support": 6
+      "precision": 0.909433962264151,
+      "recall": 0.7724358974358975,
+      "f1": 0.8353552859618719,
+      "support": 312
     },
     "EARNINGS": {
-      "precision": 0.6,
+      "precision": 0.7100591715976331,
       "recall": 1.0,
-      "f1": 0.7499999999999999,
-      "support": 3
+      "f1": 0.8304498269896193,
+      "support": 120
+    },
+    "GENERAL_MARKET": {
+      "precision": 0.972972972972973,
+      "recall": 1.0,
+      "f1": 0.9863013698630138,
+      "support": 72
     },
     "MACRO": {
-      "precision": 0.8333333333333334,
-      "recall": 1.0,
-      "f1": 0.9090909090909091,
-      "support": 5
+      "precision": 0.7277486910994765,
+      "recall": 0.9652777777777778,
+      "f1": 0.8298507462686567,
+      "support": 144
     },
     "RISK": {
-      "precision": 1.0,
-      "recall": 1.0,
-      "f1": 1.0,
-      "support": 3
+      "precision": 0.972972972972973,
+      "recall": 0.8571428571428571,
+      "f1": 0.9113924050632912,
+      "support": 168
     }
   },
   "sentiment_confusion_matrix": {
     "NEGATIVE": {
-      "NEGATIVE": 5
+      "NEGATIVE": 205,
+      "NEUTRAL": 29,
+      "POSITIVE": 30
     },
     "NEUTRAL": {
-      "NEUTRAL": 6
+      "NEUTRAL": 240,
+      "POSITIVE": 24
     },
     "POSITIVE": {
-      "POSITIVE": 7
+      "NEGATIVE": 5,
+      "POSITIVE": 235
     }
   },
   "importance_confusion_matrix": {
     "CRITICAL": {
-      "CRITICAL": 3
+      "CRITICAL": 75,
+      "HIGH": 4,
+      "MEDIUM": 17
     },
     "HIGH": {
-      "HIGH": 9,
-      "MEDIUM": 1
+      "HIGH": 296,
+      "LOW": 6,
+      "MEDIUM": 82
     },
     "LOW": {
-      "LOW": 2
+      "HIGH": 24,
+      "LOW": 24
     },
     "MEDIUM": {
-      "MEDIUM": 3
+      "MEDIUM": 240
     }
   }
 }

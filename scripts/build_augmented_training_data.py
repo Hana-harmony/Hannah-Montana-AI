@@ -12,19 +12,32 @@ STOCKS = [
     ("035420", "NAVER", "플랫폼"),
     ("035720", "카카오", "모빌리티"),
     ("207940", "삼성바이오로직스", "바이오"),
+    ("068270", "셀트리온", "제약"),
+    ("105560", "KB금융", "금융"),
 ]
 
 TEMPLATES = [
     ("{name} {sector} 수요 회복으로 영업이익 증가 전망", ["EARNINGS"], "POSITIVE", "HIGH"),
     ("{name} 분기 실적 부진과 적자 확대 우려", ["EARNINGS", "RISK"], "NEGATIVE", "HIGH"),
     ("{name} 잠정 실적 공시 제출", ["EARNINGS", "DISCLOSURE"], "NEUTRAL", "HIGH"),
+    ("{name} 매출액 손익구조 변경사항 공시", ["EARNINGS", "DISCLOSURE"], "NEUTRAL", "HIGH"),
+    ("{name} 원가 부담 확대로 수익성 하락 우려", ["EARNINGS"], "NEGATIVE", "HIGH"),
     ("{name} 대규모 공급계약 체결로 매출 성장 기대", ["CONTRACT"], "POSITIVE", "HIGH"),
     ("{name} 주요 납품 계약 해지 가능성 제기", ["CONTRACT", "RISK"], "NEGATIVE", "HIGH"),
+    ("{name} 단일판매 공급계약 체결 사실 공시", ["CONTRACT", "DISCLOSURE"], "POSITIVE", "HIGH"),
     ("{name} 유상증자 결정으로 재무구조 개선 추진", ["CAPITAL_ACTION"], "NEUTRAL", "HIGH"),
     ("{name} 주주환원 확대 위해 자사주 매입과 배당 검토", ["CAPITAL_ACTION"], "POSITIVE", "HIGH"),
     ("{name} 감자 결정 이후 주가 하락 위험 부각", ["CAPITAL_ACTION", "RISK"], "NEGATIVE", "HIGH"),
+    ("{name} 전환사채 발행 결정 공시", ["CAPITAL_ACTION", "DISCLOSURE"], "NEUTRAL", "HIGH"),
     ("{name} 계열사 합병 결정으로 사업 재편 본격화", ["CORPORATE_ACTION"], "NEUTRAL", "HIGH"),
     ("{name} 해외 법인 매각으로 현금흐름 개선 기대", ["CORPORATE_ACTION"], "POSITIVE", "MEDIUM"),
+    ("{name} 물적분할 추진으로 지배구조 변화 예상", ["CORPORATE_ACTION"], "NEUTRAL", "HIGH"),
+    (
+        "{name} 최대주주 변경 관련 주식 양수도 계약 체결",
+        ["CORPORATE_ACTION", "DISCLOSURE"],
+        "NEUTRAL",
+        "HIGH",
+    ),
     (
         "{name} 최대주주 변경 지연으로 불확실성 확대",
         ["CORPORATE_ACTION", "RISK"],
@@ -34,8 +47,12 @@ TEMPLATES = [
     ("{name} 횡령 배임 혐의 발생으로 거래정지 가능성", ["RISK"], "NEGATIVE", "CRITICAL"),
     ("{name} 감사의견 거절로 상장폐지 사유 발생", ["RISK", "DISCLOSURE"], "NEGATIVE", "CRITICAL"),
     ("{name} 불성실공시법인 지정 예고", ["RISK", "DISCLOSURE"], "NEGATIVE", "CRITICAL"),
+    ("{name} 주요 소송 패소 가능성으로 충당금 부담 확대", ["RISK"], "NEGATIVE", "HIGH"),
+    ("{name} 거래정지 사유 발생 공시", ["RISK", "DISCLOSURE"], "NEGATIVE", "CRITICAL"),
     ("{name} 정기보고서 제출 일정 안내", ["DISCLOSURE"], "NEUTRAL", "LOW"),
     ("{name} 임원ㆍ주요주주 소유상황 보고서 제출", ["DISCLOSURE"], "NEUTRAL", "LOW"),
+    ("{name} 조회공시 요구 답변 제출", ["DISCLOSURE"], "NEUTRAL", "MEDIUM"),
+    ("{name} 대규모 신규 투자계획 공시", ["DISCLOSURE"], "POSITIVE", "HIGH"),
     ("환율 상승으로 {sector} 수출 기업 수익성 개선 기대", ["MACRO"], "POSITIVE", "MEDIUM"),
     ("금리 인상 부담으로 {sector} 업종 투자심리 위축", ["MACRO"], "NEGATIVE", "MEDIUM"),
     ("코스피 외국인 순매수 전환에 {name} 관심 확대", ["MACRO"], "POSITIVE", "MEDIUM"),
@@ -47,6 +64,9 @@ TEMPLATES = [
     ("원화 약세와 수출 둔화로 {sector} 업종 투자심리 위축", ["MACRO"], "NEGATIVE", "MEDIUM"),
     ("해외 공급계약 체결로 {sector} 수출 증가 기대", ["CONTRACT", "MACRO"], "POSITIVE", "HIGH"),
     ("{name} 단기 주가 변동성 확대 전망", ["GENERAL_MARKET"], "NEUTRAL", "MEDIUM"),
+    ("{name} 외국인 매도세로 단기 조정 압력", ["GENERAL_MARKET"], "NEGATIVE", "MEDIUM"),
+    ("{name} 기관 순매수 유입으로 주가 반등 기대", ["GENERAL_MARKET"], "POSITIVE", "MEDIUM"),
+    ("{name} 거래량 증가 속 주가 등락 반복", ["GENERAL_MARKET"], "NEUTRAL", "MEDIUM"),
 ]
 
 SNIPPETS = [
@@ -64,6 +84,7 @@ def main() -> None:
         SNIPPETS,
     ):
         source_type = "DISCLOSURE" if "DISCLOSURE" in tags else "NEWS"
+        has_stock_reference = "{name}" in template
         rows.append(
             {
                 "text": f"{template.format(name=name, sector=sector)}. {snippet}",
@@ -71,8 +92,8 @@ def main() -> None:
                 "sentiment": sentiment,
                 "importance": importance,
                 "source_type": source_type,
-                "stock_code": code,
-                "stock_name": name,
+                "stock_code": code if has_stock_reference else None,
+                "stock_name": name if has_stock_reference else None,
             }
         )
 
