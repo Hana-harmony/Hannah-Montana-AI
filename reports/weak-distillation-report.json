@@ -1,0 +1,61 @@
+{
+  "source_path": "data/processed/weak_labeled_alerts.jsonl",
+  "status": "distilled",
+  "candidate_count": 14169,
+  "accepted_count": 2346,
+  "rejected_count": 11823,
+  "accepted_count_by_primary_label": {
+    "RISK": 208,
+    "CONTRACT": 363,
+    "CAPITAL_ACTION": 513,
+    "CORPORATE_ACTION": 308,
+    "EARNINGS": 469,
+    "MACRO": 469,
+    "DISCLOSURE": 0,
+    "GENERAL_MARKET": 16
+  },
+  "rejected_count_by_reason": {
+    "disclosure_noise": 6653,
+    "disclosure_only": 3121,
+    "duplicate_text": 261,
+    "low_signal": 1787,
+    "too_short": 1
+  },
+  "event_label_distribution": {
+    "CAPITAL_ACTION": 546,
+    "CONTRACT": 368,
+    "CORPORATE_ACTION": 462,
+    "DISCLOSURE": 1014,
+    "EARNINGS": 560,
+    "GENERAL_MARKET": 16,
+    "MACRO": 744,
+    "RISK": 208
+  },
+  "source_type_distribution": {
+    "DISCLOSURE": 1197,
+    "NEWS": 1149
+  },
+  "sentiment_label_distribution": {
+    "NEGATIVE": 73,
+    "NEUTRAL": 1263,
+    "POSITIVE": 1010
+  },
+  "importance_label_distribution": {
+    "CRITICAL": 103,
+    "HIGH": 1535,
+    "LOW": 36,
+    "MEDIUM": 672
+  },
+  "label_quotas": {
+    "RISK": 900,
+    "CONTRACT": 800,
+    "CAPITAL_ACTION": 800,
+    "CORPORATE_ACTION": 800,
+    "EARNINGS": 750,
+    "MACRO": 750,
+    "DISCLOSURE": 650,
+    "GENERAL_MARKET": 450
+  },
+  "promotion_status": "not_promoted_to_supervised_loss",
+  "promotion_reason": "distilled weak labels are tracked as candidates until gold quality gates confirm they do not reduce benchmark or real-news performance"
+}

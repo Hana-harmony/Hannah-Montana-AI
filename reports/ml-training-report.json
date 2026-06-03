@@ -1,6 +1,6 @@
 {
-  "version": "financial-ml-tfidf-logreg-20260603215338",
-  "trained_at": "2026-06-03T21:53:38.915550+00:00",
+  "version": "financial-ml-tfidf-logreg-20260603220557",
+  "trained_at": "2026-06-03T22:05:57.935125+00:00",
   "sample_count": 3571,
   "training_sources": [
     "data/training/financial_alert_corpus.jsonl",
