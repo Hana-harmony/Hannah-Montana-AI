@@ -1,0 +1,25 @@
+# 아키텍처
+
+## 목적
+- Hana-OmniLens-API가 수집한 뉴스·공시 제목과 snippet을 분석한다.
+- ChatGPT API에 의존하지 않고 자체 Rule Engine과 자체 금융 NLP 기준 모델을 사용한다.
+
+## 서비스 구성
+- `api`: 분석 API route
+- `core`: 환경 설정
+- `domain`: request, response schema
+- `services`: Rule Engine, 모델 로더, 분석 orchestration
+- `model_store`: 배포 가능한 모델 artifact
+
+## API 경계
+- 공개 endpoint: `GET /health`
+- 내부 endpoint: `POST /api/v1/alerts/analyze`
+- AI 서비스는 협력사용 `OMNILENS_API_KEY`를 요구하지 않는다.
+- AI 서비스는 별도 토큰을 검증하지 않고 Spring 컨테이너 전용 내부 네트워크에서만 접근 가능해야 한다.
+
+## 현재 구현 상태
+- 종목 매핑은 전달받은 `stock_universe`에서 종목코드, 한글명, 영문명 포함 여부로 판단한다.
+- 이벤트 태그는 `financial_nlp_baseline.json`의 학습 키워드와 입력 텍스트를 비교한다.
+- 감성은 긍정/부정 금융 키워드 점수 차이로 분류한다.
+- 중요도는 위험 키워드, 공시 여부, 주요 이벤트 키워드 순서로 분류한다.
+- 중복 제거 키는 source type, 종목코드, 정규화 제목을 SHA-256으로 해시한다.

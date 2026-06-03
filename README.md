@@ -1,2 +1,34 @@
 # Hannah-Montana-AI
-AI for Hana-OmniLens-API
+
+Hana-OmniLens-API의 뉴스·공시 알림 분석을 담당하는 FastAPI 기반 자체 금융 NLP 서비스다.
+
+## 범위
+- 종목 매핑
+- 이벤트 분류
+- 감성 분류
+- 중요도 분류
+- 중복 제거 키 생성
+
+## 빠른 시작
+```bash
+uv sync --all-groups
+uv run pytest
+uv run uvicorn hannah_montana_ai.main:app --reload
+```
+
+AI 서비스는 협력사용 `OMNILENS_API_KEY`나 별도 서비스 토큰을 요구하지 않는다. 배포 환경에서는 외부에 포트를 공개하지 않고 Spring 컨테이너에서만 접근 가능한 내부 네트워크로 격리한다.
+
+## 주요 엔드포인트
+- `GET /health`
+- `POST /api/v1/alerts/analyze`
+
+## 문서
+- [기여 가이드](CONTRIBUTING.md)
+- [아키텍처](docs/ARCHITECTURE.md)
+- [운영](docs/OPERATIONS.md)
+- [보안](docs/SECURITY.md)
+- [테스트](docs/TESTING.md)
+- [구현 기록](docs/IMPLEMENTATION_LOG.md)
+- [모델 카드](docs/MODEL_CARD.md)
+- [로드맵](docs/ROADMAP.md)
+- [깃 전략](docs/GIT_STRATEGY.md)

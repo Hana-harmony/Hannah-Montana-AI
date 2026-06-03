@@ -1,0 +1,25 @@
+# 구현 기록
+
+## 2026-06-03 하네스 구축
+- FastAPI 0.136.1, Python 3.12, uv 기반 프로젝트 생성
+- `/api/v1/alerts/analyze` 분석 API 구현
+- 자체 Rule Engine과 키워드 기준 금융 NLP 모델 구현
+- AI 서비스 토큰 검증 제거
+- Spring 컨테이너 전용 내부 네트워크 접근 모델로 문서화
+- Git 전략, PR 템플릿, CI 하네스 추가
+
+## 2026-06-04 불필요한 로컬 env 제거
+- 모델 artifact 경로는 민감정보가 아니므로 env 파일 관리 대상에서 제거
+- 로컬 uvicorn 실행 명령에서 `--env-file .env` 제거
+
+## 현재 구현 로직
+- 종목 매핑은 전달받은 `stock_universe`에서 종목코드, 한글명, 영문명 포함 여부로 판단한다.
+- 이벤트 태그는 `financial_nlp_baseline.json`의 학습 키워드와 입력 텍스트를 비교해 산출한다.
+- 감성은 긍정/부정 금융 키워드 점수 차이로 분류한다.
+- 중요도는 위험 키워드, 공시 여부, 주요 이벤트 키워드 순서로 분류한다.
+- 중복 제거 키는 source type, 종목코드, 정규화 제목을 SHA-256으로 해시한다.
+
+## 학습 방식
+- `data/training/financial_alert_corpus.jsonl`에 뉴스·공시 예시와 라벨을 기록한다.
+- `scripts/train_keyword_model.py`가 라벨별 seed keyword를 집계해 기준 모델 JSON을 생성한다.
+- 현재 모델은 MVP용 기준 모델이며, 실제 운영 전에는 라벨 데이터 확장과 평가 리포트가 필요하다.
