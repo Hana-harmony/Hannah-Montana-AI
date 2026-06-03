@@ -16,6 +16,7 @@ uv run python scripts/evaluate_ml_model.py
 - health endpoint 정상 응답
 - 분석 API의 종목 매핑, 감성, 이벤트 태그 응답
 - 수집·증강 데이터 기반 ML artifact 생성
+- 한국어 금융 tokenizer 복합어 추출
 - 학습 단계의 80:20 holdout 검증 리포트 생성
 - 768건 benchmark 평가셋 기준 이벤트 recall, 이벤트 macro F1, 감성, 중요도, 종목 매핑 지표
 - 이벤트 라벨별 precision, recall, F1 리포트 생성
@@ -25,9 +26,10 @@ uv run python scripts/evaluate_ml_model.py
 ## 현재 ML 검증 기준
 - `reports/ml-training-report.json`은 12,372건 학습 샘플 중 2,475건 holdout 검증 결과를 기록한다.
 - holdout 최소 기준은 이벤트 macro F1 0.8, 감성 accuracy 0.8, 중요도 accuracy 0.8 이상이다.
-- 현재 holdout 결과는 이벤트 macro F1 0.9024, 감성 accuracy 0.9632, 중요도 accuracy 0.9608이다.
+- 현재 holdout 결과는 이벤트 macro F1 0.9412, 감성 accuracy 0.9632, 중요도 accuracy 0.9689이다.
 - `reports/ml-model-evaluation.json`은 768건 benchmark 평가셋 결과를 별도로 기록한다.
 - benchmark 최소 기준은 이벤트 recall 0.8, 이벤트 macro F1 0.8, 감성 accuracy 0.85, 중요도 accuracy 0.8, 종목 accuracy 1.0이다.
+- 현재 benchmark 결과는 이벤트 recall 0.8633, 이벤트 macro F1 0.8942, 감성 accuracy 0.8854, 중요도 accuracy 0.8411, 종목 accuracy 1.0이다.
 
 ## 추가 예정
 - 모델 artifact 누락 시 실패 처리

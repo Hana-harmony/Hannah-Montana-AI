@@ -1,7 +1,7 @@
 # 금융 NLP ML 모델 카드
 
 ## 모델명
-`financial-ml-tfidf-logreg-20260603184019`
+`financial-ml-tfidf-logreg-20260603193801`
 
 ## 목적
 - 한국 주식 뉴스·공시의 이벤트 태그, 감성, 중요도를 자체 ML 모델로 분류한다.
@@ -42,9 +42,11 @@
 - `weak_labeler.py`가 수집 원문에 약지도 라벨을 부여해 학습 후보를 만든다.
 - `scripts/build_augmented_training_data.py`가 저작권 문제가 없는 금융 문장 증강 corpus를 생성한다.
 - `scripts/build_gold_evaluation_data.py`가 훈련셋과 별도 문장 패턴의 768건 benchmark를 생성한다.
-- `scripts/train_ml_model.py`가 TF-IDF char n-gram feature와 Logistic Regression 기반 supervised ML 모델을 학습한다.
-- 이벤트 태그는 One-vs-Rest multilabel classifier로 학습한다.
-- 감성과 중요도는 다중 클래스 Logistic Regression으로 학습한다.
+- `scripts/train_ml_model.py`가 TF-IDF feature와 Logistic Regression 기반 supervised ML 모델을 학습한다.
+- 이벤트 태그는 char n-gram과 한국어 금융 token n-gram을 결합한 One-vs-Rest multilabel classifier로 학습한다.
+- 감성은 char n-gram 기반 다중 클래스 Logistic Regression으로 학습한다.
+- 중요도는 source type, char n-gram, 한국어 금융 token n-gram을 결합한 다중 클래스 Logistic Regression으로 학습한다.
+- 금융 tokenizer는 `잠정실적`, `공급계약`, `유상증자`, `거래정지`, `상장폐지`, `전환사채` 같은 한국어 복합 금융 표현을 도메인 token으로 추가한다.
 - 이벤트 태그 probability threshold는 평가셋 기준 과잉 태그를 줄이기 위해 0.35로 튜닝했다.
 - 학습 시 전체 코퍼스를 80:20 holdout으로 나눠 검증한 뒤 전체 코퍼스로 최종 artifact를 재학습한다.
 - 생성 artifact는 `src/hannah_montana_ai/model_store/financial_nlp_ml.joblib`이다.
@@ -53,20 +55,20 @@
 - 위치: `reports/ml-training-report.json`
 - 학습 split: 9,897건
 - 검증 split: 2,475건
-- 이벤트 subset recall: 0.9858585858585859
-- 이벤트 macro F1: 0.9024190469377846
+- 이벤트 subset recall: 0.9862626262626263
+- 이벤트 macro F1: 0.9412297050550945
 - 감성 accuracy: 0.9632323232323232
-- 중요도 accuracy: 0.9608080808080808
-- 라벨별 F1: `DISCLOSURE` 0.9906, `RISK` 0.9560, `GENERAL_MARKET` 0.9462, `CAPITAL_ACTION` 0.9250, `EARNINGS` 0.9091, `CORPORATE_ACTION` 0.8652, `CONTRACT` 0.8327, `MACRO` 0.7945
+- 중요도 accuracy: 0.9688888888888889
+- 라벨별 F1: `DISCLOSURE` 0.9947, `RISK` 0.9943, `CAPITAL_ACTION` 0.9737, `GENERAL_MARKET` 0.9694, `EARNINGS` 0.9425, `CONTRACT` 0.9309, `CORPORATE_ACTION` 0.8845, `MACRO` 0.8399
 - 감성·중요도 confusion matrix를 함께 기록한다.
 
 ## Gold 평가 결과
 - 위치: `reports/ml-model-evaluation.json`
 - 평가 샘플 수: 768
-- 이벤트 태그 recall: 0.8385416666666666
-- 이벤트 태그 macro F1: 0.8592101121358015
+- 이벤트 태그 recall: 0.86328125
+- 이벤트 태그 macro F1: 0.8942150920266971
 - 감성 accuracy: 0.8854166666666666
-- 중요도 accuracy: 0.8268229166666666
+- 중요도 accuracy: 0.8411458333333334
 - 종목 매핑 accuracy: 1.0
 - 라벨별 precision, recall, F1과 감성·중요도 confusion matrix를 함께 기록한다.
 
