@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from collections import Counter
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -11,10 +12,37 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 from sklearn.multiclass import OneVsRestClassifier
-from sklearn.pipeline import Pipeline
+from sklearn.pipeline import FeatureUnion, Pipeline
 from sklearn.preprocessing import MultiLabelBinarizer
 
 from hannah_montana_ai.training.dataset import LabeledAlert, load_labeled_alerts
+
+_TOKEN_PATTERN = re.compile(r"[0-9]+(?:\.[0-9]+)?%?|[A-Za-z][A-Za-z0-9+.-]*|[가-힣]+")
+_NON_TOKEN_CHAR_PATTERN = re.compile(r"[^0-9a-z가-힣]+")
+
+FINANCIAL_DOMAIN_TERMS: tuple[str, ...] = (
+    "감자",
+    "거래정지",
+    "계약",
+    "공급계약",
+    "공시",
+    "금리",
+    "배당",
+    "분기보고서",
+    "상장폐지",
+    "실적",
+    "영업이익",
+    "유상증자",
+    "임상",
+    "자사주",
+    "잠정실적",
+    "전환사채",
+    "주식분할",
+    "증자",
+    "합병",
+    "환율",
+    "흑자전환",
+)
 
 
 @dataclass(frozen=True)
@@ -84,7 +112,7 @@ def train_ml_model(training_paths: list[Path], model_path: Path) -> MlTrainingRe
 
     event_model = Pipeline(
         [
-            ("tfidf", _vectorizer()),
+            ("tfidf", _hybrid_vectorizer()),
             (
                 "classifier",
                 OneVsRestClassifier(
@@ -98,13 +126,13 @@ def train_ml_model(training_paths: list[Path], model_path: Path) -> MlTrainingRe
     )
     sentiment_model = Pipeline(
         [
-            ("tfidf", _vectorizer()),
+            ("tfidf", _char_vectorizer()),
             ("classifier", LogisticRegression(max_iter=1000, class_weight="balanced")),
         ]
     )
     importance_model = Pipeline(
         [
-            ("tfidf", _vectorizer()),
+            ("tfidf", _hybrid_vectorizer()),
             ("classifier", LogisticRegression(max_iter=1000, class_weight="balanced")),
         ]
     )
@@ -170,7 +198,7 @@ def _training_source_paths(paths: list[Path]) -> list[str]:
     return sources
 
 
-def _vectorizer() -> TfidfVectorizer:
+def _char_vectorizer() -> TfidfVectorizer:
     return TfidfVectorizer(
         analyzer="char_wb",
         ngram_range=(2, 5),
@@ -178,6 +206,47 @@ def _vectorizer() -> TfidfVectorizer:
         max_features=120_000,
         sublinear_tf=True,
     )
+
+
+def _hybrid_vectorizer() -> FeatureUnion:
+    return FeatureUnion(
+        [
+            (
+                "char_wb",
+                _char_vectorizer(),
+            ),
+            (
+                "financial_word",
+                TfidfVectorizer(
+                    tokenizer=financial_tokenize,
+                    token_pattern=None,
+                    ngram_range=(1, 2),
+                    min_df=1,
+                    max_features=80_000,
+                    sublinear_tf=True,
+                    lowercase=False,
+                ),
+            ),
+        ],
+        transformer_weights={
+            "char_wb": 1.0,
+            "financial_word": 1.2,
+        },
+    )
+
+
+def financial_tokenize(text: str) -> list[str]:
+    normalized_text = text.lower()
+    tokens = _TOKEN_PATTERN.findall(normalized_text)
+    compact_text = _NON_TOKEN_CHAR_PATTERN.sub("", normalized_text)
+
+    # 한국어 금융 복합어는 띄어쓰기와 조사 때문에 일반 token split만으로 놓치기 쉽다.
+    domain_tokens = [
+        f"finance:{term}"
+        for term in FINANCIAL_DOMAIN_TERMS
+        if _NON_TOKEN_CHAR_PATTERN.sub("", term) in compact_text
+    ]
+    return [*tokens, *domain_tokens]
 
 
 def _importance_text(text: str, source_type: str) -> str:
@@ -205,7 +274,7 @@ def _validate_holdout(samples: list[LabeledAlert]) -> MlValidationReport:
 
     event_model = _event_model()
     sentiment_model = _single_label_model()
-    importance_model = _single_label_model()
+    importance_model = _importance_model()
 
     event_model.fit([sample.text for sample in train_samples], event_train_matrix)
     sentiment_model.fit(
@@ -254,7 +323,7 @@ def _validate_holdout(samples: list[LabeledAlert]) -> MlValidationReport:
 def _event_model() -> Pipeline:
     return Pipeline(
         [
-            ("tfidf", _vectorizer()),
+            ("tfidf", _hybrid_vectorizer()),
             (
                 "classifier",
                 OneVsRestClassifier(
@@ -271,7 +340,16 @@ def _event_model() -> Pipeline:
 def _single_label_model() -> Pipeline:
     return Pipeline(
         [
-            ("tfidf", _vectorizer()),
+            ("tfidf", _char_vectorizer()),
+            ("classifier", LogisticRegression(max_iter=1000, class_weight="balanced")),
+        ]
+    )
+
+
+def _importance_model() -> Pipeline:
+    return Pipeline(
+        [
+            ("tfidf", _hybrid_vectorizer()),
             ("classifier", LogisticRegression(max_iter=1000, class_weight="balanced")),
         ]
     )

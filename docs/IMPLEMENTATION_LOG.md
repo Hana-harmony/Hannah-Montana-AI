@@ -63,11 +63,20 @@
 - 768건 benchmark 기준 이벤트 recall 0.8385, 이벤트 macro F1 0.8592, 감성 accuracy 0.8854, 중요도 accuracy 0.8268, 종목 accuracy 1.0을 기록했다.
 - 테스트 기준을 500건 이상 benchmark와 이벤트·감성·중요도·종목 매핑 최소 성능 기준으로 상향했다.
 
+## 2026-06-04 한국어 금융 tokenizer 기반 ML 개선
+- 이벤트·중요도 모델 feature extractor를 TF-IDF char n-gram과 한국어 금융 도메인 token n-gram의 병렬 feature로 확장했다.
+- 금융 tokenizer는 `잠정실적`, `공급계약`, `유상증자`, `거래정지`, `상장폐지`, `전환사채` 같은 한국어 복합 금융 표현을 띄어쓰기와 기호 차이에 덜 민감하게 추출한다.
+- 감성 모델은 gold benchmark 성능 유지를 위해 기존 char n-gram feature를 유지한다.
+- 전체 12,372건 학습 샘플로 모델을 재학습했다.
+- holdout 기준 이벤트 subset recall 0.9863, 이벤트 macro F1 0.9412, 감성 accuracy 0.9632, 중요도 accuracy 0.9689를 기록했다.
+- 768건 benchmark 기준 이벤트 recall 0.8633, 이벤트 macro F1 0.8942, 감성 accuracy 0.8854, 중요도 accuracy 0.8411, 종목 accuracy 1.0을 기록했다.
+- 단위 테스트로 금융 tokenizer의 복합어 추출과 학습 artifact 생성을 검증한다.
+
 ## 현재 구현 로직
 - 종목 매핑은 전달받은 `stock_universe`에서 종목코드, 한글명, 영문명 포함 여부로 판단한다.
-- 이벤트 태그는 학습된 multilabel classifier가 산출한다.
-- 감성은 학습된 다중 클래스 ML 모델이 분류한다.
-- 중요도는 학습된 다중 클래스 ML 모델이 분류한다.
+- 이벤트 태그는 한국어 금융 tokenizer feature를 포함한 학습된 multilabel classifier가 산출한다.
+- 감성은 char n-gram 기반 학습된 다중 클래스 ML 모델이 분류한다.
+- 중요도는 한국어 금융 tokenizer feature를 포함한 학습된 다중 클래스 ML 모델이 분류한다.
 - 모델은 Naver 뉴스와 OpenDART 공시에서 수집한 제목·snippet·링크 기반 코퍼스와 사람이 작성한 curated·증강 corpus로 학습된다.
 - 중복 제거 키는 source type, 종목코드, 정규화 제목을 SHA-256으로 해시한다.
 
@@ -79,3 +88,4 @@
 - `scripts/build_augmented_training_data.py`가 균형 보강용 합성 금융 corpus를 생성한다.
 - `scripts/build_gold_evaluation_data.py`가 훈련셋과 별도 문장 패턴의 benchmark 평가셋을 생성한다.
 - `scripts/train_ml_model.py`가 80:20 holdout 검증 후 전체 코퍼스로 최종 학습 artifact를 생성한다.
+- 이벤트·중요도 모델은 char n-gram과 한국어 금융 token n-gram을 함께 사용한다.

@@ -19,7 +19,7 @@
 
 ## 현재 구현 상태
 - 종목 매핑은 전달받은 `stock_universe`에서 종목코드, 한글명, 영문명 포함 여부로 판단한다.
-- 이벤트 태그는 `financial_nlp_ml.joblib`의 One-vs-Rest multilabel classifier로 예측한다.
+- 이벤트 태그는 `financial_nlp_ml.joblib`의 한국어 금융 token feature 포함 One-vs-Rest multilabel classifier로 예측한다.
 - 감성은 TF-IDF char n-gram + Logistic Regression 모델로 분류한다.
-- 중요도는 source type을 포함한 텍스트 feature로 Logistic Regression 모델이 분류한다.
+- 중요도는 source type, TF-IDF char n-gram, 한국어 금융 token feature를 결합한 Logistic Regression 모델이 분류한다.
 - 중복 제거 키는 source type, 종목코드, 정규화 제목을 SHA-256으로 해시한다.

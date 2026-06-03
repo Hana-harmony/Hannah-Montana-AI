@@ -4,7 +4,7 @@ from hannah_montana_ai.services.analyzer import AlertAnalyzer
 from hannah_montana_ai.training.collector import should_write_raw_alerts
 from hannah_montana_ai.training.dataset import load_labeled_alerts
 from hannah_montana_ai.training.evaluator import evaluate_alert_analyzer
-from hannah_montana_ai.training.ml_trainer import train_ml_model
+from hannah_montana_ai.training.ml_trainer import financial_tokenize, train_ml_model
 
 
 def test_training_builds_supervised_ml_artifact(tmp_path: Path) -> None:
@@ -32,6 +32,15 @@ def test_training_builds_supervised_ml_artifact(tmp_path: Path) -> None:
     assert report.validation.sentiment_accuracy >= 0.8
     assert report.validation.importance_accuracy >= 0.8
     assert report.validation.event_label_metrics["DISCLOSURE"]["support"] >= 10
+
+
+def test_financial_tokenizer_extracts_domain_terms_without_spacing_dependency() -> None:
+    tokens = financial_tokenize("삼성전자 잠정실적 공시와 대규모 공급계약 체결")
+
+    assert "잠정실적" in tokens
+    assert "공급계약" in tokens
+    assert "finance:잠정실적" in tokens
+    assert "finance:공급계약" in tokens
 
 
 def test_ml_model_passes_evaluation_dataset() -> None:
