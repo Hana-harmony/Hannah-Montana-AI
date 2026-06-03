@@ -18,6 +18,7 @@ uv run python scripts/evaluate_ml_model.py
 - health endpoint 정상 응답
 - 분석 API의 종목 매핑, 감성, 이벤트 태그 응답
 - 수집·증강 데이터 기반 ML artifact 생성
+- 약지도 대량 후보 distillation 필터와 노이즈 제거
 - 한국어 금융 tokenizer 복합어 추출
 - 학습 단계의 80:20 holdout 검증 리포트 생성
 - 768건 benchmark 평가셋 기준 이벤트 recall, 이벤트 macro F1, 감성, 중요도, 종목 매핑 지표
@@ -29,12 +30,14 @@ uv run python scripts/evaluate_ml_model.py
 - 실제 뉴스 학습 gold와 평가 gold의 문장 중복 방지
 - 감성·중요도 confusion matrix 리포트 생성
 - 수집 실패 시 기존 raw 코퍼스 축소 덮어쓰기 방지
+- 약지도 distillation 통과 후보가 gold gate를 낮추면 supervised loss에 승격하지 않는 운영 기록
 - 모델 artifact 누락·손상 시 명시적 오류와 API 503 fail-closed 응답
 - 중복 제거 키가 뉴스 라벨·언론사·기자 꼬리표를 제거하면서 종목·출처 경계를 유지하는지 검증
 - Hana-OmniLens-API Spring client가 사용하는 request·response JSON 필드명과 무토큰 내부 호출 계약 검증
 
 ## 현재 ML 검증 기준
 - `reports/ml-training-report.json`은 3,571건 학습 샘플 중 715건 holdout 검증 결과를 기록한다.
+- `reports/weak-distillation-report.json`은 14,169건 약지도 후보 중 2,346건을 고신호 후보로 선별한 결과와 승격 보류 사유를 기록한다.
 - holdout 최소 기준은 이벤트 macro F1 0.8, 감성 accuracy 0.8, 중요도 accuracy 0.8 이상이다.
 - 현재 holdout 결과는 이벤트 macro F1 0.9941, 감성 accuracy 0.9958, 중요도 accuracy 0.9930이다.
 - `reports/ml-model-evaluation.json`은 768건 benchmark 평가셋 결과를 별도로 기록한다.
