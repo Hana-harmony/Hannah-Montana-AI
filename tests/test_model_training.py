@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 import joblib
@@ -13,6 +14,7 @@ from hannah_montana_ai.training.collector import should_write_raw_alerts
 from hannah_montana_ai.training.dataset import load_labeled_alerts
 from hannah_montana_ai.training.evaluator import evaluate_alert_analyzer
 from hannah_montana_ai.training.ml_trainer import financial_tokenize, train_ml_model
+from hannah_montana_ai.training.weak_distiller import distill_weak_labeled_alerts
 
 GOLD_EVENT_LABEL_QUALITY_GATES = {
     "CAPITAL_ACTION": {"precision": 0.90, "recall": 0.70, "f1": 0.80, "support": 70},
@@ -164,6 +166,52 @@ def test_real_news_gold_training_and_evaluation_are_disjoint() -> None:
     assert len(training_samples) >= 20
     assert len(evaluation_samples) >= 30
     assert training_texts.isdisjoint(evaluation_texts)
+
+
+def test_weak_distiller_filters_noise_and_balances_high_signal_samples(tmp_path: Path) -> None:
+    weak_path = tmp_path / "weak.jsonl"
+    rows = [
+        {
+            "text": "삼성전자 대규모 공급계약 체결로 수주 기대 확대",
+            "tags": ["CONTRACT"],
+            "sentiment": "POSITIVE",
+            "importance": "HIGH",
+            "source_type": "NEWS",
+        },
+        {
+            "text": "SK하이닉스 상장폐지 우려와 거래정지 가능성 확대",
+            "tags": ["RISK"],
+            "sentiment": "NEGATIVE",
+            "importance": "CRITICAL",
+            "source_type": "NEWS",
+        },
+        {
+            "text": "자산운용 ETF 투자설명서 집합투자증권 정정 제출",
+            "tags": ["DISCLOSURE"],
+            "sentiment": "NEUTRAL",
+            "importance": "HIGH",
+            "source_type": "DISCLOSURE",
+        },
+        {
+            "text": "내용 없음",
+            "tags": ["GENERAL_MARKET"],
+            "sentiment": "NEUTRAL",
+            "importance": "LOW",
+            "source_type": "NEWS",
+        },
+    ]
+    weak_path.write_text(
+        "".join(json.dumps(row, ensure_ascii=False) + "\n" for row in rows),
+        encoding="utf-8",
+    )
+
+    result = distill_weak_labeled_alerts(weak_path)
+
+    assert [sample.tags[0] for sample in result.samples] == ["RISK", "CONTRACT"]
+    assert result.report["candidate_count"] == 4
+    assert result.report["accepted_count"] == 2
+    assert result.report["rejected_count_by_reason"]["disclosure_noise"] == 1
+    assert result.report["rejected_count_by_reason"]["too_short"] == 1
 
 
 def test_collection_guard_prevents_dataset_shrink() -> None:

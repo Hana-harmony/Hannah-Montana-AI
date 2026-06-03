@@ -123,6 +123,17 @@
 - 30건 OpenDART 실공시 gold 기준 이벤트 recall 1.0, macro F1 1.0, 감성 accuracy 1.0, 중요도 accuracy 0.9333, 종목 accuracy 1.0을 기록했다.
 - 36건 Naver 실제 뉴스 gold 기준 이벤트 recall 0.9444, macro F1 0.9075, 감성 accuracy 0.9167, 중요도 accuracy 0.8889, 종목 accuracy 1.0을 기록했다.
 
+## 2026-06-04 약지도 대량 후보 distillation gate
+- gitignore된 `data/processed/weak_labeled_alerts.jsonl` 14,169건을 distillation 후보로 사용한다.
+- `weak_distiller.py`를 추가해 disclosure noise, disclosure-only, duplicate, low-signal 후보를 제거한다.
+- ETF·집합투자증권·투자설명서·증권발행실적보고서 같은 공시 노이즈를 학습 승격 대상에서 제외한다.
+- 라벨별 quota와 deterministic hash tie-breaker로 재현 가능한 선별 순서를 만든다.
+- 현재 distillation 통과 후보는 2,346건이며 NEWS 1,149건, DISCLOSURE 1,197건이다.
+- 통과 후보의 라벨 분포는 CAPITAL_ACTION 546, CONTRACT 368, CORPORATE_ACTION 462, DISCLOSURE 1,014, EARNINGS 560, MACRO 744, RISK 208건이다.
+- 대량 약지도 후보를 supervised loss에 직접 투입하면 benchmark·실제 뉴스 gold gate가 하락하는 것을 확인했다.
+- 따라서 `reports/weak-distillation-report.json`에 `not_promoted_to_supervised_loss`로 기록하고, artifact는 검수·균형 corpus 기준으로 유지했다.
+- 최종 gate는 21개 pytest, benchmark, 실공시 gold, 실제 뉴스 gold 모두 통과했다.
+
 ## 현재 구현 로직
 - 종목 매핑은 전달받은 `stock_universe`에서 종목코드, 한글명, 영문명 포함 여부로 판단한다.
 - 이벤트 태그는 한국어 금융 tokenizer feature를 포함한 학습된 multilabel classifier가 산출한다.
@@ -131,7 +142,7 @@
 - 모델 artifact 누락·손상 시 분석 API는 fail-closed 방식으로 `503`을 반환한다.
 - 모델은 사람이 검수한 curated corpus와 DART 제목체를 반영한 균형 증강 corpus로 학습된다.
 - 실제 뉴스 gold와 뉴스 제목체 증강 corpus를 포함해 뉴스 도메인 표현도 함께 학습한다.
-- Naver 뉴스와 OpenDART 수집 raw와 약지도 라벨은 학습 후보 풀로 관리하며, 검수되지 않은 약지도 라벨은 최종 artifact 학습에 직접 투입하지 않는다.
+- Naver 뉴스와 OpenDART 수집 raw와 약지도 라벨은 distillation 후보 풀로 관리하며, gold gate를 낮추는 약지도 라벨은 최종 artifact 학습에 직접 투입하지 않는다.
 - 중복 제거 키는 source type, 종목코드, 뉴스 라벨·꼬리표를 제거한 정규화 제목을 SHA-256으로 해시한다.
 
 ## 학습 방식
@@ -139,6 +150,7 @@
 - `scripts/collect_training_data.py`가 외부 공급자에서 raw 후보 데이터를 수집한다.
 - 수집기는 장애 시 기존 raw 코퍼스를 보존하고 provider별 수집 상태를 리포트로 남긴다.
 - `weak_labeler.py`가 수집 raw에 약지도 라벨을 부여한다.
+- `weak_distiller.py`가 약지도 후보를 필터링하고 promotion 여부를 리포트로 남긴다.
 - `scripts/build_augmented_training_data.py`가 균형 보강용 합성 금융 corpus를 생성한다.
 - `scripts/build_news_style_training_data.py`가 Naver 뉴스 제목체를 반영한 증강 corpus를 생성한다.
 - `scripts/build_gold_evaluation_data.py`가 훈련셋과 별도 문장 패턴의 benchmark 평가셋을 생성한다.
