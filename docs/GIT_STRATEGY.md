@@ -6,20 +6,20 @@
 - 개발 통합 브랜치: `feature`
 - 작업 브랜치 형식: `<유형>/<기능명>`
 - 유형은 아래 값만 사용한다.
-  - `Feat`: 기능 추가
-  - `Fix`: 버그 수정
-  - `Hotfix`: 긴급 장애 수정
-  - `Refactor`: 리팩터링
-  - `Chore`: 빌드/설정/의존성 작업
-  - `Docs`: 문서 작업
-  - `Test`: 테스트 작업
-  - `Security`: 보안 작업
-  - `Release`: 배포 작업
+  - `feat`: 기능 추가
+  - `fix`: 버그 수정
+  - `hotfix`: 긴급 장애 수정
+  - `refactor`: 리팩터링
+  - `chore`: 빌드/설정/의존성 작업
+  - `docs`: 문서 작업
+  - `test`: 테스트 작업
+  - `security`: 보안 작업
+  - `release`: 배포 작업
 - 브랜치명은 영문 소문자 케밥 케이스를 사용한다.
 - 예시:
-  - `Feat/amazon-parser`
-  - `Fix/token-refresh-bug`
-  - `Security/cors-allowlist-hardening`
+  - `feat/amazon-parser`
+  - `fix/token-refresh-bug`
+  - `security/cors-allowlist-hardening`
 
 ### 브랜치 역할
 - `main`: 운영 배포 기준 브랜치다. `feature`에서 검증 완료된 변경만 PR로 병합한다.
@@ -39,7 +39,7 @@
 ```bash
 git switch feature
 git pull --ff-only origin feature
-git switch -c Feat/example-feature
+git switch -c feat/example-feature
 ```
 
 릴리스 PR:
