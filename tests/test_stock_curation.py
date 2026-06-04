@@ -91,6 +91,11 @@ def test_stock_gold_review_batches_are_balanced_and_not_promoted() -> None:
     assert training_stocks.isdisjoint(evaluation_stocks)
     assert {row["review_status"] for row in training_rows} == {"needs_human_review"}
     assert {row["review_status"] for row in evaluation_rows} == {"needs_human_review"}
+    assert all("reviewer_id" in row for row in training_rows)
+    assert all("final_tags" in row for row in evaluation_rows)
+    assert report["review_approval_requirements"]["required_status"] == (
+        "human_review_approved"
+    )
     assert len(report["training_review"]["label_distribution"]) >= 7
     assert len(report["evaluation_review"]["label_distribution"]) >= 7
     assert "not supervised or gold" in report["promotion_policy"]
@@ -150,9 +155,21 @@ def test_committed_stock_gold_review_batches_do_not_promote_without_approval(
     assert result.evaluation_rows == []
     assert result.report["training_promotion"]["approved_row_count"] == 0
     assert result.report["evaluation_promotion"]["approved_row_count"] == 0
-    assert result.report["promotion_policy"].startswith("only human_review_approved")
+    assert "reviewer metadata and final labels" in result.report["promotion_policy"]
     assert (tmp_path / "training_gold.jsonl").read_text(encoding="utf-8") == ""
     assert (tmp_path / "evaluation_gold.jsonl").read_text(encoding="utf-8") == ""
+
+
+def test_stock_gold_promotion_report_tracks_zero_approved_committed_batch() -> None:
+    report = json.loads(Path("reports/stock-gold-promotion-report.json").read_text())
+
+    assert report["schema_version"] == "stock-gold-promotion-report/v1"
+    assert report["training_promotion"]["review_row_count"] == 300
+    assert report["training_promotion"]["approved_row_count"] == 0
+    assert report["training_promotion"]["promoted_row_count"] == 0
+    assert report["evaluation_promotion"]["review_row_count"] == 100
+    assert report["evaluation_promotion"]["approved_row_count"] == 0
+    assert "reviewer metadata and final labels" in report["promotion_policy"]
 
 
 def test_promote_stock_gold_reviews_writes_only_human_approved_rows(
@@ -189,11 +206,61 @@ def test_promote_stock_gold_reviews_writes_only_human_approved_rows(
 
     assert [row["stock_code"] for row in training_rows] == ["000001"]
     assert [row["stock_code"] for row in evaluation_rows] == ["000004"]
+    assert training_rows[0]["tags"] == ["CONTRACT"]
+    assert training_rows[0]["sentiment"] == "NEUTRAL"
+    assert training_rows[0]["importance"] == "HIGH"
+    assert training_rows[0]["reviewer_id"] == "analyst-001"
     assert training_rows[0]["source_review_status"] == "human_review_approved"
     assert evaluation_rows[0]["source_review_split"] == "evaluation"
     assert result.report["training_promotion"]["promoted_stock_count"] == 1
     assert result.report["evaluation_promotion"]["promoted_stock_count"] == 1
     assert result.report["disjoint_stock_check"]["status"] == "pass"
+
+
+def test_promote_stock_gold_reviews_rejects_unattested_approved_rows(
+    tmp_path: Path,
+) -> None:
+    training_review_path = tmp_path / "training_review.jsonl"
+    evaluation_review_path = tmp_path / "evaluation_review.jsonl"
+    training_output_path = tmp_path / "training_gold.jsonl"
+    evaluation_output_path = tmp_path / "evaluation_gold.jsonl"
+    _write_jsonl(
+        training_review_path,
+        [
+            _review_row(
+                "000001",
+                "검수자없음",
+                "CONTRACT",
+                "training",
+                "human_review_approved",
+                reviewer_id="",
+            ),
+            _review_row(
+                "000002",
+                "최종라벨없음",
+                "RISK",
+                "training",
+                "human_review_approved",
+                final_tags=[],
+            ),
+        ],
+    )
+    _write_jsonl(evaluation_review_path, [])
+
+    result = promote_approved_stock_gold_reviews(
+        training_review_path=training_review_path,
+        evaluation_review_path=evaluation_review_path,
+        training_output_path=training_output_path,
+        evaluation_output_path=evaluation_output_path,
+    )
+
+    assert _read_jsonl(training_output_path) == []
+    assert result.report["training_promotion"]["approved_row_count"] == 2
+    assert result.report["training_promotion"]["promoted_row_count"] == 0
+    assert result.report["training_promotion"]["rejected_approved_count_by_reason"] == {
+        "missing_final_tags": 1,
+        "missing_reviewer_id": 1,
+    }
 
 
 def candidate_review_key_from_dict(row: dict[str, object]) -> str:
@@ -253,6 +320,9 @@ def _review_row(
     primary_label: str,
     intended_split: str,
     review_status: str,
+    reviewer_id: str = "analyst-001",
+    reviewed_at: str = "2026-06-05T00:00:00+09:00",
+    final_tags: list[str] | None = None,
 ) -> dict[str, object]:
     row = _candidate(stock_code, stock_name, primary_label)
     return {
@@ -260,6 +330,12 @@ def _review_row(
         "review_key": f"review-{stock_code}",
         "intended_split": intended_split,
         "review_status": review_status,
+        "reviewer_id": reviewer_id,
+        "reviewed_at": reviewed_at,
+        "review_notes": "테스트 검수",
+        "final_tags": final_tags if final_tags is not None else [primary_label],
+        "final_sentiment": row["sentiment"],
+        "final_importance": row["importance"],
     }
 
 

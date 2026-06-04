@@ -310,3 +310,10 @@
 - 학습 스크립트는 `data/training/financial_alert_stock_review_gold.jsonl`이 존재할 때 supervised 학습셋에 포함한다.
 - 평가 스크립트는 `data/evaluation/financial_alert_stock_review_gold.jsonl`이 존재하고 샘플이 있을 때 `stock_review_gold` 평가 섹션을 추가한다.
 - coverage report도 승인된 stock review gold 파일이 존재할 경우 supervised/evaluation coverage에 포함한다.
+
+## 2026-06-05 gold 검수 품질 gate
+- 검수 배치 row에 `reviewer_id`, `reviewed_at`, `review_notes`, `final_tags`, `final_sentiment`, `final_importance` 필드를 추가했다.
+- 승격 스크립트는 승인 상태라도 검수자 메타데이터나 최종 라벨이 없으면 gold 파일로 쓰지 않는다.
+- `reviewed_at`은 ISO-8601 형식이어야 하며, 최종 이벤트·감성·중요도 라벨은 허용된 라벨 집합에 속해야 한다.
+- 승격 거부 사유는 `reports/stock-gold-promotion-report.json`의 `rejected_approved_count_by_reason`에 남긴다.
+- 현재 커밋된 검수 배치는 모두 `needs_human_review`라 승인 0건, 승격 0건으로 기록한다.
