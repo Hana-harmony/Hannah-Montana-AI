@@ -151,6 +151,21 @@
 - 36건 Naver 실제 뉴스 gold 기준 이벤트 recall 0.9444, macro F1 0.8806, 감성 accuracy 0.9167, 중요도 accuracy 0.8889, 종목 accuracy 1.0을 기록했다.
 - 테스트에 pseudo-label 승격 학습 검증을 추가했고, 총 22개 pytest가 통과했다.
 
+## 2026-06-04 실제 뉴스 gold 확장과 기업행동 pseudo-label 승격
+- 실제 Naver 뉴스 학습 gold를 25건에서 43건으로 확대하고, 평가 gold를 36건에서 56건으로 확대했다.
+- `title + 핵심 snippet 근거` 형태의 평가 문장을 추가해 실제 API 입력처럼 제목과 snippet이 함께 들어오는 조건을 검증한다.
+- 고배당, 주주환원, 지분투자, 지분취득, 주식병합, 생산차질, 생산능력, 특허분쟁, 임단협 같은 뉴스형 복합어를 tokenizer에 추가했다.
+- `CORPORATE_ACTION` 후보는 actual-news gold gate를 유지하는 40건만 teacher-gated pseudo-label로 승격했다.
+- `CAPITAL_ACTION`, `EARNINGS`, `MACRO`, `DISCLOSURE`, `GENERAL_MARKET` pseudo-label 확대는 실제 뉴스 gold 회귀가 있어 이번 artifact에는 투입하지 않았다.
+- 최종 artifact 학습 샘플은 supervised 3,589건, pseudo-label 360건을 합친 3,949건이다.
+- pseudo-label 분포는 `RISK` 140건, `CONTRACT` 180건, `CORPORATE_ACTION` 40건이다.
+- 이벤트 태그 threshold는 기본 0.30으로 유지하고, 중립 시황의 `RISK` 오탐을 줄이기 위해 `RISK`만 0.42로 calibration했다.
+- 80:20 supervised holdout 기준 이벤트 macro F1 0.9970, 감성 accuracy 0.9930, 중요도 accuracy 0.9875를 기록했다.
+- 768건 benchmark 기준 이벤트 recall 1.0, macro F1 1.0, 감성 accuracy 1.0, 중요도 accuracy 0.9427, 종목 accuracy 1.0을 기록했다.
+- 30건 OpenDART 실공시 gold 기준 이벤트 recall 1.0, macro F1 1.0, 감성 accuracy 1.0, 중요도 accuracy 0.9667, 종목 accuracy 1.0을 기록했다.
+- 56건 Naver 실제 뉴스 gold 기준 이벤트 recall 0.9821, macro F1 0.9525, 감성 accuracy 0.9821, 중요도 accuracy 0.9643, 종목 accuracy 1.0을 기록했다.
+- 실제 뉴스 gold gate를 50건 이상, 이벤트 recall 0.9, macro F1 0.9, 감성·중요도 accuracy 0.9 이상으로 상향했다.
+
 ## 현재 구현 로직
 - 종목 매핑은 전달받은 `stock_universe`에서 종목코드, 한글명, 영문명 포함 여부로 판단한다.
 - 이벤트 태그는 한국어 금융 tokenizer feature를 포함한 학습된 multilabel classifier가 산출한다.
@@ -160,7 +175,7 @@
 - 모델은 사람이 검수한 curated corpus와 DART 제목체를 반영한 균형 증강 corpus로 학습된다.
 - 실제 뉴스 gold와 뉴스 제목체 증강 corpus를 포함해 뉴스 도메인 표현도 함께 학습한다.
 - Naver 뉴스와 OpenDART 수집 raw와 약지도 라벨은 distillation 후보 풀로 관리하며, gold gate를 낮추는 약지도 라벨은 최종 artifact 학습에 직접 투입하지 않는다.
-- teacher-gated pseudo-label 중 gold gate를 유지한 `RISK`, `CONTRACT` 후보는 이벤트 모델 학습에 투입한다.
+- teacher-gated pseudo-label 중 gold gate를 유지한 `RISK`, `CONTRACT`, `CORPORATE_ACTION` 후보는 이벤트 모델 학습에 투입한다.
 - 중복 제거 키는 source type, 종목코드, 뉴스 라벨·꼬리표를 제거한 정규화 제목을 SHA-256으로 해시한다.
 
 ## 학습 방식

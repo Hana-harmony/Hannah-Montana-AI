@@ -104,16 +104,22 @@ def test_training_promotes_teacher_gated_pseudo_labels(tmp_path: Path) -> None:
     )
     assert report.pseudo_labeling["status"] == "promoted_to_student_training"
     assert report.pseudo_labeling["promotion_method"] == "supervised_teacher_confidence_filter"
+    assert report.pseudo_labeling["label_quotas"]["CORPORATE_ACTION"] == 40
 
 
 def test_financial_tokenizer_extracts_domain_terms_without_spacing_dependency() -> None:
-    tokens = financial_tokenize("삼성전자 잠정실적 공시와 고환율 속 수주 턴어라운드")
+    tokens = financial_tokenize(
+        "삼성전자 잠정실적 공시와 고환율 속 수주 턴어라운드, 주주환원과 주식병합"
+    )
 
     assert "잠정실적" in tokens
     assert "수주" in tokens
+    assert "주식병합" in tokens
     assert "finance:잠정실적" in tokens
     assert "finance:고환율" in tokens
     assert "finance:턴어라운드" in tokens
+    assert "finance:주주환원" in tokens
+    assert "finance:주식병합" in tokens
 
 
 def test_missing_model_artifact_raises_explicit_error(tmp_path: Path) -> None:
@@ -187,16 +193,22 @@ def test_ml_model_passes_real_news_gold_dataset() -> None:
     samples = load_labeled_alerts(Path("data/evaluation/financial_alert_real_news_gold.jsonl"))
     result = evaluate_alert_analyzer(samples, AlertAnalyzer())
 
-    assert result.sample_count >= 30
-    assert result.event_tag_recall >= 0.85
-    assert result.event_macro_f1 >= 0.85
-    assert result.sentiment_accuracy >= 0.85
-    assert result.importance_accuracy >= 0.85
+    assert result.sample_count >= 50
+    assert result.event_tag_recall >= 0.9
+    assert result.event_macro_f1 >= 0.9
+    assert result.sentiment_accuracy >= 0.9
+    assert result.importance_accuracy >= 0.9
     assert result.stock_accuracy >= 1.0
-    assert result.event_label_metrics["GENERAL_MARKET"].recall >= 0.85
-    assert result.event_label_metrics["MACRO"].recall >= 0.85
-    assert result.event_label_metrics["EARNINGS"].recall >= 0.85
-    assert result.event_label_metrics["RISK"].recall >= 0.75
+    assert result.event_label_metrics["GENERAL_MARKET"].recall >= 0.9
+    assert result.event_label_metrics["MACRO"].recall >= 0.9
+    assert result.event_label_metrics["EARNINGS"].recall >= 0.9
+    assert result.event_label_metrics["RISK"].recall >= 0.9
+    assert result.event_label_metrics["CAPITAL_ACTION"].support >= 5
+    assert result.event_label_metrics["CAPITAL_ACTION"].recall >= 0.9
+    assert result.event_label_metrics["CONTRACT"].support >= 5
+    assert result.event_label_metrics["CONTRACT"].recall >= 0.9
+    assert result.event_label_metrics["CORPORATE_ACTION"].support >= 3
+    assert result.event_label_metrics["CORPORATE_ACTION"].recall >= 0.9
 
 
 def test_real_news_gold_training_and_evaluation_are_disjoint() -> None:
@@ -210,8 +222,8 @@ def test_real_news_gold_training_and_evaluation_are_disjoint() -> None:
     training_texts = {sample.text for sample in training_samples}
     evaluation_texts = {sample.text for sample in evaluation_samples}
 
-    assert len(training_samples) >= 20
-    assert len(evaluation_samples) >= 30
+    assert len(training_samples) >= 35
+    assert len(evaluation_samples) >= 50
     assert training_texts.isdisjoint(evaluation_texts)
 
 
