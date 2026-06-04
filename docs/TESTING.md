@@ -16,6 +16,7 @@ uv run python scripts/build_model_release_report.py
 uv run python scripts/build_pseudo_label_monitoring_report.py
 uv run python scripts/sync_stock_universe.py
 uv run python scripts/build_stock_coverage_report.py
+uv run python scripts/build_stock_training_candidate_queue.py
 ```
 
 ## 현재 테스트 범위
@@ -43,6 +44,7 @@ uv run python scripts/build_stock_coverage_report.py
 - 외부 provider credential 누락 시 값 비노출 오류와 네트워크 호출 전 fail-fast
 - 국내주식 universe 파일이 3,000개 이상 공개 종목 메타데이터를 포함하는지 검증
 - 종목 universe 기반 Naver 수집 쿼리 생성과 coverage report 산출 검증
+- 종목·라벨 균형 학습 승격 후보 큐가 5,000건 이상, 2,000개 이상 종목을 포함하고 `needs_human_review` 상태인지 검증
 - 짧은 종목명 오탐을 줄이기 위해 coverage matcher가 2자 명칭을 제외하고 6자리 종목코드는 유지하는지 검증
 - 추적 파일에 로컬 secret 파일, key material, provider credential assignment가 포함되지 않는지 CI 검사
 - 모델 release report가 학습·평가·distillation 리포트와 동기화되어 있고 모든 gate가 통과하는지 검증
@@ -65,6 +67,7 @@ uv run python scripts/build_stock_coverage_report.py
 - `reports/model-release-report.json`은 현재 모델 버전 `financial-ml-tfidf-logreg-20260604142946`의 전체 release gate와 pseudo-label consistency check를 `overall_status=pass`로 기록한다.
 - `reports/pseudo-label-promotion-monitoring.json`은 고신호 후보 4,845건, teacher 탈락 3,124건, quota 보류 1,361건, 최종 승격 360건을 `overall_status=pass`로 기록한다.
 - `reports/stock-coverage-report.json`은 universe 3,967개, raw 매칭 2,356개 종목, supervised 38개 종목, evaluation 56개 종목을 기록한다.
+- `reports/stock-training-candidate-report.json`은 검수 대기 후보 6,244건, 2,127개 종목을 기록하며 coverage gate를 `pass`로 기록한다.
 - 전 종목 실서비스 coverage gate는 현재 `fail`이며, 다음 데이터 확장 PR의 기준선으로 사용한다.
 
 ## 추가 예정

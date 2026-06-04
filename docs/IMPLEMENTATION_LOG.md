@@ -228,6 +228,15 @@
 - `reports/stock-coverage-report.json` 기준 raw 후보는 2,356개 종목과 매칭되지만 supervised 학습 종목은 38개, evaluation 종목은 56개라 전 종목 coverage gate는 fail로 기록했다.
 - 이 변경은 모델을 완성했다고 주장하지 않고, 전 종목급 실서비스 모델로 가기 위한 coverage 측정과 수집 확장 기반을 만든다.
 
+## 2026-06-05 종목·라벨 균형 학습 승격 후보 큐
+- `stock_curation.py`를 추가해 raw 뉴스·공시 후보에서 종목 매칭, 약지도 라벨, 신호 점수를 결합한 검수 큐를 생성한다.
+- `scripts/build_stock_training_candidate_queue.py`가 `data/curation/stock_training_candidate_queue.jsonl`와 `reports/stock-training-candidate-report.json`을 결정적으로 생성한다.
+- 후보 큐는 종목코드, 종목명, primary label, signal score, 원문 링크, provider, content hash, `curation_status=needs_human_review`를 포함한다.
+- 종목별·라벨별 quota를 적용해 대형주나 특정 라벨에 후보가 쏠리지 않도록 제한한다.
+- `GENERAL_MARKET`처럼 종목별 학습 승격 의미가 약한 후보와 ETF·집합투자증권 등 disclosure noise는 제외한다.
+- 현재 후보 큐는 6,244건, 2,127개 종목이며 coverage gate 기준 300개 이상 종목 조건을 통과한다.
+- 후보 큐는 약지도 기반이므로 바로 gold나 supervised 정답셋으로 사용하지 않고, 사람 검수 후 승격하는 정책을 리포트에 기록한다.
+
 ## 현재 구현 로직
 - 종목 매핑은 전달받은 `stock_universe`에서 종목코드, 한글명, 영문명, alias 포함 여부로 판단한다.
 - 이벤트 태그는 한국어 금융 tokenizer feature를 포함한 학습된 multilabel classifier가 산출한다.
@@ -245,6 +254,7 @@
 - `scripts/collect_training_data.py`가 외부 공급자에서 raw 후보 데이터를 수집한다.
 - `scripts/sync_stock_universe.py`가 국내주식 universe를 동기화한다.
 - `scripts/build_stock_coverage_report.py`가 raw, supervised, evaluation 데이터의 종목 커버리지를 측정한다.
+- `scripts/build_stock_training_candidate_queue.py`가 사람이 검수할 종목·라벨 균형 후보 큐를 만든다.
 - 수집기는 장애 시 기존 raw 코퍼스를 보존하고 provider별 수집 상태를 리포트로 남긴다.
 - `weak_labeler.py`가 수집 raw에 약지도 라벨을 부여한다.
 - `weak_distiller.py`가 약지도 후보를 필터링하고 promotion 여부를 리포트로 남긴다.
