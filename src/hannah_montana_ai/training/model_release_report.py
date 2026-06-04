@@ -40,9 +40,11 @@ def build_model_release_report(
     training_report: dict[str, Any],
     evaluation_report: dict[str, Any],
     distillation_report: dict[str, Any],
+    coverage_validation_report: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     quality_gates = _build_quality_gates(training_report, evaluation_report)
     consistency_checks = _build_consistency_checks(training_report, distillation_report)
+    service_readiness = _build_service_readiness(coverage_validation_report)
     overall_status = _overall_status(quality_gates, consistency_checks)
 
     return {
@@ -75,11 +77,17 @@ def build_model_release_report(
         ),
         "quality_gates": quality_gates,
         "consistency_checks": consistency_checks,
+        "service_readiness": service_readiness,
         "weakest_event_labels": _build_weakest_event_labels(evaluation_report),
         "report_inputs": {
             "training_report": "reports/ml-training-report.json",
             "evaluation_report": "reports/ml-model-evaluation.json",
             "weak_distillation_report": "reports/weak-distillation-report.json",
+            "coverage_validation_report": (
+                "reports/stock-gold-coverage-validation-report.json"
+                if coverage_validation_report is not None
+                else None
+            ),
         },
     }
 
@@ -203,6 +211,63 @@ def _build_consistency_checks(
             "status": "pass" if values["expected"] == values["actual"] else "fail",
         }
         for name, values in checks.items()
+    }
+
+
+def _build_service_readiness(
+    coverage_validation_report: dict[str, Any] | None,
+) -> dict[str, Any]:
+    if coverage_validation_report is None:
+        return {
+            "overall_status": "fail",
+            "checks": {
+                "coverage_validation": {
+                    "status": "missing",
+                    "reason": "coverage validation report is required for service readiness",
+                }
+            },
+            "policy": (
+                "service readiness requires model quality gates, consistency checks, "
+                "and approved stock coverage validation"
+            ),
+        }
+
+    coverage_status = str(coverage_validation_report.get("overall_status", "fail"))
+    training_validation = coverage_validation_report.get("training_validation", {})
+    evaluation_validation = coverage_validation_report.get("evaluation_validation", {})
+    return {
+        "overall_status": "pass" if coverage_status == "pass" else "fail",
+        "checks": {
+            "coverage_validation": {
+                "status": coverage_status,
+                "schema_version": coverage_validation_report.get("schema_version"),
+                "training_target_stock_count": training_validation.get(
+                    "target_stock_count"
+                ),
+                "training_eligible_stock_count": training_validation.get(
+                    "eligible_stock_count"
+                ),
+                "training_remaining_stock_count_to_target": training_validation.get(
+                    "remaining_stock_count_to_target"
+                ),
+                "evaluation_target_stock_count": evaluation_validation.get(
+                    "target_stock_count"
+                ),
+                "evaluation_eligible_stock_count": evaluation_validation.get(
+                    "eligible_stock_count"
+                ),
+                "evaluation_remaining_stock_count_to_target": evaluation_validation.get(
+                    "remaining_stock_count_to_target"
+                ),
+                "minimum_wave_approved_stocks": coverage_validation_report.get(
+                    "minimum_wave_approved_stocks"
+                ),
+            }
+        },
+        "policy": (
+            "model quality pass is not sufficient for service readiness until "
+            "coverage validation passes with human-approved stock review gold"
+        ),
     }
 
 

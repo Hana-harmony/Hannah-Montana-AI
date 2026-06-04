@@ -375,3 +375,10 @@
 - 기본 gate는 학습 1,500종목, 평가 500종목, wave별 승인 종목 100개 이상, 학습·평가 split disjoint를 요구한다.
 - 현재 packet은 승인 0건이라 `overall_status=fail`이며, wave별 남은 승인 수를 리포트로 기록한다.
 - 이 gate는 승인된 stock review gold를 포함해 재학습하기 전 필수 확인 단계다.
+
+## 2026-06-05 release service readiness gate
+- `model_release_report.py`에 `service_readiness` 섹션을 추가해 모델 품질 gate와 실서비스 coverage readiness를 분리했다.
+- `scripts/build_model_release_report.py`는 `reports/stock-gold-coverage-validation-report.json`을 함께 읽어 release report에 반영한다.
+- 현재 모델 품질 `overall_status`는 holdout·gold 평가와 consistency 기준 `pass`지만, `service_readiness.overall_status`는 coverage 승인 0건으로 `fail`이다.
+- service readiness는 학습 1,500종목, 평가 500종목, wave별 승인 100종목 gate가 통과될 때만 `pass`가 된다.
+- 이 변경은 현재 모델을 실서비스급으로 과장하지 않기 위한 release guard다.
