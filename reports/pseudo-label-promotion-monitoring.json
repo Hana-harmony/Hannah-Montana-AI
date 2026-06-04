@@ -1,17 +1,17 @@
 {
   "schema_version": "pseudo-label-monitor/v1",
-  "model_version": "financial-ml-tfidf-logreg-20260604122101",
-  "report_created_at": "2026-06-04T12:21:01.590362+00:00",
+  "model_version": "financial-ml-tfidf-logreg-20260604142946",
+  "report_created_at": "2026-06-04T14:29:46.702018+00:00",
   "overall_status": "pass",
   "candidate_funnel": {
     "raw_candidate_count": 37278,
     "high_signal_candidate_count": 4845,
-    "teacher_rejected_count": 3010,
+    "teacher_rejected_count": 3124,
     "teacher_rejected_count_by_reason": {
-      "low_teacher_confidence": 2788,
+      "low_teacher_confidence": 2902,
       "teacher_weak_event_disagreement": 222
     },
-    "teacher_passed_not_promoted_or_quota_limited_count": 1475,
+    "teacher_passed_not_promoted_or_quota_limited_count": 1361,
     "promoted_count": 360
   },
   "confidence_thresholds": {
@@ -88,8 +88,8 @@
   "quality_gate_snapshot": {
     "holdout": {
       "status": "pass",
-      "sample_count": 718,
-      "lowest_margin": 0.18746518105849574
+      "sample_count": 722,
+      "lowest_margin": 0.1880665660133557
     },
     "benchmark": {
       "status": "pass",
@@ -103,7 +103,7 @@
     },
     "real_news_gold": {
       "status": "pass",
-      "sample_count": 56,
+      "sample_count": 80,
       "lowest_margin": 0.0
     }
   },

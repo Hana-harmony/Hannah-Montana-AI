@@ -166,6 +166,19 @@
 - 56건 Naver 실제 뉴스 gold 기준 이벤트 recall 0.9821, macro F1 0.9525, 감성 accuracy 0.9821, 중요도 accuracy 0.9643, 종목 accuracy 1.0을 기록했다.
 - 실제 뉴스 gold gate를 50건 이상, 이벤트 recall 0.9, macro F1 0.9, 감성·중요도 accuracy 0.9 이상으로 상향했다.
 
+## 2026-06-04 실제 뉴스 gold 종목·기간 확대
+- 실제 Naver 뉴스 학습 gold를 43건에서 63건으로 확대하고, 평가 gold를 56건에서 80건으로 확대했다.
+- 평가 gold의 종목코드 커버리지는 30개로 넓혔고, `CAPITAL_ACTION`, `CONTRACT`, `CORPORATE_ACTION`, `EARNINGS`, `GENERAL_MARKET`, `MACRO`, `RISK` 라벨별 support를 8건 이상으로 고정했다.
+- 실제 뉴스 title에서 쓰는 `NH증권`, `네이버`, `LG엔솔`, `하나은행` 같은 약칭을 gold row의 `stock_aliases`로 기록하고 평가 stock universe에 반영했다.
+- tokenizer에 `무상증자`, `지분인수`, `지분매각`, `주식교환`, `리밸런싱`, `자산효율화`, `공급망`, `화재`, `웹3` 같은 실제 뉴스형 복합어를 추가했다.
+- 이벤트 threshold는 기본 0.30으로 유지하되 실제 뉴스 gold 기준으로 `CORPORATE_ACTION` 0.16, `EARNINGS` 0.42, `RISK` 0.42를 label별 calibration했다.
+- 최종 artifact 학습 샘플은 supervised 3,609건, pseudo-label 360건을 합친 3,969건이다.
+- 80:20 supervised holdout 기준 이벤트 macro F1 0.9881, 감성 accuracy 0.9889, 중요도 accuracy 0.9931을 기록했다.
+- 768건 benchmark 기준 이벤트 recall 1.0, macro F1 1.0, 감성 accuracy 1.0, 중요도 accuracy 0.9375, 종목 accuracy 1.0을 기록했다.
+- 30건 OpenDART 실공시 gold 기준 이벤트 recall 1.0, macro F1 0.9412, 감성 accuracy 1.0, 중요도 accuracy 0.9667, 종목 accuracy 1.0을 기록했다.
+- 80건 Naver 실제 뉴스 gold 기준 이벤트 recall 0.9750, macro F1 0.9006, 감성 accuracy 0.9125, 중요도 accuracy 0.9250, 종목 accuracy 1.0을 기록했다.
+- 모든 gold row의 `source_url`이 커밋된 `data/raw/collected_alerts.jsonl`의 Naver News `original_url`과 매칭되는지 테스트로 검증한다.
+
 ## 2026-06-04 학습 데이터 추적 정책 전환
 - `data/raw/collected_alerts.jsonl`와 `data/processed/weak_labeled_alerts.jsonl`를 gitignore 대상에서 제거했다.
 - 수집 raw 37,278건과 약지도 라벨 37,278건은 학습 재현성과 PR 리뷰를 위해 커밋한다.
@@ -191,7 +204,7 @@
 ## 2026-06-04 pseudo-label promotion gate 모니터링
 - `pseudo_label_monitor.py`를 추가해 weak distillation 리포트와 model release report를 운영용 promotion monitoring report로 변환한다.
 - `scripts/build_pseudo_label_monitoring_report.py`가 `reports/pseudo-label-promotion-monitoring.json`을 결정적으로 재생성한다.
-- raw 후보 37,278건, 고신호 후보 4,845건, teacher 탈락 3,010건, quota 보류 1,475건, 최종 승격 360건을 funnel로 기록한다.
+- raw 후보 37,278건, 고신호 후보 4,845건, teacher 탈락 3,124건, quota 보류 1,361건, 최종 승격 360건을 funnel로 기록한다.
 - active quota가 있는 `RISK`, `CONTRACT`, `CORPORATE_ACTION`은 모두 quota가 채워진 상태로 기록한다.
 - `CAPITAL_ACTION`, `DISCLOSURE`, `EARNINGS`, `MACRO`는 고신호 후보가 충분하지만 actual-news gold gate 실험 전까지 `expansion_candidate_hold_for_gold_gate`로 보류한다.
 - 테스트는 monitoring report가 distillation·release 리포트에서 재계산한 결과와 완전히 일치하는지 검증한다.
@@ -205,7 +218,7 @@
 - 테스트로 로컬 env가 기존 환경변수를 덮어쓰지 않는지, credential 누락 오류가 값을 노출하지 않는지 검증한다.
 
 ## 현재 구현 로직
-- 종목 매핑은 전달받은 `stock_universe`에서 종목코드, 한글명, 영문명 포함 여부로 판단한다.
+- 종목 매핑은 전달받은 `stock_universe`에서 종목코드, 한글명, 영문명, alias 포함 여부로 판단한다.
 - 이벤트 태그는 한국어 금융 tokenizer feature를 포함한 학습된 multilabel classifier가 산출한다.
 - 감성은 char n-gram과 한국어 금융 tokenizer feature를 포함한 학습된 다중 클래스 ML 모델이 분류한다.
 - 중요도는 한국어 금융 tokenizer feature를 포함한 학습된 다중 클래스 ML 모델이 분류한다.

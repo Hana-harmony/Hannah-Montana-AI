@@ -1,5 +1,5 @@
 import json
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 from hannah_montana_ai.domain.schemas import Importance, Sentiment, SourceType
@@ -14,6 +14,7 @@ class LabeledAlert:
     source_type: SourceType = "NEWS"
     stock_code: str | None = None
     stock_name: str | None = None
+    stock_aliases: list[str] = field(default_factory=list)
 
 
 def load_labeled_alerts(path: Path) -> list[LabeledAlert]:
@@ -31,6 +32,7 @@ def load_labeled_alerts(path: Path) -> list[LabeledAlert]:
                 source_type=payload.get("source_type", "NEWS"),
                 stock_code=payload.get("stock_code"),
                 stock_name=payload.get("stock_name"),
+                stock_aliases=payload.get("stock_aliases", []),
             )
         )
     return samples

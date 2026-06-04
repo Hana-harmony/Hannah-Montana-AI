@@ -32,6 +32,16 @@ GOLD_EVENT_LABEL_QUALITY_GATES = {
     "RISK": {"precision": 0.95, "recall": 0.80, "f1": 0.85, "support": 160},
 }
 
+REAL_NEWS_EVENT_LABELS = {
+    "CAPITAL_ACTION",
+    "CONTRACT",
+    "CORPORATE_ACTION",
+    "EARNINGS",
+    "GENERAL_MARKET",
+    "MACRO",
+    "RISK",
+}
+
 
 def test_training_builds_supervised_ml_artifact(tmp_path: Path) -> None:
     model_path = tmp_path / "financial_nlp_ml.joblib"
@@ -227,9 +237,33 @@ def test_real_news_gold_training_and_evaluation_are_disjoint() -> None:
     training_texts = {sample.text for sample in training_samples}
     evaluation_texts = {sample.text for sample in evaluation_samples}
 
-    assert len(training_samples) >= 35
-    assert len(evaluation_samples) >= 50
+    assert len(training_samples) >= 60
+    assert len(evaluation_samples) >= 80
     assert training_texts.isdisjoint(evaluation_texts)
+
+
+def test_real_news_gold_dataset_is_expanded_and_traceable() -> None:
+    training_rows = _read_jsonl(Path("data/training/financial_alert_real_news_gold.jsonl"))
+    evaluation_rows = _read_jsonl(
+        Path("data/evaluation/financial_alert_real_news_gold.jsonl")
+    )
+    raw_urls = {
+        row["original_url"]
+        for row in _read_jsonl(Path("data/raw/collected_alerts.jsonl"))
+        if row.get("source_type") == "NEWS"
+    }
+
+    assert len(training_rows) >= 60
+    assert len(evaluation_rows) >= 80
+    assert _stock_code_count(training_rows) >= 25
+    assert _stock_code_count(evaluation_rows) >= 30
+
+    for label in REAL_NEWS_EVENT_LABELS:
+        assert _label_support(training_rows, label) >= 7, label
+        assert _label_support(evaluation_rows, label) >= 8, label
+
+    assert all(row["source_url"] in raw_urls for row in training_rows)
+    assert all(row["source_url"] in raw_urls for row in evaluation_rows)
 
 
 def test_model_release_report_matches_source_reports() -> None:
@@ -247,8 +281,9 @@ def test_model_release_report_matches_source_reports() -> None:
     assert release_report == expected
     assert release_report["overall_status"] == "pass"
     assert release_report["model_version"] == training_report["version"]
-    assert release_report["training"]["sample_count"] == 3949
+    assert release_report["training"]["sample_count"] == 3969
     assert release_report["training"]["pseudo_labeled_sample_count"] == 360
+    assert release_report["quality_gates"]["real_news_gold"]["sample_count"] == 80
     assert release_report["pseudo_labeling"]["accepted_count_by_primary_label"] == {
         "RISK": 140,
         "CONTRACT": 180,
@@ -296,7 +331,7 @@ def test_pseudo_label_monitoring_report_matches_source_reports() -> None:
         monitoring_report["candidate_funnel"][
             "teacher_passed_not_promoted_or_quota_limited_count"
         ]
-        == 1475
+        == 1361
     )
     assert label_decisions["RISK"] == "quota_filled"
     assert label_decisions["CONTRACT"] == "quota_filled"
@@ -366,3 +401,19 @@ def test_collection_guard_prevents_dataset_shrink() -> None:
 
 def _read_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+def _read_jsonl(path: Path) -> list[dict[str, Any]]:
+    return [
+        json.loads(line)
+        for line in path.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+
+
+def _stock_code_count(rows: list[dict[str, Any]]) -> int:
+    return len({row["stock_code"] for row in rows if row.get("stock_code")})
+
+
+def _label_support(rows: list[dict[str, Any]], label: str) -> int:
+    return sum(label in row["tags"] for row in rows)

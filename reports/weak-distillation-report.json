@@ -57,9 +57,9 @@
     "GENERAL_MARKET": 0
   },
   "promotion_method": "supervised_teacher_confidence_filter",
-  "teacher_training_sample_count": 3589,
+  "teacher_training_sample_count": 3609,
   "rejected_count_by_teacher_reason": {
-    "low_teacher_confidence": 2788,
+    "low_teacher_confidence": 2902,
     "teacher_weak_event_disagreement": 222
   },
   "pseudo_sample_influence_control": "confidence_threshold_and_label_quota_for_event_model_only",
