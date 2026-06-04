@@ -346,3 +346,11 @@
 - calibrated current release profile은 `RISK`, `CONTRACT`, `CAPITAL_ACTION`, `CORPORATE_ACTION`, `EARNINGS`, `MACRO` 후보 523건을 523개 종목에 분산 승격했다.
 - 새 release artifact는 supervised 3,609건과 pseudo-label 883건을 합친 4,492건으로 학습했다.
 - 새 release는 80건 Naver 실제 뉴스 gold 기준 이벤트 recall 0.9625, macro F1 0.9325, 감성 accuracy 0.9125, 중요도 accuracy 0.9250, 종목 accuracy 1.0으로 gate를 통과했다.
+
+## 2026-06-05 gold coverage review planner
+- `coverage_planner.py`를 추가해 supervised/gold 종목 coverage를 늘리기 위한 장기 검수 계획을 생성한다.
+- `scripts/build_stock_gold_coverage_plan.py`는 `data/curation/stock_gold_coverage_review_plan.jsonl`와 `reports/stock-gold-coverage-plan-report.json`을 생성한다.
+- 현재 검수 배치 400종목과 추가 coverage plan 1,600종목을 합쳐 학습 1,500종목, 평가 500종목의 검수 과제를 만든다.
+- 학습 split과 평가 split의 종목코드는 disjoint 상태를 유지하고, 이미 supervised/evaluation 데이터에 있는 종목은 추가 계획에서 제외한다.
+- 후보 큐 2,127개 종목 중 기존 supervised 종목과 전체 계획을 합치면 2,068개 종목을 커버한다.
+- 모든 coverage plan row는 `needs_human_review`이며, 검수자 승인과 최종 라벨 없이 gold나 supervised 데이터셋으로 승격하지 않는다.
