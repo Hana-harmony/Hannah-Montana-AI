@@ -2,12 +2,15 @@
   "source_path": "data/processed/weak_labeled_alerts.jsonl",
   "status": "promoted_to_student_training",
   "candidate_count": 37278,
-  "accepted_count": 1004,
+  "accepted_count": 883,
   "rejected_count": 32433,
   "accepted_count_by_primary_label": {
-    "CONTRACT": 528,
-    "CORPORATE_ACTION": 40,
-    "RISK": 436
+    "CAPITAL_ACTION": 120,
+    "CONTRACT": 389,
+    "CORPORATE_ACTION": 80,
+    "EARNINGS": 5,
+    "MACRO": 12,
+    "RISK": 277
   },
   "rejected_count_by_reason": {
     "disclosure_noise": 11302,
@@ -66,35 +69,36 @@
     "status": "promoted_to_event_student_training",
     "source_path": "data/curation/stock_training_candidate_queue.jsonl",
     "candidate_count": 6244,
-    "accepted_count": 644,
-    "accepted_stock_count": 470,
+    "accepted_count": 523,
+    "accepted_stock_count": 523,
     "accepted_count_by_primary_label": {
-      "RISK": 296,
-      "CONTRACT": 348,
-      "CAPITAL_ACTION": 0,
-      "CORPORATE_ACTION": 0,
-      "EARNINGS": 0,
-      "MACRO": 0,
+      "RISK": 137,
+      "CONTRACT": 209,
+      "CAPITAL_ACTION": 120,
+      "CORPORATE_ACTION": 40,
+      "EARNINGS": 5,
+      "MACRO": 12,
       "DISCLOSURE": 0,
       "GENERAL_MARKET": 0
     },
     "rejected_count_by_reason": {
-      "low_teacher_confidence": 412,
-      "per_stock_quota_filled": 36,
-      "teacher_zero_quota_label": 57,
-      "zero_quota_label": 5095
+      "low_teacher_confidence": 1234,
+      "per_stock_quota_filled": 1348,
+      "teacher_candidate_event_disagreement": 158,
+      "teacher_zero_quota_label": 28,
+      "zero_quota_label": 2578
     },
     "label_quotas": {
-      "RISK": 500,
-      "CONTRACT": 500,
-      "CAPITAL_ACTION": 0,
-      "CORPORATE_ACTION": 0,
-      "EARNINGS": 0,
-      "MACRO": 0,
+      "RISK": 350,
+      "CONTRACT": 350,
+      "CAPITAL_ACTION": 120,
+      "CORPORATE_ACTION": 120,
+      "EARNINGS": 120,
+      "MACRO": 80,
       "DISCLOSURE": 0,
       "GENERAL_MARKET": 0
     },
-    "per_stock_quota": 2,
+    "per_stock_quota": 1,
     "promotion_method": "supervised_teacher_gate_on_stock_balanced_queue",
     "pseudo_sample_influence_control": "event_model_only"
   }

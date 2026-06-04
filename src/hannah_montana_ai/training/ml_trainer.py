@@ -107,23 +107,24 @@ PSEUDO_LABEL_QUOTAS = {
     "GENERAL_MARKET": 0,
 }
 STOCK_CANDIDATE_LABEL_QUOTAS = {
-    "RISK": 500,
-    "CONTRACT": 500,
-    "CAPITAL_ACTION": 0,
-    "CORPORATE_ACTION": 0,
-    "EARNINGS": 0,
-    "MACRO": 0,
+    "RISK": 350,
+    "CONTRACT": 350,
+    "CAPITAL_ACTION": 120,
+    "CORPORATE_ACTION": 120,
+    "EARNINGS": 120,
+    "MACRO": 80,
     "DISCLOSURE": 0,
     "GENERAL_MARKET": 0,
 }
-STOCK_CANDIDATE_PER_STOCK_QUOTA = 2
+STOCK_CANDIDATE_PER_STOCK_QUOTA = 1
 EVENT_PROBABILITY_THRESHOLD = 0.30
 EVENT_LABEL_THRESHOLDS = {
-    "CONTRACT": 0.34,
+    "CONTRACT": 0.42,
     "CORPORATE_ACTION": 0.18,
     "EARNINGS": 0.36,
-    "MACRO": 0.22,
-    "RISK": 0.54,
+    "GENERAL_MARKET": 0.38,
+    "MACRO": 0.38,
+    "RISK": 0.50,
 }
 
 
@@ -213,6 +214,7 @@ def train_ml_model(
     stock_candidate_config: StockCandidatePromotionConfig = (
         DEFAULT_STOCK_CANDIDATE_PROMOTION_CONFIG
     ),
+    event_label_thresholds: dict[str, float] | None = None,
 ) -> MlTrainingReport:
     supervised_samples = _load_samples(training_paths)
     if len(supervised_samples) < 30:
@@ -272,6 +274,7 @@ def train_ml_model(
 
     trained_at = datetime.now(UTC).isoformat()
     version = f"financial-ml-tfidf-logreg-{datetime.now(UTC).strftime('%Y%m%d%H%M%S')}"
+    effective_event_label_thresholds = event_label_thresholds or EVENT_LABEL_THRESHOLDS
     artifact = {
         "version": version,
         "trained_at": trained_at,
@@ -280,7 +283,7 @@ def train_ml_model(
         "sentiment_model": sentiment_model,
         "importance_model": importance_model,
         "event_probability_threshold": EVENT_PROBABILITY_THRESHOLD,
-        "event_label_thresholds": EVENT_LABEL_THRESHOLDS,
+        "event_label_thresholds": effective_event_label_thresholds,
         "sample_count": len(samples),
         "supervised_sample_count": len(supervised_samples),
         "pseudo_labeled_sample_count": len(pseudo_label_result.samples),
@@ -302,7 +305,7 @@ def train_ml_model(
         importance_label_distribution=dict(Counter(supervised_importance_targets)),
         validation=validation,
         event_probability_threshold=EVENT_PROBABILITY_THRESHOLD,
-        event_label_thresholds=EVENT_LABEL_THRESHOLDS,
+        event_label_thresholds=effective_event_label_thresholds,
         pseudo_labeling=pseudo_label_result.report,
     )
 

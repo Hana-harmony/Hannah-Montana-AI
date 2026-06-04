@@ -15,9 +15,16 @@
           "DISCLOSURE": 0,
           "GENERAL_MARKET": 0
         },
-        "per_stock_quota": 1
+        "per_stock_quota": 1,
+        "event_label_thresholds": {
+          "CONTRACT": 0.34,
+          "CORPORATE_ACTION": 0.18,
+          "EARNINGS": 0.36,
+          "MACRO": 0.22,
+          "RISK": 0.54
+        }
       },
-      "model_version": "financial-ml-tfidf-logreg-20260604190629",
+      "model_version": "financial-ml-tfidf-logreg-20260604193827",
       "sample_count": 4433,
       "pseudo_labeled_sample_count": 824,
       "stock_candidate_labeling": {
@@ -432,7 +439,7 @@
     },
     {
       "profile": {
-        "name": "current_release",
+        "name": "risk_contract_per_stock_2",
         "label_quotas": {
           "RISK": 500,
           "CONTRACT": 500,
@@ -443,9 +450,16 @@
           "DISCLOSURE": 0,
           "GENERAL_MARKET": 0
         },
-        "per_stock_quota": 2
+        "per_stock_quota": 2,
+        "event_label_thresholds": {
+          "CONTRACT": 0.34,
+          "CORPORATE_ACTION": 0.18,
+          "EARNINGS": 0.36,
+          "MACRO": 0.22,
+          "RISK": 0.54
+        }
       },
-      "model_version": "financial-ml-tfidf-logreg-20260604190650",
+      "model_version": "financial-ml-tfidf-logreg-20260604193848",
       "sample_count": 4613,
       "pseudo_labeled_sample_count": 1004,
       "stock_candidate_labeling": {
@@ -860,7 +874,7 @@
     },
     {
       "profile": {
-        "name": "balanced_event_probe",
+        "name": "current_release",
         "label_quotas": {
           "RISK": 350,
           "CONTRACT": 350,
@@ -871,9 +885,17 @@
           "DISCLOSURE": 0,
           "GENERAL_MARKET": 0
         },
-        "per_stock_quota": 1
+        "per_stock_quota": 1,
+        "event_label_thresholds": {
+          "CONTRACT": 0.42,
+          "CORPORATE_ACTION": 0.18,
+          "EARNINGS": 0.36,
+          "GENERAL_MARKET": 0.38,
+          "MACRO": 0.38,
+          "RISK": 0.5
+        }
       },
-      "model_version": "financial-ml-tfidf-logreg-20260604190712",
+      "model_version": "financial-ml-tfidf-logreg-20260604193910",
       "sample_count": 4492,
       "pseudo_labeled_sample_count": 883,
       "stock_candidate_labeling": {
@@ -955,9 +977,9 @@
               "status": "pass"
             },
             "event_macro_f1": {
-              "actual": 0.9966216216216216,
+              "actual": 1.0,
               "minimum": 0.8,
-              "margin": 0.19662162162162156,
+              "margin": 0.19999999999999996,
               "status": "pass"
             },
             "sentiment_accuracy": {
@@ -985,15 +1007,15 @@
           "status": "pass",
           "metrics": {
             "event_tag_recall": {
-              "actual": 0.9666666666666667,
+              "actual": 1.0,
               "minimum": 0.9,
-              "margin": 0.06666666666666665,
+              "margin": 0.09999999999999998,
               "status": "pass"
             },
             "event_macro_f1": {
-              "actual": 0.9846153846153847,
+              "actual": 1.0,
               "minimum": 0.9,
-              "margin": 0.08461538461538465,
+              "margin": 0.09999999999999998,
               "status": "pass"
             },
             "sentiment_accuracy": {
@@ -1018,19 +1040,19 @@
         },
         "real_news_gold": {
           "sample_count": 80,
-          "status": "fail",
+          "status": "pass",
           "metrics": {
             "event_tag_recall": {
-              "actual": 0.9375,
+              "actual": 0.9625,
               "minimum": 0.9,
-              "margin": 0.03749999999999998,
+              "margin": 0.0625,
               "status": "pass"
             },
             "event_macro_f1": {
-              "actual": 0.8881752062866614,
+              "actual": 0.9325340260829204,
               "minimum": 0.9,
-              "margin": -0.011824793713338666,
-              "status": "fail"
+              "margin": 0.03253402608292033,
+              "status": "pass"
             },
             "sentiment_accuracy": {
               "actual": 0.9125,
@@ -1053,7 +1075,7 @@
           }
         }
       },
-      "overall_status": "fail",
+      "overall_status": "pass",
       "evaluation": {
         "benchmark": {
           "sample_count": 768,
@@ -1061,7 +1083,7 @@
           "sentiment_accuracy": 1.0,
           "importance_accuracy": 0.9375,
           "stock_accuracy": 1.0,
-          "event_macro_f1": 0.9966216216216216,
+          "event_macro_f1": 1.0,
           "event_label_metrics": {
             "CAPITAL_ACTION": {
               "precision": 1.0,
@@ -1100,9 +1122,9 @@
               "support": 72
             },
             "MACRO": {
-              "precision": 0.9473684210526315,
+              "precision": 1.0,
               "recall": 1.0,
-              "f1": 0.972972972972973,
+              "f1": 1.0,
               "support": 144
             },
             "RISK": {
@@ -1142,11 +1164,11 @@
         },
         "real_disclosure_gold": {
           "sample_count": 30,
-          "event_tag_recall": 0.9666666666666667,
+          "event_tag_recall": 1.0,
           "sentiment_accuracy": 1.0,
           "importance_accuracy": 0.9666666666666667,
           "stock_accuracy": 1.0,
-          "event_macro_f1": 0.9846153846153847,
+          "event_macro_f1": 1.0,
           "event_label_metrics": {
             "CAPITAL_ACTION": {
               "precision": 1.0,
@@ -1174,8 +1196,8 @@
             },
             "RISK": {
               "precision": 1.0,
-              "recall": 0.8571428571428571,
-              "f1": 0.923076923076923,
+              "recall": 1.0,
+              "f1": 1.0,
               "support": 7
             }
           },
@@ -1205,11 +1227,11 @@
         },
         "real_news_gold": {
           "sample_count": 80,
-          "event_tag_recall": 0.9375,
+          "event_tag_recall": 0.9625,
           "sentiment_accuracy": 0.9125,
           "importance_accuracy": 0.925,
           "stock_accuracy": 1.0,
-          "event_macro_f1": 0.8881752062866614,
+          "event_macro_f1": 0.9325340260829204,
           "event_label_metrics": {
             "CAPITAL_ACTION": {
               "precision": 1.0,
@@ -1218,9 +1240,9 @@
               "support": 15
             },
             "CONTRACT": {
-              "precision": 0.8888888888888888,
+              "precision": 1.0,
               "recall": 1.0,
-              "f1": 0.9411764705882353,
+              "f1": 1.0,
               "support": 8
             },
             "CORPORATE_ACTION": {
@@ -1236,21 +1258,21 @@
               "support": 20
             },
             "GENERAL_MARKET": {
-              "precision": 0.8095238095238095,
+              "precision": 0.9444444444444444,
               "recall": 1.0,
-              "f1": 0.8947368421052632,
+              "f1": 0.9714285714285714,
               "support": 17
             },
             "MACRO": {
-              "precision": 0.5652173913043478,
-              "recall": 1.0,
-              "f1": 0.7222222222222222,
+              "precision": 0.75,
+              "recall": 0.9230769230769231,
+              "f1": 0.8275862068965517,
               "support": 13
             },
             "RISK": {
               "precision": 1.0,
-              "recall": 0.8333333333333334,
-              "f1": 0.9090909090909091,
+              "recall": 0.9583333333333334,
+              "f1": 0.9787234042553191,
               "support": 24
             }
           },
@@ -1290,15 +1312,15 @@
   ],
   "best_promotable_profile": {
     "name": "current_release",
-    "accepted_count": 644,
-    "accepted_stock_count": 470,
+    "accepted_count": 523,
+    "accepted_stock_count": 523,
     "accepted_count_by_primary_label": {
-      "RISK": 296,
-      "CONTRACT": 348,
-      "CAPITAL_ACTION": 0,
-      "CORPORATE_ACTION": 0,
-      "EARNINGS": 0,
-      "MACRO": 0,
+      "RISK": 137,
+      "CONTRACT": 209,
+      "CAPITAL_ACTION": 120,
+      "CORPORATE_ACTION": 40,
+      "EARNINGS": 5,
+      "MACRO": 12,
       "DISCLOSURE": 0,
       "GENERAL_MARKET": 0
     }

@@ -28,12 +28,13 @@ def test_stock_coverage_report_tracks_event_model_pseudo_training_coverage() -> 
     assert report["coverage_gates"]["overall_status"] == "fail"
     assert pseudo_coverage["status"] == "promoted_to_event_student_training"
     assert pseudo_coverage["source_path"] == "reports/ml-training-report.json"
-    assert pseudo_coverage["stock_candidate_event_training_sample_count"] == 644
-    assert pseudo_coverage["stock_candidate_event_training_stock_count"] == 470
-    assert pseudo_coverage["stock_candidate_per_stock_quota"] == 2
-    assert pseudo_coverage["effective_event_training_stock_count_lower_bound"] == 470
-    assert pseudo_coverage["stock_candidate_label_distribution"]["RISK"] == 296
-    assert pseudo_coverage["stock_candidate_label_distribution"]["CONTRACT"] == 348
+    assert pseudo_coverage["stock_candidate_event_training_sample_count"] == 523
+    assert pseudo_coverage["stock_candidate_event_training_stock_count"] == 523
+    assert pseudo_coverage["stock_candidate_per_stock_quota"] == 1
+    assert pseudo_coverage["effective_event_training_stock_count_lower_bound"] == 523
+    assert pseudo_coverage["stock_candidate_label_distribution"]["RISK"] == 137
+    assert pseudo_coverage["stock_candidate_label_distribution"]["CONTRACT"] == 209
+    assert pseudo_coverage["stock_candidate_label_distribution"]["CAPITAL_ACTION"] == 120
 
 
 def test_stock_universe_news_queries_expand_by_stock_intent() -> None:
