@@ -279,6 +279,23 @@
       "status": "pass"
     }
   },
+  "service_readiness": {
+    "overall_status": "fail",
+    "checks": {
+      "coverage_validation": {
+        "status": "fail",
+        "schema_version": "stock-gold-coverage-validation-report/v1",
+        "training_target_stock_count": 1500,
+        "training_eligible_stock_count": 0,
+        "training_remaining_stock_count_to_target": 1500,
+        "evaluation_target_stock_count": 500,
+        "evaluation_eligible_stock_count": 0,
+        "evaluation_remaining_stock_count_to_target": 500,
+        "minimum_wave_approved_stocks": 100
+      }
+    },
+    "policy": "model quality pass is not sufficient for service readiness until coverage validation passes with human-approved stock review gold"
+  },
   "weakest_event_labels": {
     "benchmark": [
       {
@@ -353,6 +370,7 @@
   "report_inputs": {
     "training_report": "reports/ml-training-report.json",
     "evaluation_report": "reports/ml-model-evaluation.json",
-    "weak_distillation_report": "reports/weak-distillation-report.json"
+    "weak_distillation_report": "reports/weak-distillation-report.json",
+    "coverage_validation_report": "reports/stock-gold-coverage-validation-report.json"
   }
 }

@@ -291,16 +291,29 @@ def test_model_release_report_matches_source_reports() -> None:
     training_report = _read_json(Path("reports/ml-training-report.json"))
     evaluation_report = _read_json(Path("reports/ml-model-evaluation.json"))
     distillation_report = _read_json(Path("reports/weak-distillation-report.json"))
+    coverage_validation_report = _read_json(
+        Path("reports/stock-gold-coverage-validation-report.json")
+    )
     release_report = _read_json(Path("reports/model-release-report.json"))
 
     expected = build_model_release_report(
         training_report,
         evaluation_report,
         distillation_report,
+        coverage_validation_report,
     )
 
     assert release_report == expected
     assert release_report["overall_status"] == "pass"
+    assert release_report["service_readiness"]["overall_status"] == "fail"
+    coverage_check = release_report["service_readiness"]["checks"][
+        "coverage_validation"
+    ]
+    assert coverage_check["status"] == "fail"
+    assert coverage_check["training_target_stock_count"] == 1_500
+    assert coverage_check["training_eligible_stock_count"] == 0
+    assert coverage_check["evaluation_target_stock_count"] == 500
+    assert coverage_check["evaluation_eligible_stock_count"] == 0
     assert release_report["model_version"] == training_report["version"]
     assert release_report["training"]["sample_count"] == 4492
     assert release_report["training"]["pseudo_labeled_sample_count"] == 883
@@ -337,6 +350,9 @@ def test_model_release_report_matches_source_reports() -> None:
     assert (
         release_report["data_lineage"]["committed_data_policy"]
         == "raw_and_processed_training_data_are_tracked"
+    )
+    assert release_report["report_inputs"]["coverage_validation_report"] == (
+        "reports/stock-gold-coverage-validation-report.json"
     )
 
 
