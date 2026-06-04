@@ -52,7 +52,7 @@ uv run python scripts/build_pseudo_label_monitoring_report.py
 
 ## Pseudo-label gate 모니터링
 - `reports/pseudo-label-promotion-monitoring.json`은 raw 후보, 고신호 후보, teacher 탈락, quota 보류, 최종 승격 수를 funnel 형태로 기록한다.
-- 현재 37,278건 raw 후보 중 4,845건이 고신호 후보이고, teacher gate에서 3,010건이 탈락하며 360건만 student 이벤트 모델 학습에 승격된다.
+- 현재 37,278건 raw 후보 중 4,845건이 고신호 후보이고, teacher gate에서 3,124건이 탈락하며 360건만 student 이벤트 모델 학습에 승격된다.
 - `RISK`, `CONTRACT`, `CORPORATE_ACTION`은 현재 quota가 채워진 active label이다.
 - `CAPITAL_ACTION`, `DISCLOSURE`, `EARNINGS`, `MACRO`는 고신호 후보가 충분하지만 실제 뉴스 gold gate 실험 전까지 학습 투입을 보류한다.
 - `GENERAL_MARKET`은 고신호 후보 풀이 작아 현재 확장 대상이 아니다.
