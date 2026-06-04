@@ -56,11 +56,16 @@
 - 국내주식 universe: `data/reference/korea_stock_universe.csv`
 - stock universe sync 리포트: `reports/stock-universe-sync.json`
 - stock coverage 리포트: `reports/stock-coverage-report.json`
+- 종목·라벨 균형 학습 승격 후보 큐: `data/curation/stock_training_candidate_queue.jsonl`
+- 학습 승격 후보 큐 리포트: `reports/stock-training-candidate-report.json`
 - OpenDART 고유번호 기반 universe 종목 수: 3,967개
 - raw 후보에서 보수적 종목명·종목코드 매칭으로 확인한 종목 수: 2,356개
+- 학습 승격 후보 큐 샘플 수: 6,244건
+- 학습 승격 후보 큐 종목 수: 2,127개
 - supervised 학습 데이터 종목 수: 38개
 - evaluation 데이터 종목 수: 56개
 - 전 종목 실서비스 coverage gate는 현재 `fail`이며, 이는 raw 후보 폭에 비해 사람이 검수한 supervised/gold 종목 커버리지가 아직 부족하다는 뜻이다.
+- 학습 승격 후보 큐는 `needs_human_review` 상태이며, 사람이 검수해 승격하기 전까지 gold label이나 supervised 정답셋으로 취급하지 않는다.
 - 약지도 라벨은 후보 풀로 유지하고 teacher confidence gate와 라벨별 quota를 통과한 pseudo-label만 이벤트 모델 학습에 승격한다.
 - 감성·중요도 모델은 실제 뉴스 gold 회귀를 막기 위해 검수·균형 corpus만으로 학습한다.
 - 실제 뉴스 학습 gold와 실제 뉴스 평가 gold는 동일 문장을 공유하지 않는다.
@@ -141,6 +146,7 @@
 - Naver 뉴스 gold set을 80건으로 확대하고 종목코드 30개를 포함했지만, 분기별 증분 수집과 업종별 샘플 균형은 계속 관리해야 한다.
 - 국내주식 universe 3,967개를 추적하지만 현재 artifact의 supervised 학습 종목 커버리지는 38개라 전 종목급 실서비스 모델로 보기에는 부족하다.
 - raw 후보는 2,356개 종목까지 매칭되므로 다음 단계는 raw 후보를 종목별·라벨별로 검수해 supervised/gold 데이터로 승격하는 것이다.
+- 후보 큐는 2,127개 종목을 포함하지만 약지도 기반 검수 대기 데이터이므로, 현재 모델 성능 근거로 직접 사용하지 않는다.
 - 약지도 라벨은 대규모 bootstrapping 용도이며, teacher confidence gate를 통과한 일부 후보만 artifact 이벤트 모델 학습에 투입한다.
 - 현재 distillation 후보는 supervised teacher가 다시 검증해야 하는 후보 풀이지 최종 정답셋이 아니다.
 - pseudo-label은 `RISK`, `CONTRACT`, `CORPORATE_ACTION`처럼 gold gate를 유지한 라벨만 승격했다. 다른 라벨은 후보는 존재하지만 현재 artifact 학습에는 투입하지 않는다.

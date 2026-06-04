@@ -1,0 +1,152 @@
+{
+  "schema_version": "stock-curation-report/v1",
+  "queue_schema_version": "stock-curation-queue/v1",
+  "raw_alert_path": "data/raw/collected_alerts.jsonl",
+  "stock_universe_path": "data/reference/korea_stock_universe.csv",
+  "raw_alert_count": 37278,
+  "universe_count": 3967,
+  "candidate_count": 6244,
+  "candidate_stock_count": 2127,
+  "candidate_coverage_ratio": 0.5361734308041342,
+  "per_stock_label_quota": 2,
+  "minimum_signal_score": 3,
+  "curation_status": "needs_human_review",
+  "coverage_gate": {
+    "minimum_stock_count": 300,
+    "actual_stock_count": 2127,
+    "status": "pass"
+  },
+  "label_distribution": {
+    "CAPITAL_ACTION": 1062,
+    "CONTRACT": 642,
+    "CORPORATE_ACTION": 491,
+    "DISCLOSURE": 2578,
+    "EARNINGS": 722,
+    "MACRO": 242,
+    "RISK": 507
+  },
+  "source_type_distribution": {
+    "DISCLOSURE": 4675,
+    "NEWS": 1569
+  },
+  "sentiment_distribution": {
+    "NEGATIVE": 121,
+    "NEUTRAL": 4573,
+    "POSITIVE": 1550
+  },
+  "importance_distribution": {
+    "CRITICAL": 369,
+    "HIGH": 5395,
+    "LOW": 44,
+    "MEDIUM": 436
+  },
+  "top_candidate_stocks": [
+    {
+      "stock_code": "000660",
+      "stock_name": "SK하이닉스",
+      "candidate_count": 14
+    },
+    {
+      "stock_code": "005930",
+      "stock_name": "삼성전자",
+      "candidate_count": 14
+    },
+    {
+      "stock_code": "009150",
+      "stock_name": "삼성전기",
+      "candidate_count": 14
+    },
+    {
+      "stock_code": "035720",
+      "stock_name": "카카오",
+      "candidate_count": 14
+    },
+    {
+      "stock_code": "006400",
+      "stock_name": "삼성SDI",
+      "candidate_count": 13
+    },
+    {
+      "stock_code": "006800",
+      "stock_name": "미래에셋증권",
+      "candidate_count": 13
+    },
+    {
+      "stock_code": "010130",
+      "stock_name": "고려아연",
+      "candidate_count": 13
+    },
+    {
+      "stock_code": "010140",
+      "stock_name": "삼성중공업",
+      "candidate_count": 12
+    },
+    {
+      "stock_code": "035420",
+      "stock_name": "NAVER",
+      "candidate_count": 12
+    },
+    {
+      "stock_code": "329180",
+      "stock_name": "HD현대중공업",
+      "candidate_count": 12
+    },
+    {
+      "stock_code": "452400",
+      "stock_name": "이닉스",
+      "candidate_count": 12
+    },
+    {
+      "stock_code": "000830",
+      "stock_name": "삼성물산",
+      "candidate_count": 11
+    },
+    {
+      "stock_code": "001440",
+      "stock_name": "대한전선",
+      "candidate_count": 11
+    },
+    {
+      "stock_code": "001510",
+      "stock_name": "SK증권",
+      "candidate_count": 11
+    },
+    {
+      "stock_code": "003470",
+      "stock_name": "유안타증권",
+      "candidate_count": 11
+    },
+    {
+      "stock_code": "005940",
+      "stock_name": "NH투자증권",
+      "candidate_count": 11
+    },
+    {
+      "stock_code": "012630",
+      "stock_name": "HDC",
+      "candidate_count": 11
+    },
+    {
+      "stock_code": "030210",
+      "stock_name": "다올투자증권",
+      "candidate_count": 11
+    },
+    {
+      "stock_code": "066570",
+      "stock_name": "LG전자",
+      "candidate_count": 11
+    },
+    {
+      "stock_code": "267250",
+      "stock_name": "HD현대",
+      "candidate_count": 11
+    }
+  ],
+  "rejected_count_by_reason": {
+    "disclosure_noise": 1455,
+    "general_market_not_stock_specific": 3278,
+    "low_signal": 2324,
+    "stock_not_matched": 16776
+  },
+  "promotion_policy": "queue rows are not treated as gold labels until human review promotes them"
+}

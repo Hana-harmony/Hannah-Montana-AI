@@ -36,6 +36,7 @@ docker run --rm --network hana-internal hannah-montana-ai
 ```bash
 uv run python scripts/sync_stock_universe.py
 uv run python scripts/build_stock_coverage_report.py
+uv run python scripts/build_stock_training_candidate_queue.py
 ```
 - 종목 universe 기반 Naver 수집은 아래처럼 실행한다. 전체 universe를 한 번에 수집하면 provider rate limit이 커지므로 운영에서는 일 단위 shard로 나눠 실행한다.
 ```bash
@@ -45,6 +46,7 @@ uv run python scripts/collect_training_data.py \
   --stock-query-limit 200
 ```
 - `data/raw`, `data/processed`는 학습 재현성에 필요한 데이터이므로 커밋한다.
+- `data/curation/stock_training_candidate_queue.jsonl`은 사람 검수 전 후보 큐이며, 검수 없이 gold label로 승격하지 않는다.
 - 외부 API 키, access token, 로컬 실행 비밀값은 학습 데이터에 포함하지 않는다.
 - weak-label 후보는 teacher confidence gate와 라벨별 quota를 통과한 경우에만 pseudo-label로 승격한다.
 - 현재 artifact는 37,278건 수집 후보 중 `RISK`, `CONTRACT`, `CORPORATE_ACTION` 360건 pseudo-label을 이벤트 모델 학습에 반영했다.
@@ -54,6 +56,7 @@ uv run python scripts/collect_training_data.py \
 ```bash
 uv run python scripts/sync_stock_universe.py
 uv run python scripts/build_stock_coverage_report.py
+uv run python scripts/build_stock_training_candidate_queue.py
 uv run python scripts/train_ml_model.py
 uv run python scripts/evaluate_ml_model.py
 uv run python scripts/build_model_release_report.py
@@ -75,5 +78,6 @@ uv run python scripts/build_pseudo_label_monitoring_report.py
 - drift 감시
 - supervised 학습 데이터 300개 이상 종목 coverage 확보
 - evaluation gold 100개 이상 종목 coverage 확보
+- 후보 큐 2,127개 종목에서 종목·라벨별 human review batch 운영
 - 재학습 기준과 rollback 절차
 - 배포 환경별 Secret Manager 연동 완료 후 secret rotation runbook 작성

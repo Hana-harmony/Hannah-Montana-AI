@@ -29,5 +29,6 @@
 - OpenDART 고유번호 기반 국내주식 universe 3,967개 추적 완료
 - stock coverage report로 raw, training, evaluation 종목 커버리지 계측 완료
 - Naver News Search 수집기를 stock universe 기반 쿼리 모드로 확장 완료
+- raw 후보에서 종목·라벨 균형 학습 승격 후보 큐 6,244건, 2,127개 종목 생성 완료
 - raw 후보는 2,356개 종목까지 매칭되지만 supervised 학습 종목은 38개, evaluation 종목은 56개라 coverage gate는 아직 fail이다.
-- 다음 단계는 raw 후보를 종목별·라벨별 quota로 gold 검수하고 최소 300개 이상 종목의 supervised 학습셋과 100개 이상 종목의 evaluation gold를 확보하는 것이다.
+- 다음 단계는 후보 큐를 사람 검수로 gold/supervised 데이터에 승격하고 최소 300개 이상 종목의 supervised 학습셋과 100개 이상 종목의 evaluation gold를 확보하는 것이다.
