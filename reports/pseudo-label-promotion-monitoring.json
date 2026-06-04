@@ -1,7 +1,7 @@
 {
   "schema_version": "pseudo-label-monitor/v1",
-  "model_version": "financial-ml-tfidf-logreg-20260604190541",
-  "report_created_at": "2026-06-04T19:05:41.391187+00:00",
+  "model_version": "financial-ml-tfidf-logreg-20260604193739",
+  "report_created_at": "2026-06-04T19:37:39.889907+00:00",
   "overall_status": "pass",
   "candidate_funnel": {
     "raw_candidate_count": 37278,
@@ -11,8 +11,8 @@
       "low_teacher_confidence": 2902,
       "teacher_weak_event_disagreement": 222
     },
-    "teacher_passed_not_promoted_or_quota_limited_count": 717,
-    "promoted_count": 1004
+    "teacher_passed_not_promoted_or_quota_limited_count": 838,
+    "promoted_count": 883
   },
   "confidence_thresholds": {
     "minimum_event_confidence": 0.58,
@@ -23,26 +23,26 @@
     {
       "label": "CAPITAL_ACTION",
       "high_signal_event_count": 950,
-      "student_training_quota": 0,
-      "promoted_count": 0,
-      "promotion_rate_from_high_signal": 0.0,
-      "decision": "expansion_candidate_hold_for_gold_gate"
+      "student_training_quota": 120,
+      "promoted_count": 120,
+      "promotion_rate_from_high_signal": 0.12631578947368421,
+      "decision": "quota_filled"
     },
     {
       "label": "CONTRACT",
       "high_signal_event_count": 823,
-      "student_training_quota": 680,
-      "promoted_count": 528,
-      "promotion_rate_from_high_signal": 0.6415552855407047,
+      "student_training_quota": 530,
+      "promoted_count": 389,
+      "promotion_rate_from_high_signal": 0.4726609963547995,
       "decision": "under_quota_monitor"
     },
     {
       "label": "CORPORATE_ACTION",
       "high_signal_event_count": 1080,
-      "student_training_quota": 40,
-      "promoted_count": 40,
-      "promotion_rate_from_high_signal": 0.037037037037037035,
-      "decision": "quota_filled"
+      "student_training_quota": 160,
+      "promoted_count": 80,
+      "promotion_rate_from_high_signal": 0.07407407407407407,
+      "decision": "under_quota_monitor"
     },
     {
       "label": "DISCLOSURE",
@@ -55,10 +55,10 @@
     {
       "label": "EARNINGS",
       "high_signal_event_count": 1453,
-      "student_training_quota": 0,
-      "promoted_count": 0,
-      "promotion_rate_from_high_signal": 0.0,
-      "decision": "expansion_candidate_hold_for_gold_gate"
+      "student_training_quota": 120,
+      "promoted_count": 5,
+      "promotion_rate_from_high_signal": 0.0034411562284927736,
+      "decision": "under_quota_monitor"
     },
     {
       "label": "GENERAL_MARKET",
@@ -71,17 +71,17 @@
     {
       "label": "MACRO",
       "high_signal_event_count": 1777,
-      "student_training_quota": 0,
-      "promoted_count": 0,
-      "promotion_rate_from_high_signal": 0.0,
-      "decision": "expansion_candidate_hold_for_gold_gate"
+      "student_training_quota": 80,
+      "promoted_count": 12,
+      "promotion_rate_from_high_signal": 0.006752954417557681,
+      "decision": "under_quota_monitor"
     },
     {
       "label": "RISK",
       "high_signal_event_count": 900,
-      "student_training_quota": 640,
-      "promoted_count": 436,
-      "promotion_rate_from_high_signal": 0.48444444444444446,
+      "student_training_quota": 490,
+      "promoted_count": 277,
+      "promotion_rate_from_high_signal": 0.30777777777777776,
       "decision": "under_quota_monitor"
     }
   ],

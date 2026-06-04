@@ -339,9 +339,10 @@
 
 ## 2026-06-05 stock candidate quota experiment
 - `StockCandidatePromotionConfig`를 추가해 release 기본값은 유지하면서 quota profile별 임시 재학습 실험을 할 수 있게 했다.
-- `scripts/build_stock_candidate_quota_experiment.py`는 previous release, current release, balanced event probe profile을 각각 임시 artifact로 학습하고 holdout·benchmark·실공시·실뉴스 gold gate를 평가한다.
+- `scripts/build_stock_candidate_quota_experiment.py`는 previous release, risk/contract 확장, calibrated current release profile을 각각 임시 artifact로 학습하고 holdout·benchmark·실공시·실뉴스 gold gate를 평가한다.
 - previous release profile은 464건, 464개 종목으로 gate를 통과했다.
-- current release profile은 `RISK=500`, `CONTRACT=500`, per-stock quota 2 기준으로 644건, 470개 종목을 승격했고 release gate를 통과했다.
-- balanced event probe는 523건, 523개 종목을 승격했지만 실제 뉴스 gold event macro F1 0.8882로 gate fail이라 release 모델에 반영하지 않았다.
-- 새 release artifact는 supervised 3,609건과 pseudo-label 1,004건을 합친 4,613건으로 학습했다.
-- 새 release는 80건 Naver 실제 뉴스 gold 기준 이벤트 recall 0.9250, macro F1 0.9070, 감성 accuracy 0.9125, 중요도 accuracy 0.9250, 종목 accuracy 1.0으로 gate를 통과했다.
+- risk/contract 확장 profile은 `RISK=500`, `CONTRACT=500`, per-stock quota 2 기준으로 644건, 470개 종목을 승격했고 release gate를 통과했다.
+- 기본 threshold의 balanced profile은 실제 뉴스 gold event macro F1 0.8882로 gate fail이었지만, `MACRO=0.38`, `GENERAL_MARKET=0.38`, `RISK=0.50`, `CONTRACT=0.42` threshold calibration 후 gate를 통과했다.
+- calibrated current release profile은 `RISK`, `CONTRACT`, `CAPITAL_ACTION`, `CORPORATE_ACTION`, `EARNINGS`, `MACRO` 후보 523건을 523개 종목에 분산 승격했다.
+- 새 release artifact는 supervised 3,609건과 pseudo-label 883건을 합친 4,492건으로 학습했다.
+- 새 release는 80건 Naver 실제 뉴스 gold 기준 이벤트 recall 0.9625, macro F1 0.9325, 감성 accuracy 0.9125, 중요도 accuracy 0.9250, 종목 accuracy 1.0으로 gate를 통과했다.

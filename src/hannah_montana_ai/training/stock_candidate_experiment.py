@@ -13,6 +13,7 @@ from hannah_montana_ai.training.dataset import load_labeled_alerts
 from hannah_montana_ai.training.evaluator import evaluate_alert_analyzer
 from hannah_montana_ai.training.ml_trainer import (
     DEFAULT_STOCK_CANDIDATE_PROMOTION_CONFIG,
+    EVENT_LABEL_THRESHOLDS,
     STOCK_CANDIDATE_LABEL_QUOTAS,
     StockCandidatePromotionConfig,
     train_ml_model,
@@ -29,6 +30,7 @@ class StockCandidateQuotaProfile:
     name: str
     label_quotas: dict[str, int]
     per_stock_quota: int
+    event_label_thresholds: dict[str, float]
 
     def to_config(self) -> StockCandidatePromotionConfig:
         return StockCandidatePromotionConfig(
@@ -37,34 +39,50 @@ class StockCandidateQuotaProfile:
         )
 
 
+PREVIOUS_RELEASE_EVENT_LABEL_THRESHOLDS = {
+    "CONTRACT": 0.34,
+    "CORPORATE_ACTION": 0.18,
+    "EARNINGS": 0.36,
+    "MACRO": 0.22,
+    "RISK": 0.54,
+}
+
+
 DEFAULT_EXPERIMENT_PROFILES = (
     StockCandidateQuotaProfile(
         name="previous_release",
         label_quotas={
-            **STOCK_CANDIDATE_LABEL_QUOTAS,
             "RISK": 250,
             "CONTRACT": 250,
+            "CAPITAL_ACTION": 0,
+            "CORPORATE_ACTION": 0,
+            "EARNINGS": 0,
+            "MACRO": 0,
+            "DISCLOSURE": 0,
+            "GENERAL_MARKET": 0,
         },
         per_stock_quota=1,
+        event_label_thresholds=PREVIOUS_RELEASE_EVENT_LABEL_THRESHOLDS,
+    ),
+    StockCandidateQuotaProfile(
+        name="risk_contract_per_stock_2",
+        label_quotas={
+            **STOCK_CANDIDATE_LABEL_QUOTAS,
+            "RISK": 500,
+            "CONTRACT": 500,
+            "CAPITAL_ACTION": 0,
+            "CORPORATE_ACTION": 0,
+            "EARNINGS": 0,
+            "MACRO": 0,
+        },
+        per_stock_quota=2,
+        event_label_thresholds=PREVIOUS_RELEASE_EVENT_LABEL_THRESHOLDS,
     ),
     StockCandidateQuotaProfile(
         name="current_release",
         label_quotas=STOCK_CANDIDATE_LABEL_QUOTAS,
         per_stock_quota=DEFAULT_STOCK_CANDIDATE_PROMOTION_CONFIG.per_stock_quota,
-    ),
-    StockCandidateQuotaProfile(
-        name="balanced_event_probe",
-        label_quotas={
-            "RISK": 350,
-            "CONTRACT": 350,
-            "CAPITAL_ACTION": 120,
-            "CORPORATE_ACTION": 120,
-            "EARNINGS": 120,
-            "MACRO": 80,
-            "DISCLOSURE": 0,
-            "GENERAL_MARKET": 0,
-        },
-        per_stock_quota=1,
+        event_label_thresholds=EVENT_LABEL_THRESHOLDS,
     ),
 )
 
@@ -125,6 +143,7 @@ def _run_profile(
             pseudo_label_path=pseudo_label_path,
             stock_candidate_path=stock_candidate_path,
             stock_candidate_config=profile.to_config(),
+            event_label_thresholds=profile.event_label_thresholds,
         )
         analyzer = AlertAnalyzer()
         analyzer.model = MachineLearningFinancialNlpModel(model_path)
@@ -146,6 +165,7 @@ def _run_profile(
             "name": profile.name,
             "label_quotas": profile.label_quotas,
             "per_stock_quota": profile.per_stock_quota,
+            "event_label_thresholds": profile.event_label_thresholds,
         },
         "model_version": training_report.version,
         "sample_count": training_report.sample_count,
