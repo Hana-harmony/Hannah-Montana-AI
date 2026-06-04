@@ -90,7 +90,7 @@
     "sentiment_accuracy": 1.0,
     "importance_accuracy": 0.9666666666666667,
     "stock_accuracy": 1.0,
-    "event_macro_f1": 1.0,
+    "event_macro_f1": 0.9714285714285713,
     "event_label_metrics": {
       "CAPITAL_ACTION": {
         "precision": 1.0,
@@ -105,9 +105,9 @@
         "support": 3
       },
       "CORPORATE_ACTION": {
-        "precision": 1.0,
+        "precision": 0.75,
         "recall": 1.0,
-        "f1": 1.0,
+        "f1": 0.8571428571428571,
         "support": 6
       },
       "DISCLOSURE": {
@@ -149,11 +149,11 @@
   },
   "real_news_gold": {
     "sample_count": 80,
-    "event_tag_recall": 0.95,
+    "event_tag_recall": 0.9625,
     "sentiment_accuracy": 0.9125,
     "importance_accuracy": 0.925,
     "stock_accuracy": 1.0,
-    "event_macro_f1": 0.9032134476830304,
+    "event_macro_f1": 0.9140869774834796,
     "event_label_metrics": {
       "CAPITAL_ACTION": {
         "precision": 1.0,
@@ -168,9 +168,9 @@
         "support": 8
       },
       "CORPORATE_ACTION": {
-        "precision": 0.6923076923076923,
-        "recall": 0.9,
-        "f1": 0.7826086956521738,
+        "precision": 0.6666666666666666,
+        "recall": 1.0,
+        "f1": 0.8,
         "support": 10
       },
       "EARNINGS": {
@@ -192,9 +192,9 @@
         "support": 13
       },
       "RISK": {
-        "precision": 0.8846153846153846,
+        "precision": 1.0,
         "recall": 0.9583333333333334,
-        "f1": 0.9199999999999999,
+        "f1": 0.9787234042553191,
         "support": 24
       }
     },
