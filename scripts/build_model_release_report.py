@@ -8,6 +8,9 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 TRAINING_REPORT_PATH = PROJECT_ROOT / "reports/ml-training-report.json"
 EVALUATION_REPORT_PATH = PROJECT_ROOT / "reports/ml-model-evaluation.json"
 WEAK_DISTILLATION_REPORT_PATH = PROJECT_ROOT / "reports/weak-distillation-report.json"
+COVERAGE_VALIDATION_REPORT_PATH = (
+    PROJECT_ROOT / "reports/stock-gold-coverage-validation-report.json"
+)
 MODEL_RELEASE_REPORT_PATH = PROJECT_ROOT / "reports/model-release-report.json"
 
 
@@ -16,6 +19,7 @@ def main() -> None:
         _read_json(TRAINING_REPORT_PATH),
         _read_json(EVALUATION_REPORT_PATH),
         _read_json(WEAK_DISTILLATION_REPORT_PATH),
+        _read_json(COVERAGE_VALIDATION_REPORT_PATH),
     )
     MODEL_RELEASE_REPORT_PATH.write_text(
         json.dumps(report, ensure_ascii=False, indent=2) + "\n",

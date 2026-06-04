@@ -100,6 +100,7 @@
 - coverage packet 승인 승격 row 수: 학습 0건, 평가 0건
 - coverage packet validation 상태: `fail`
 - coverage packet validation 목표: 학습 1,500종목, 평가 500종목, wave별 승인 100종목
+- release service readiness 상태: `fail`
 - 현재 검수 validation 승인 가능 종목 수: 학습 0개, 평가 0개
 - supervised 학습 데이터 종목 수: 38개
 - evaluation 데이터 종목 수: 57개
@@ -199,6 +200,8 @@
 - 전체 상태: `pass`
 - release gate는 holdout, 768건 benchmark, 30건 OpenDART 실공시 gold, 80건 Naver 실제 뉴스 gold 평가를 모두 포함한다.
 - pseudo-label consistency check는 distillation 리포트의 승격 수와 학습 리포트의 pseudo-label 학습 수가 일치하는지 검증한다.
+- `overall_status=pass`는 모델 품질 release gate 통과를 뜻하며, 전 종목 실서비스 준비 완료를 뜻하지 않는다.
+- `service_readiness.overall_status=fail`은 사람이 승인한 coverage packet gold가 아직 학습 1,500종목, 평가 500종목, wave별 100종목 기준을 충족하지 못했다는 뜻이다.
 
 ## Pseudo-label promotion gate
 - 위치: `reports/pseudo-label-promotion-monitoring.json`
