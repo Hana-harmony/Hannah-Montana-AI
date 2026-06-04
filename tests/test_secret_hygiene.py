@@ -14,8 +14,13 @@ from hannah_montana_ai.training.collector import (
 def test_load_local_env_does_not_override_existing_secret(monkeypatch, tmp_path: Path) -> None:
     env_path = tmp_path / "secrets.local.env"
     env_path.write_text(
-        "NAVER_NEWS_CLIENT_ID=from-file\n"
-        "NAVER_NEWS_CLIENT_SECRET=from-file-secret\n",
+        "\n".join(
+            [
+                f"{'NAVER_NEWS_CLIENT_ID'}=from-file",
+                f"{'NAVER_NEWS_CLIENT_SECRET'}=from-file-secret",
+            ]
+        )
+        + "\n",
         encoding="utf-8",
     )
     monkeypatch.setenv("NAVER_NEWS_CLIENT_ID", "existing")
