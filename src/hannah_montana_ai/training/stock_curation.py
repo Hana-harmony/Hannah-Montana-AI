@@ -30,6 +30,9 @@ STOCK_GOLD_COVERAGE_PROMOTION_REPORT_SCHEMA_VERSION = (
     "stock-gold-coverage-promotion-report/v1"
 )
 STOCK_GOLD_REVIEW_VALIDATION_REPORT_SCHEMA_VERSION = "stock-gold-review-validation-report/v1"
+STOCK_GOLD_COVERAGE_VALIDATION_REPORT_SCHEMA_VERSION = (
+    "stock-gold-coverage-validation-report/v1"
+)
 HUMAN_REVIEW_APPROVED_STATUS = "human_review_approved"
 VALID_REVIEW_SENTIMENTS = {"POSITIVE", "NEUTRAL", "NEGATIVE"}
 VALID_REVIEW_IMPORTANCE = {"LOW", "MEDIUM", "HIGH", "CRITICAL"}
@@ -325,6 +328,38 @@ def validate_stock_gold_review_batches(
         evaluation_rejected_reasons=evaluation_rejected_reasons,
         training_stock_target=training_stock_target,
         evaluation_stock_target=evaluation_stock_target,
+    )
+    return StockGoldReviewValidationResult(report=report)
+
+
+def validate_stock_gold_coverage_review_packet(
+    coverage_review_packet_path: Path,
+    training_stock_target: int = 1_500,
+    evaluation_stock_target: int = 500,
+    minimum_wave_approved_stocks: int = 100,
+) -> StockGoldReviewValidationResult:
+    rows = _load_stock_gold_review_rows(coverage_review_packet_path)
+    training_rows = [row for row in rows if row.get("intended_split") == "training"]
+    evaluation_rows = [row for row in rows if row.get("intended_split") == "evaluation"]
+    eligible_training_rows, training_rejected_reasons = _approved_review_rows_to_labeled_rows(
+        training_rows,
+        intended_split="training",
+    )
+    eligible_evaluation_rows, evaluation_rejected_reasons = _approved_review_rows_to_labeled_rows(
+        evaluation_rows,
+        intended_split="evaluation",
+    )
+    report = _build_gold_coverage_validation_report(
+        coverage_review_packet_path=coverage_review_packet_path,
+        training_rows=training_rows,
+        evaluation_rows=evaluation_rows,
+        eligible_training_rows=eligible_training_rows,
+        eligible_evaluation_rows=eligible_evaluation_rows,
+        training_rejected_reasons=training_rejected_reasons,
+        evaluation_rejected_reasons=evaluation_rejected_reasons,
+        training_stock_target=training_stock_target,
+        evaluation_stock_target=evaluation_stock_target,
+        minimum_wave_approved_stocks=minimum_wave_approved_stocks,
     )
     return StockGoldReviewValidationResult(report=report)
 
@@ -828,6 +863,79 @@ def _build_gold_review_validation_report(
     }
 
 
+def _build_gold_coverage_validation_report(
+    coverage_review_packet_path: Path,
+    training_rows: Sequence[dict[str, Any]],
+    evaluation_rows: Sequence[dict[str, Any]],
+    eligible_training_rows: Sequence[dict[str, Any]],
+    eligible_evaluation_rows: Sequence[dict[str, Any]],
+    training_rejected_reasons: Counter[str],
+    evaluation_rejected_reasons: Counter[str],
+    training_stock_target: int,
+    evaluation_stock_target: int,
+    minimum_wave_approved_stocks: int,
+) -> dict[str, Any]:
+    training_stocks = _row_stock_codes(eligible_training_rows)
+    evaluation_stocks = _row_stock_codes(eligible_evaluation_rows)
+    training_status = "pass" if len(training_stocks) >= training_stock_target else "fail"
+    evaluation_status = "pass" if len(evaluation_stocks) >= evaluation_stock_target else "fail"
+    disjoint_status = "pass" if training_stocks.isdisjoint(evaluation_stocks) else "fail"
+    training_wave_status = _wave_validation_report(
+        review_rows=training_rows,
+        eligible_rows=eligible_training_rows,
+        minimum_wave_approved_stocks=minimum_wave_approved_stocks,
+    )["status"]
+    evaluation_wave_status = _wave_validation_report(
+        review_rows=evaluation_rows,
+        eligible_rows=eligible_evaluation_rows,
+        minimum_wave_approved_stocks=minimum_wave_approved_stocks,
+    )["status"]
+    overall_status = (
+        "pass"
+        if training_status == "pass"
+        and evaluation_status == "pass"
+        and disjoint_status == "pass"
+        and training_wave_status == "pass"
+        and evaluation_wave_status == "pass"
+        else "fail"
+    )
+    return {
+        "schema_version": STOCK_GOLD_COVERAGE_VALIDATION_REPORT_SCHEMA_VERSION,
+        "overall_status": overall_status,
+        "coverage_review_packet_path": _report_path(coverage_review_packet_path),
+        "minimum_wave_approved_stocks": minimum_wave_approved_stocks,
+        "training_validation": _coverage_review_validation_split_report(
+            review_rows=training_rows,
+            eligible_rows=eligible_training_rows,
+            rejected_reasons=training_rejected_reasons,
+            target_stock_count=training_stock_target,
+            minimum_wave_approved_stocks=minimum_wave_approved_stocks,
+        ),
+        "evaluation_validation": _coverage_review_validation_split_report(
+            review_rows=evaluation_rows,
+            eligible_rows=eligible_evaluation_rows,
+            rejected_reasons=evaluation_rejected_reasons,
+            target_stock_count=evaluation_stock_target,
+            minimum_wave_approved_stocks=minimum_wave_approved_stocks,
+        ),
+        "disjoint_stock_check": {
+            "status": disjoint_status,
+            "overlap_stock_count": len(training_stocks & evaluation_stocks),
+        },
+        "approval_requirements": {
+            "required_status": HUMAN_REVIEW_APPROVED_STATUS,
+            "required_fields": [
+                "reviewer_id",
+                "reviewed_at",
+                "final_tags",
+                "final_sentiment",
+                "final_importance",
+            ],
+            "reviewed_at_format": "ISO-8601",
+        },
+    }
+
+
 def _review_validation_split_report(
     review_rows: Sequence[dict[str, Any]],
     eligible_rows: Sequence[dict[str, Any]],
@@ -858,6 +966,78 @@ def _review_validation_split_report(
             target_stock_count - len(eligible_stocks),
         ),
     }
+
+
+def _coverage_review_validation_split_report(
+    review_rows: Sequence[dict[str, Any]],
+    eligible_rows: Sequence[dict[str, Any]],
+    rejected_reasons: Counter[str],
+    target_stock_count: int,
+    minimum_wave_approved_stocks: int,
+) -> dict[str, Any]:
+    base_report = _review_validation_split_report(
+        review_rows=review_rows,
+        eligible_rows=eligible_rows,
+        rejected_reasons=rejected_reasons,
+        target_stock_count=target_stock_count,
+    )
+    wave_report = _wave_validation_report(
+        review_rows=review_rows,
+        eligible_rows=eligible_rows,
+        minimum_wave_approved_stocks=minimum_wave_approved_stocks,
+    )
+    return {
+        **base_report,
+        "wave_validation": wave_report,
+        "status": (
+            "pass"
+            if base_report["status"] == "pass"
+            and wave_report["status"] == "pass"
+            else "fail"
+        ),
+    }
+
+
+def _wave_validation_report(
+    review_rows: Sequence[dict[str, Any]],
+    eligible_rows: Sequence[dict[str, Any]],
+    minimum_wave_approved_stocks: int,
+) -> dict[str, Any]:
+    review_wave_stocks = _wave_stock_distribution(review_rows, "stock_code")
+    eligible_wave_stocks = _wave_stock_distribution(eligible_rows, "stock_code")
+    waves = sorted(review_wave_stocks, key=lambda value: int(value) if value.isdigit() else -1)
+    wave_rows = [
+        {
+            "review_wave": wave,
+            "review_stock_count": len(review_wave_stocks[wave]),
+            "eligible_stock_count": len(eligible_wave_stocks.get(wave, set())),
+            "minimum_eligible_stock_count": minimum_wave_approved_stocks,
+            "status": (
+                "pass"
+                if len(eligible_wave_stocks.get(wave, set())) >= minimum_wave_approved_stocks
+                else "fail"
+            ),
+        }
+        for wave in waves
+    ]
+    return {
+        "status": "pass" if all(row["status"] == "pass" for row in wave_rows) else "fail",
+        "wave_count": len(wave_rows),
+        "waves": wave_rows,
+    }
+
+
+def _wave_stock_distribution(
+    rows: Sequence[dict[str, Any]],
+    stock_code_key: str,
+) -> dict[str, set[str]]:
+    distribution: dict[str, set[str]] = defaultdict(set)
+    for row in rows:
+        wave = str(row.get("review_wave", row.get("source_review_wave", "")))
+        stock_code = row.get(stock_code_key)
+        if wave and isinstance(stock_code, str) and stock_code:
+            distribution[wave].add(stock_code)
+    return distribution
 
 
 def _promotion_split_report(

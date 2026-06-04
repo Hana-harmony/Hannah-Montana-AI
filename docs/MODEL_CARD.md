@@ -73,6 +73,7 @@
 - gold coverage active review packet: `data/curation/stock_gold_coverage_active_review_packet.jsonl`
 - gold coverage active review 리포트: `reports/stock-gold-coverage-active-review-report.json`
 - gold coverage promotion 리포트: `reports/stock-gold-coverage-promotion-report.json`
+- gold coverage validation 리포트: `reports/stock-gold-coverage-validation-report.json`
 - confidence calibration 리포트: `reports/model-confidence-calibration.json`
 - stock candidate quota experiment 리포트: `reports/stock-candidate-quota-experiment.json`
 - 승인된 학습 gold 승격 파일: `data/training/financial_alert_stock_review_gold.jsonl`
@@ -97,6 +98,8 @@
 - coverage active review 학습 wave 수: 13개
 - coverage active review 평가 wave 수: 5개
 - coverage packet 승인 승격 row 수: 학습 0건, 평가 0건
+- coverage packet validation 상태: `fail`
+- coverage packet validation 목표: 학습 1,500종목, 평가 500종목, wave별 승인 100종목
 - 현재 검수 validation 승인 가능 종목 수: 학습 0개, 평가 0개
 - supervised 학습 데이터 종목 수: 38개
 - evaluation 데이터 종목 수: 57개
@@ -227,6 +230,7 @@
 - `data/curation/stock_gold_coverage_review_plan.jsonl`의 wave 단위 검수 승인과 stock review gold 증분 승격
 - `data/curation/stock_gold_coverage_active_review_packet.jsonl`의 모델 제안 라벨을 참고한 사람 검수와 최종 라벨 확정
 - `scripts/promote_stock_gold_coverage_review_packet.py` 실행 후 승인된 stock review gold를 포함한 재학습
+- `scripts/validate_stock_gold_coverage_review_packet.py` 기준 coverage packet 승인 gate 통과
 - 사람이 검수한 gold label과 약지도 label의 품질 비교
 - 실제 뉴스 gold label set 월별 증분 확대와 drift 감시
 - 모델 drift 감시와 재학습 기준 정의
