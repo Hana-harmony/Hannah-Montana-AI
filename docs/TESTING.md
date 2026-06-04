@@ -33,6 +33,7 @@ uv run python scripts/evaluate_ml_model.py
 - 수집 실패 시 기존 raw 코퍼스 축소 덮어쓰기 방지
 - 약지도 distillation 후보 중 teacher confidence와 gold gate를 통과한 후보만 이벤트 모델 학습에 승격하는지 검증
 - 모델 artifact 누락·손상 시 명시적 오류와 API 503 fail-closed 응답
+- 분석 API 성공·실패 audit log와 원문 비노출
 - 중복 제거 키가 뉴스 라벨·언론사·기자 꼬리표를 제거하면서 종목·출처 경계를 유지하는지 검증
 - Hana-OmniLens-API Spring client가 사용하는 request·response JSON 필드명과 무토큰 내부 호출 계약 검증
 

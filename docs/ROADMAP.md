@@ -21,6 +21,6 @@
 - 모델 버전별 성능 리포트
 - 뉴스 gold label set 종목·기간 확대
 - teacher-student promotion gate 품질 모니터링과 라벨별 확대 검증
-- 추론 latency 모니터링
-- audit log
+- 추론 latency 모니터링 완료
+- audit log 완료
 - 배포 환경별 secret 관리

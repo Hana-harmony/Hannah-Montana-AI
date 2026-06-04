@@ -21,6 +21,12 @@ docker run --rm --network hana-internal hannah-montana-ai
 ## 헬스체크
 - `GET /health`
 
+## 추론 audit log
+- 분석 API는 요청마다 `hannah_montana_ai.audit.analysis` logger에 JSON audit log를 남긴다.
+- 로그에는 `model_version`, `latency_ms`, 예측 이벤트·감성·중요도, 종목코드, 결과 상태를 기록한다.
+- 원문 제목, snippet, URL은 로그에 남기지 않고 SHA-256 hash만 기록한다.
+- 모델 artifact 누락 같은 실패도 `outcome=failure`, `failure_reason`으로 기록한다.
+
 ## 재학습 운영
 - 외부 API 키는 `secrets.local.env`에서만 읽고 커밋하지 않는다.
 - `scripts/collect_training_data.py`는 Naver News Search와 OpenDART에서 제목·snippet·링크만 수집한다.
@@ -31,8 +37,6 @@ docker run --rm --network hana-internal hannah-montana-ai
 - 감성·중요도 모델은 실제 뉴스 gold 회귀를 막기 위해 supervised corpus만으로 학습한다.
 
 ## 운영 전 보강
-- 모델 latency와 오류율 모니터링
-- 모델 버전별 audit log
 - drift 감시
 - 재학습 기준과 rollback 절차
 - 배포 환경별 Secret Manager 연동
