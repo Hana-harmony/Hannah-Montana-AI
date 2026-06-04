@@ -3,7 +3,8 @@ from __future__ import annotations
 import json
 from collections import Counter, defaultdict
 from collections.abc import Iterable, Sequence
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
+from datetime import datetime
 from hashlib import sha256
 from pathlib import Path
 from typing import Any, cast
@@ -26,6 +27,9 @@ STOCK_GOLD_REVIEW_BATCH_SCHEMA_VERSION = "stock-gold-review-batch/v1"
 STOCK_GOLD_REVIEW_REPORT_SCHEMA_VERSION = "stock-gold-review-report/v1"
 STOCK_GOLD_PROMOTION_REPORT_SCHEMA_VERSION = "stock-gold-promotion-report/v1"
 HUMAN_REVIEW_APPROVED_STATUS = "human_review_approved"
+VALID_REVIEW_SENTIMENTS = {"POSITIVE", "NEUTRAL", "NEGATIVE"}
+VALID_REVIEW_IMPORTANCE = {"LOW", "MEDIUM", "HIGH", "CRITICAL"}
+VALID_REVIEW_EVENT_LABELS = set(PRIMARY_LABEL_PRIORITY)
 
 
 @dataclass(frozen=True)
@@ -71,6 +75,12 @@ class StockGoldReviewRow:
     provider: str
     content_hash: str
     review_status: str = "needs_human_review"
+    reviewer_id: str = ""
+    reviewed_at: str = ""
+    review_notes: str = ""
+    final_tags: list[str] = field(default_factory=list)
+    final_sentiment: str = ""
+    final_importance: str = ""
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -210,11 +220,11 @@ def promote_approved_stock_gold_reviews(
 ) -> StockGoldPromotionResult:
     training_review_rows = _load_stock_gold_review_rows(training_review_path)
     evaluation_review_rows = _load_stock_gold_review_rows(evaluation_review_path)
-    training_rows = _approved_review_rows_to_labeled_rows(
+    training_rows, training_rejected_reasons = _approved_review_rows_to_labeled_rows(
         training_review_rows,
         intended_split="training",
     )
-    evaluation_rows = _approved_review_rows_to_labeled_rows(
+    evaluation_rows, evaluation_rejected_reasons = _approved_review_rows_to_labeled_rows(
         evaluation_review_rows,
         intended_split="evaluation",
     )
@@ -229,6 +239,8 @@ def promote_approved_stock_gold_reviews(
         evaluation_review_rows=evaluation_review_rows,
         training_rows=training_rows,
         evaluation_rows=evaluation_rows,
+        training_rejected_reasons=training_rejected_reasons,
+        evaluation_rejected_reasons=evaluation_rejected_reasons,
     )
     return StockGoldPromotionResult(
         training_rows=training_rows,
@@ -469,28 +481,66 @@ def _load_stock_gold_review_rows(path: Path) -> list[dict[str, Any]]:
 def _approved_review_rows_to_labeled_rows(
     rows: Sequence[dict[str, Any]],
     intended_split: str,
-) -> list[dict[str, Any]]:
+) -> tuple[list[dict[str, Any]], Counter[str]]:
     promoted_rows: list[dict[str, Any]] = []
+    rejected_reasons: Counter[str] = Counter()
     seen_review_keys: set[str] = set()
     for row in rows:
         if row.get("review_status") != HUMAN_REVIEW_APPROVED_STATUS:
             continue
         if row.get("intended_split") != intended_split:
+            rejected_reasons["wrong_intended_split"] += 1
             continue
         review_key = str(row.get("review_key", ""))
         if not review_key or review_key in seen_review_keys:
+            rejected_reasons["missing_or_duplicate_review_key"] += 1
+            continue
+        invalid_reason = _review_approval_invalid_reason(row)
+        if invalid_reason:
+            rejected_reasons[invalid_reason] += 1
             continue
         promoted_rows.append(_to_labeled_gold_row(row, intended_split))
         seen_review_keys.add(review_key)
-    return promoted_rows
+    return promoted_rows, rejected_reasons
+
+
+def _review_approval_invalid_reason(row: dict[str, Any]) -> str | None:
+    if not _non_empty_string(row.get("reviewer_id")):
+        return "missing_reviewer_id"
+    if not _is_valid_reviewed_at(row.get("reviewed_at")):
+        return "invalid_reviewed_at"
+    final_tags = row.get("final_tags")
+    if not isinstance(final_tags, list) or not final_tags:
+        return "missing_final_tags"
+    if any(not isinstance(tag, str) or tag not in VALID_REVIEW_EVENT_LABELS for tag in final_tags):
+        return "invalid_final_tags"
+    if row.get("final_sentiment") not in VALID_REVIEW_SENTIMENTS:
+        return "invalid_final_sentiment"
+    if row.get("final_importance") not in VALID_REVIEW_IMPORTANCE:
+        return "invalid_final_importance"
+    return None
+
+
+def _non_empty_string(value: object) -> bool:
+    return isinstance(value, str) and bool(value.strip())
+
+
+def _is_valid_reviewed_at(value: object) -> bool:
+    if not isinstance(value, str) or not value.strip():
+        return False
+    try:
+        datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError:
+        return False
+    return True
 
 
 def _to_labeled_gold_row(row: dict[str, Any], intended_split: str) -> dict[str, Any]:
     return {
         "text": row["text"],
-        "tags": list(row["tags"]),
-        "sentiment": row["sentiment"],
-        "importance": row["importance"],
+        "tags": list(row["final_tags"]),
+        "sentiment": row["final_sentiment"],
+        "importance": row["final_importance"],
         "source_type": row["source_type"],
         "stock_code": row["stock_code"],
         "stock_name": row["stock_name"],
@@ -498,6 +548,8 @@ def _to_labeled_gold_row(row: dict[str, Any], intended_split: str) -> dict[str, 
         "source_url": row["original_url"],
         "provider": row["provider"],
         "review_key": row["review_key"],
+        "reviewer_id": row["reviewer_id"],
+        "reviewed_at": row["reviewed_at"],
         "source_review_split": intended_split,
         "source_review_status": row["review_status"],
     }
@@ -520,6 +572,8 @@ def _build_gold_promotion_report(
     evaluation_review_rows: Sequence[dict[str, Any]],
     training_rows: Sequence[dict[str, Any]],
     evaluation_rows: Sequence[dict[str, Any]],
+    training_rejected_reasons: Counter[str],
+    evaluation_rejected_reasons: Counter[str],
 ) -> dict[str, Any]:
     training_stocks = _row_stock_codes(training_rows)
     evaluation_stocks = _row_stock_codes(evaluation_rows)
@@ -533,16 +587,19 @@ def _build_gold_promotion_report(
         "training_promotion": _promotion_split_report(
             review_rows=training_review_rows,
             promoted_rows=training_rows,
+            rejected_reasons=training_rejected_reasons,
         ),
         "evaluation_promotion": _promotion_split_report(
             review_rows=evaluation_review_rows,
             promoted_rows=evaluation_rows,
+            rejected_reasons=evaluation_rejected_reasons,
         ),
         "disjoint_stock_check": {
             "status": "pass" if training_stocks.isdisjoint(evaluation_stocks) else "fail"
         },
         "promotion_policy": (
-            "only human_review_approved rows are written to supervised or gold datasets"
+            "only human_review_approved rows with reviewer metadata and final labels are "
+            "written to supervised or gold datasets"
         ),
     }
 
@@ -550,6 +607,7 @@ def _build_gold_promotion_report(
 def _promotion_split_report(
     review_rows: Sequence[dict[str, Any]],
     promoted_rows: Sequence[dict[str, Any]],
+    rejected_reasons: Counter[str],
 ) -> dict[str, Any]:
     status_counter = Counter(str(row.get("review_status", "")) for row in review_rows)
     return {
@@ -558,6 +616,7 @@ def _promotion_split_report(
         "promoted_row_count": len(promoted_rows),
         "promoted_stock_count": len(_row_stock_codes(promoted_rows)),
         "review_status_distribution": dict(sorted(status_counter.items())),
+        "rejected_approved_count_by_reason": dict(sorted(rejected_reasons.items())),
         "label_distribution": dict(
             sorted(
                 Counter(
@@ -696,6 +755,17 @@ def _build_gold_review_report(
                 if training_stock_codes.isdisjoint(evaluation_stock_codes)
                 else "fail"
             )
+        },
+        "review_approval_requirements": {
+            "required_status": HUMAN_REVIEW_APPROVED_STATUS,
+            "required_fields": [
+                "reviewer_id",
+                "reviewed_at",
+                "final_tags",
+                "final_sentiment",
+                "final_importance",
+            ],
+            "reviewed_at_format": "ISO-8601",
         },
         "promotion_policy": (
             "review rows are not supervised or gold labels until human_review_approved"

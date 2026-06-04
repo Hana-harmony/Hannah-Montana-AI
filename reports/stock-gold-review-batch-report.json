@@ -49,5 +49,16 @@
   "disjoint_stock_check": {
     "status": "pass"
   },
+  "review_approval_requirements": {
+    "required_status": "human_review_approved",
+    "required_fields": [
+      "reviewer_id",
+      "reviewed_at",
+      "final_tags",
+      "final_sentiment",
+      "final_importance"
+    ],
+    "reviewed_at_format": "ISO-8601"
+  },
   "promotion_policy": "review rows are not supervised or gold labels until human_review_approved"
 }

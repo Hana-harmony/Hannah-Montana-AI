@@ -85,7 +85,8 @@
 - 전 종목 실서비스 coverage gate는 현재 `fail`이며, 이는 raw 후보 폭에 비해 사람이 검수한 supervised/gold 종목 커버리지가 아직 부족하다는 뜻이다.
 - 학습 승격 후보 큐는 `needs_human_review` 상태이며, 사람이 검수해 승격하기 전까지 gold label이나 supervised 정답셋으로 취급하지 않는다.
 - gold 검수 배치도 `needs_human_review` 상태이며, 사람이 승인하기 전까지 supervised 학습셋이나 evaluation gold로 편입하지 않는다.
-- `human_review_approved` 상태로 승인된 검수 row만 별도 stock review gold 파일로 승격되며, 학습·평가 스크립트는 해당 파일이 존재할 때만 포함한다.
+- `human_review_approved` 상태와 검수자 메타데이터, 최종 이벤트·감성·중요도 라벨이 모두 있는 검수 row만 별도 stock review gold 파일로 승격된다.
+- 학습·평가 스크립트는 승인된 stock review gold 파일이 존재할 때만 포함한다.
 - 약지도 라벨은 후보 풀로 유지하고 teacher confidence gate와 라벨별 quota를 통과한 pseudo-label만 이벤트 모델 학습에 승격한다.
 - 감성·중요도 모델은 실제 뉴스 gold 회귀를 막기 위해 검수·균형 corpus만으로 학습한다.
 - 실제 뉴스 학습 gold와 실제 뉴스 평가 gold는 동일 문장을 공유하지 않는다.
@@ -186,7 +187,7 @@
 - Naver 뉴스 수집 쿼리 확대와 일 단위 증분 수집
 - `scripts/collect_training_data.py --use-stock-universe-news-queries` 기반 종목 universe 증분 수집
 - `reports/stock-coverage-report.json` 기준 supervised 300개 이상 종목, evaluation 100개 이상 종목 coverage gate 통과
-- `data/curation/stock_gold_training_review_batch.jsonl`와 `data/curation/stock_gold_evaluation_review_batch.jsonl`의 사람 검수 승인 및 정답셋 승격
+- `data/curation/stock_gold_training_review_batch.jsonl`와 `data/curation/stock_gold_evaluation_review_batch.jsonl`의 사람 검수 승인, 최종 라벨 확정, 정답셋 승격
 - 사람이 검수한 gold label과 약지도 label의 품질 비교
 - 실제 뉴스 gold label set 월별 증분 확대와 drift 감시
 - 모델 drift 감시와 재학습 기준 정의
