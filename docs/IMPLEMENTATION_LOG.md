@@ -172,6 +172,14 @@
 - 수집 데이터에는 제목, snippet, 원문 링크, provider, content hash, 약지도 라벨만 남기고 외부 API 키나 credential은 포함하지 않는다.
 - 로컬 외부 API 키는 계속 `secrets.local.env`에만 두고 커밋하지 않는다.
 
+## 2026-06-04 추론 latency와 audit log
+- `AnalysisAuditLogger`를 추가해 분석 API 요청마다 구조화된 JSON audit log를 남긴다.
+- 성공 로그는 `model_version`, `latency_ms`, `stock_code`, 이벤트 태그, 감성, 중요도, 입력 hash를 포함한다.
+- 실패 로그는 `outcome=failure`, `failure_reason`, `latency_ms`, 입력 hash를 포함한다.
+- 원문 제목, snippet, URL은 로그에 직접 남기지 않고 SHA-256 hash만 기록한다.
+- 분석 API는 모델 artifact 누락 실패도 audit log로 남긴 뒤 기존 `503` fail-closed 계약을 유지한다.
+- 테스트로 성공 audit log, 모델 artifact 실패 audit log, 원문 비노출을 검증했다.
+
 ## 현재 구현 로직
 - 종목 매핑은 전달받은 `stock_universe`에서 종목코드, 한글명, 영문명 포함 여부로 판단한다.
 - 이벤트 태그는 한국어 금융 tokenizer feature를 포함한 학습된 multilabel classifier가 산출한다.

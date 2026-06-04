@@ -1,7 +1,10 @@
+import json
+import logging
+
 from fastapi.testclient import TestClient
 
 from hannah_montana_ai.api import routes
-from hannah_montana_ai.api.routes import get_analyzer
+from hannah_montana_ai.api.routes import get_analyzer, get_audit_logger
 from hannah_montana_ai.core.config import get_settings
 from hannah_montana_ai.main import app
 from hannah_montana_ai.services.model import ModelArtifactNotFoundError
@@ -10,6 +13,7 @@ from hannah_montana_ai.services.model import ModelArtifactNotFoundError
 def test_analyze_alert_returns_financial_labels() -> None:
     get_settings.cache_clear()
     get_analyzer.cache_clear()
+    get_audit_logger.cache_clear()
 
     client = TestClient(app)
     response = client.post(
@@ -36,6 +40,43 @@ def test_analyze_alert_returns_financial_labels() -> None:
     assert "EARNINGS" in payload["event_tags"]
 
 
+def test_analyze_alert_writes_structured_audit_log_without_raw_content(caplog) -> None:
+    get_settings.cache_clear()
+    get_analyzer.cache_clear()
+    get_audit_logger.cache_clear()
+    caplog.set_level(logging.INFO, logger="hannah_montana_ai.audit.analysis")
+
+    client = TestClient(app)
+    response = client.post(
+        "/api/v1/alerts/analyze",
+        json={
+            "source_type": "NEWS",
+            "title": "삼성전자 2분기 영업이익 증가",
+            "snippet": "반도체 수요 회복으로 실적 개선 기대가 커졌다.",
+            "original_url": "https://example.com/news/audit-success",
+            "stock_universe": [
+                {
+                    "stock_code": "005930",
+                    "stock_name": "삼성전자",
+                    "stock_name_en": "Samsung Electronics",
+                }
+            ],
+        },
+    )
+
+    assert response.status_code == 200
+    audit_payload = json.loads(caplog.records[-1].message)
+    assert audit_payload["event"] == "analysis_audit"
+    assert audit_payload["outcome"] == "success"
+    assert audit_payload["model_version"] == response.json()["model_version"]
+    assert audit_payload["stock_code"] == "005930"
+    assert audit_payload["latency_ms"] >= 0
+    assert "title_hash" in audit_payload
+    assert "original_url_hash" in audit_payload
+    assert "삼성전자 2분기 영업이익 증가" not in caplog.text
+    assert "https://example.com/news/audit-success" not in caplog.text
+
+
 def test_health_endpoint_is_available() -> None:
     client = TestClient(app)
     response = client.get("/health")
@@ -47,6 +88,7 @@ def test_health_endpoint_is_available() -> None:
 def test_analyze_alert_detects_critical_disclosure_risk() -> None:
     get_settings.cache_clear()
     get_analyzer.cache_clear()
+    get_audit_logger.cache_clear()
 
     client = TestClient(app)
     response = client.post(
@@ -73,8 +115,10 @@ def test_analyze_alert_detects_critical_disclosure_risk() -> None:
     assert payload["holder_target"] is True
 
 
-def test_analyze_alert_fails_closed_when_model_artifact_is_unavailable(monkeypatch) -> None:
+def test_analyze_alert_fails_closed_when_model_artifact_is_unavailable(monkeypatch, caplog) -> None:
     get_analyzer.cache_clear()
+    get_audit_logger.cache_clear()
+    caplog.set_level(logging.INFO, logger="hannah_montana_ai.audit.analysis")
 
     def unavailable_analyzer():
         raise ModelArtifactNotFoundError("missing artifact")
@@ -94,3 +138,8 @@ def test_analyze_alert_fails_closed_when_model_artifact_is_unavailable(monkeypat
 
     assert response.status_code == 503
     assert response.json() == {"detail": "ML model artifact is unavailable"}
+    audit_payload = json.loads(caplog.records[-1].message)
+    assert audit_payload["event"] == "analysis_audit"
+    assert audit_payload["outcome"] == "failure"
+    assert audit_payload["failure_reason"] == "model_artifact_unavailable"
+    assert audit_payload["latency_ms"] >= 0
