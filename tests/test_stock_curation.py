@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 
 from hannah_montana_ai.training.active_review import build_stock_gold_active_review_report
+from hannah_montana_ai.training.coverage_planner import build_stock_gold_coverage_plan
 from hannah_montana_ai.training.stock_curation import (
     build_stock_gold_review_batches,
     build_stock_training_candidates,
@@ -206,6 +207,92 @@ def test_stock_gold_active_review_report_prioritizes_model_disagreement() -> Non
     ]
     assert top_training_rows[0]["suggested_tags"]
     assert "reviewer assistance only" in report["review_policy"]
+
+
+def test_stock_gold_coverage_plan_expands_reviewable_stock_coverage() -> None:
+    report = json.loads(Path("reports/stock-gold-coverage-plan-report.json").read_text())
+    rows = _read_jsonl(Path("data/curation/stock_gold_coverage_review_plan.jsonl"))
+    training_stocks = {
+        row["stock_code"] for row in rows if row["intended_split"] == "training"
+    }
+    evaluation_stocks = {
+        row["stock_code"] for row in rows if row["intended_split"] == "evaluation"
+    }
+
+    assert report["schema_version"] == "stock-gold-coverage-plan/v1"
+    assert len(rows) == 2_000
+    assert report["training_plan"]["status"] == "pass"
+    assert report["training_plan"]["planned_stock_count"] == 1_500
+    assert report["training_plan"]["stage_distribution"] == {
+        "additional_coverage_plan": 1_200,
+        "current_review_batch": 300,
+    }
+    assert report["evaluation_plan"]["status"] == "pass"
+    assert report["evaluation_plan"]["planned_stock_count"] == 500
+    assert report["candidate_coverage_after_full_plan"]["covered_candidate_stock_count"] >= 2_000
+    assert report["disjoint_stock_check"]["status"] == "pass"
+    assert training_stocks.isdisjoint(evaluation_stocks)
+    assert {row["review_status"] for row in rows} == {"needs_human_review"}
+    assert all(row["reviewer_id"] == "" for row in rows)
+    assert "human_review_approved" in report["review_policy"]
+
+
+def test_build_stock_gold_coverage_plan_excludes_supervised_and_current_review_stocks(
+    tmp_path: Path,
+) -> None:
+    candidate_path = tmp_path / "candidates.jsonl"
+    training_review_path = tmp_path / "training_review.jsonl"
+    evaluation_review_path = tmp_path / "evaluation_review.jsonl"
+    training_path = tmp_path / "training.jsonl"
+    evaluation_path = tmp_path / "evaluation.jsonl"
+    _write_jsonl(
+        candidate_path,
+        [
+            _candidate("000001", "기존학습", "CONTRACT"),
+            _candidate("000002", "현재학습검수", "RISK"),
+            _candidate("000003", "현재평가검수", "EARNINGS"),
+            _candidate("000004", "추가학습", "MACRO"),
+            _candidate("000005", "추가평가", "CAPITAL_ACTION"),
+        ],
+    )
+    _write_jsonl(training_path, [{"stock_code": "000001"}])
+    _write_jsonl(evaluation_path, [])
+    _write_jsonl(
+        training_review_path,
+        [_review_row("000002", "현재학습검수", "RISK", "training", "needs_human_review")],
+    )
+    _write_jsonl(
+        evaluation_review_path,
+        [_review_row("000003", "현재평가검수", "EARNINGS", "evaluation", "needs_human_review")],
+    )
+
+    result = build_stock_gold_coverage_plan(
+        candidate_path=candidate_path,
+        training_review_path=training_review_path,
+        evaluation_review_path=evaluation_review_path,
+        training_paths=[training_path],
+        evaluation_paths=[evaluation_path],
+        training_stock_target=2,
+        evaluation_stock_target=2,
+        review_wave_size=1,
+    )
+    rows = [row.to_dict() for row in result.rows]
+    training_stocks = {
+        row["stock_code"] for row in rows if row["intended_split"] == "training"
+    }
+    evaluation_stocks = {
+        row["stock_code"] for row in rows if row["intended_split"] == "evaluation"
+    }
+
+    assert "000001" not in training_stocks
+    assert "000001" not in evaluation_stocks
+    assert "000002" in training_stocks
+    assert "000003" in evaluation_stocks
+    assert len(training_stocks) == 2
+    assert len(evaluation_stocks) == 2
+    assert training_stocks | evaluation_stocks == {"000002", "000003", "000004", "000005"}
+    assert result.report["disjoint_stock_check"]["status"] == "pass"
+    assert {row["review_status"] for row in rows} == {"needs_human_review"}
 
 
 def test_build_stock_gold_active_review_report_can_limit_top_rows() -> None:
