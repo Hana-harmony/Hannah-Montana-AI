@@ -368,3 +368,10 @@
 - 기존 검수 배치와 동일하게 `human_review_approved`, `reviewer_id`, `reviewed_at`, `final_tags`, `final_sentiment`, `final_importance`가 모두 유효한 row만 승격한다.
 - 승격된 gold row에는 source review wave/stage/reason과 모델 제안 라벨, review priority를 lineage로 보존한다.
 - 현재 커밋된 packet은 모두 `needs_human_review`라 학습 승격 0건, 평가 승격 0건으로 기록한다.
+
+## 2026-06-05 coverage packet validation gate
+- `validate_stock_gold_coverage_review_packet`을 추가해 coverage active review packet의 승인 가능 row가 재학습 목표를 충족하는지 검사한다.
+- `scripts/validate_stock_gold_coverage_review_packet.py`는 `reports/stock-gold-coverage-validation-report.json`을 생성한다.
+- 기본 gate는 학습 1,500종목, 평가 500종목, wave별 승인 종목 100개 이상, 학습·평가 split disjoint를 요구한다.
+- 현재 packet은 승인 0건이라 `overall_status=fail`이며, wave별 남은 승인 수를 리포트로 기록한다.
+- 이 gate는 승인된 stock review gold를 포함해 재학습하기 전 필수 확인 단계다.

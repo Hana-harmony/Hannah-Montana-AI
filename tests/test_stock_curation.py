@@ -13,6 +13,7 @@ from hannah_montana_ai.training.stock_curation import (
     candidate_review_key,
     promote_approved_stock_gold_coverage_reviews,
     promote_approved_stock_gold_reviews,
+    validate_stock_gold_coverage_review_packet,
     validate_stock_gold_review_batches,
 )
 from hannah_montana_ai.training.stock_universe import StockUniverseEntry, write_stock_universe
@@ -193,6 +194,32 @@ def test_stock_gold_coverage_promotion_report_tracks_zero_approved_packet() -> N
     assert report["evaluation_promotion"]["review_wave_distribution"]["4"] == 100
     assert report["disjoint_stock_check"]["status"] == "pass"
     assert "human_review_approved" in report["promotion_policy"]
+
+
+def test_stock_gold_coverage_validation_report_tracks_current_approval_gap() -> None:
+    report = json.loads(Path("reports/stock-gold-coverage-validation-report.json").read_text())
+
+    assert report["schema_version"] == "stock-gold-coverage-validation-report/v1"
+    assert report["overall_status"] == "fail"
+    assert report["minimum_wave_approved_stocks"] == 100
+    assert report["training_validation"]["review_row_count"] == 1_500
+    assert report["training_validation"]["target_stock_count"] == 1_500
+    assert report["training_validation"]["eligible_stock_count"] == 0
+    assert report["training_validation"]["remaining_stock_count_to_target"] == 1_500
+    assert report["training_validation"]["wave_validation"]["wave_count"] == 13
+    assert report["training_validation"]["wave_validation"]["waves"][0] == {
+        "review_wave": "0",
+        "review_stock_count": 300,
+        "eligible_stock_count": 0,
+        "minimum_eligible_stock_count": 100,
+        "status": "fail",
+    }
+    assert report["evaluation_validation"]["review_row_count"] == 500
+    assert report["evaluation_validation"]["wave_validation"]["wave_count"] == 5
+    assert report["disjoint_stock_check"]["status"] == "pass"
+    assert report["approval_requirements"]["required_status"] == (
+        "human_review_approved"
+    )
 
 
 def test_stock_gold_review_validation_report_tracks_current_blocker() -> None:
@@ -563,6 +590,122 @@ def test_promote_stock_gold_coverage_reviews_preserves_packet_lineage(
     assert result.report["training_promotion"]["promoted_wave_distribution"] == {"2": 1}
     assert result.report["evaluation_promotion"]["promoted_wave_distribution"] == {"1": 1}
     assert result.report["disjoint_stock_check"]["status"] == "pass"
+
+
+def test_validate_stock_gold_coverage_review_packet_passes_when_waves_are_approved(
+    tmp_path: Path,
+) -> None:
+    coverage_packet_path = tmp_path / "coverage_packet.jsonl"
+    _write_jsonl(
+        coverage_packet_path,
+        [
+            _coverage_packet_row(
+                "000001",
+                "학습승인1",
+                "CONTRACT",
+                "training",
+                0,
+                "human_review_approved",
+            ),
+            _coverage_packet_row(
+                "000002",
+                "학습승인2",
+                "RISK",
+                "training",
+                1,
+                "human_review_approved",
+            ),
+            _coverage_packet_row(
+                "000003",
+                "평가승인1",
+                "EARNINGS",
+                "evaluation",
+                0,
+                "human_review_approved",
+            ),
+            _coverage_packet_row(
+                "000004",
+                "평가승인2",
+                "MACRO",
+                "evaluation",
+                1,
+                "human_review_approved",
+            ),
+        ],
+    )
+
+    result = validate_stock_gold_coverage_review_packet(
+        coverage_review_packet_path=coverage_packet_path,
+        training_stock_target=2,
+        evaluation_stock_target=2,
+        minimum_wave_approved_stocks=1,
+    )
+
+    assert result.report["overall_status"] == "pass"
+    assert result.report["training_validation"]["eligible_stock_count"] == 2
+    assert result.report["training_validation"]["wave_validation"]["status"] == "pass"
+    assert result.report["evaluation_validation"]["eligible_stock_count"] == 2
+    assert result.report["evaluation_validation"]["wave_validation"]["status"] == "pass"
+    assert result.report["disjoint_stock_check"]["status"] == "pass"
+
+
+def test_validate_stock_gold_coverage_review_packet_fails_missing_wave_approval(
+    tmp_path: Path,
+) -> None:
+    coverage_packet_path = tmp_path / "coverage_packet.jsonl"
+    _write_jsonl(
+        coverage_packet_path,
+        [
+            _coverage_packet_row(
+                "000001",
+                "학습승인1",
+                "CONTRACT",
+                "training",
+                0,
+                "human_review_approved",
+            ),
+            _coverage_packet_row(
+                "000002",
+                "학습대기2",
+                "RISK",
+                "training",
+                1,
+                "needs_human_review",
+            ),
+            _coverage_packet_row(
+                "000003",
+                "평가승인1",
+                "EARNINGS",
+                "evaluation",
+                0,
+                "human_review_approved",
+            ),
+            _coverage_packet_row(
+                "000004",
+                "평가대기2",
+                "MACRO",
+                "evaluation",
+                1,
+                "needs_human_review",
+            ),
+        ],
+    )
+
+    result = validate_stock_gold_coverage_review_packet(
+        coverage_review_packet_path=coverage_packet_path,
+        training_stock_target=1,
+        evaluation_stock_target=1,
+        minimum_wave_approved_stocks=1,
+    )
+
+    assert result.report["overall_status"] == "fail"
+    assert result.report["training_validation"]["wave_validation"]["status"] == "fail"
+    assert result.report["training_validation"]["wave_validation"]["waves"][1][
+        "eligible_stock_count"
+    ] == 0
+    assert result.report["evaluation_validation"]["wave_validation"]["waves"][1][
+        "status"
+    ] == "fail"
 
 
 def test_promote_stock_gold_reviews_rejects_unattested_approved_rows(
