@@ -20,7 +20,7 @@
 ## M3 운영 하드닝
 - 모델 버전별 성능 리포트 완료
 - 뉴스 gold label set 종목·기간 확대
-- teacher-student promotion gate 품질 모니터링과 라벨별 확대 검증
+- teacher-student promotion gate 품질 모니터링과 라벨별 확대 검증 완료
 - 추론 latency 모니터링 완료
 - audit log 완료
 - 배포 환경별 secret 관리

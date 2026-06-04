@@ -16,6 +16,9 @@ from hannah_montana_ai.training.dataset import load_labeled_alerts
 from hannah_montana_ai.training.evaluator import evaluate_alert_analyzer
 from hannah_montana_ai.training.ml_trainer import financial_tokenize, train_ml_model
 from hannah_montana_ai.training.model_release_report import build_model_release_report
+from hannah_montana_ai.training.pseudo_label_monitor import (
+    build_pseudo_label_monitoring_report,
+)
 from hannah_montana_ai.training.weak_distiller import distill_weak_labeled_alerts
 
 GOLD_EVENT_LABEL_QUALITY_GATES = {
@@ -266,6 +269,46 @@ def test_model_release_report_matches_source_reports() -> None:
     assert (
         release_report["data_lineage"]["committed_data_policy"]
         == "raw_and_processed_training_data_are_tracked"
+    )
+
+
+def test_pseudo_label_monitoring_report_matches_source_reports() -> None:
+    distillation_report = _read_json(Path("reports/weak-distillation-report.json"))
+    release_report = _read_json(Path("reports/model-release-report.json"))
+    monitoring_report = _read_json(
+        Path("reports/pseudo-label-promotion-monitoring.json")
+    )
+
+    expected = build_pseudo_label_monitoring_report(
+        distillation_report,
+        release_report,
+    )
+    label_decisions = {
+        row["label"]: row["decision"] for row in monitoring_report["labels"]
+    }
+
+    assert monitoring_report == expected
+    assert monitoring_report["overall_status"] == "pass"
+    assert monitoring_report["candidate_funnel"]["raw_candidate_count"] == 37278
+    assert monitoring_report["candidate_funnel"]["high_signal_candidate_count"] == 4845
+    assert monitoring_report["candidate_funnel"]["promoted_count"] == 360
+    assert (
+        monitoring_report["candidate_funnel"][
+            "teacher_passed_not_promoted_or_quota_limited_count"
+        ]
+        == 1475
+    )
+    assert label_decisions["RISK"] == "quota_filled"
+    assert label_decisions["CONTRACT"] == "quota_filled"
+    assert label_decisions["CORPORATE_ACTION"] == "quota_filled"
+    assert (
+        label_decisions["CAPITAL_ACTION"]
+        == "expansion_candidate_hold_for_gold_gate"
+    )
+    assert label_decisions["GENERAL_MARKET"] == "hold_low_pool_or_non_target_label"
+    assert (
+        monitoring_report["expansion_policy"]["rule"]
+        == "zero_quota_labels_require_gold_gate_experiment_before_student_training"
     )
 
 
