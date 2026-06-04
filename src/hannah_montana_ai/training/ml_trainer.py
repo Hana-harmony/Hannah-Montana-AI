@@ -29,6 +29,7 @@ FINANCIAL_DOMAIN_TERMS: tuple[str, ...] = (
     "계약",
     "공급계약",
     "공시",
+    "고배당",
     "금리",
     "관세",
     "단일판매",
@@ -42,8 +43,10 @@ FINANCIAL_DOMAIN_TERMS: tuple[str, ...] = (
     "영업이익",
     "유상증자",
     "임상",
+    "임단협",
     "임원주요주주",
     "자사주",
+    "자사주매입",
     "자기주식",
     "자기주식처분",
     "자기주식취득",
@@ -51,12 +54,19 @@ FINANCIAL_DOMAIN_TERMS: tuple[str, ...] = (
     "전환사채",
     "지분취득",
     "지분처분",
+    "지분투자",
     "턴어라운드",
     "판매실적",
+    "생산차질",
+    "생산능력",
+    "최대주주",
+    "특허분쟁",
     "주권매매거래정지",
     "주요사항보고서",
     "주식분할",
+    "주식병합",
     "주주총회",
+    "주주환원",
     "출자증권",
     "타법인주식",
     "증자",
@@ -74,11 +84,15 @@ PSEUDO_LABEL_QUOTAS = {
     "RISK": 140,
     "CONTRACT": 180,
     "CAPITAL_ACTION": 0,
-    "CORPORATE_ACTION": 0,
+    "CORPORATE_ACTION": 40,
     "EARNINGS": 0,
     "MACRO": 0,
     "DISCLOSURE": 0,
     "GENERAL_MARKET": 0,
+}
+EVENT_PROBABILITY_THRESHOLD = 0.30
+EVENT_LABEL_THRESHOLDS = {
+    "RISK": 0.42,
 }
 
 
@@ -94,6 +108,8 @@ class MlTrainingReport:
     sentiment_label_distribution: dict[str, int]
     importance_label_distribution: dict[str, int]
     validation: MlValidationReport
+    event_probability_threshold: float
+    event_label_thresholds: dict[str, float]
     pseudo_labeling: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -108,6 +124,8 @@ class MlTrainingReport:
             "sentiment_label_distribution": self.sentiment_label_distribution,
             "importance_label_distribution": self.importance_label_distribution,
             "validation": self.validation.to_dict(),
+            "event_probability_threshold": self.event_probability_threshold,
+            "event_label_thresholds": self.event_label_thresholds,
             "pseudo_labeling": self.pseudo_labeling,
         }
 
@@ -209,7 +227,8 @@ def train_ml_model(
         "event_binarizer": event_binarizer,
         "sentiment_model": sentiment_model,
         "importance_model": importance_model,
-        "event_probability_threshold": 0.30,
+        "event_probability_threshold": EVENT_PROBABILITY_THRESHOLD,
+        "event_label_thresholds": EVENT_LABEL_THRESHOLDS,
         "sample_count": len(samples),
         "supervised_sample_count": len(supervised_samples),
         "pseudo_labeled_sample_count": len(pseudo_label_result.samples),
@@ -230,6 +249,8 @@ def train_ml_model(
         sentiment_label_distribution=dict(Counter(supervised_sentiment_targets)),
         importance_label_distribution=dict(Counter(supervised_importance_targets)),
         validation=validation,
+        event_probability_threshold=EVENT_PROBABILITY_THRESHOLD,
+        event_label_thresholds=EVENT_LABEL_THRESHOLDS,
         pseudo_labeling=pseudo_label_result.report,
     )
 

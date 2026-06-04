@@ -2,13 +2,13 @@
   "source_path": "data/processed/weak_labeled_alerts.jsonl",
   "status": "promoted_to_student_training",
   "candidate_count": 37278,
-  "accepted_count": 320,
+  "accepted_count": 360,
   "rejected_count": 32433,
   "accepted_count_by_primary_label": {
     "RISK": 140,
     "CONTRACT": 180,
     "CAPITAL_ACTION": 0,
-    "CORPORATE_ACTION": 0,
+    "CORPORATE_ACTION": 40,
     "EARNINGS": 0,
     "MACRO": 0,
     "DISCLOSURE": 0,
@@ -50,17 +50,17 @@
     "RISK": 140,
     "CONTRACT": 180,
     "CAPITAL_ACTION": 0,
-    "CORPORATE_ACTION": 0,
+    "CORPORATE_ACTION": 40,
     "EARNINGS": 0,
     "MACRO": 0,
     "DISCLOSURE": 0,
     "GENERAL_MARKET": 0
   },
   "promotion_method": "supervised_teacher_confidence_filter",
-  "teacher_training_sample_count": 3571,
+  "teacher_training_sample_count": 3589,
   "rejected_count_by_teacher_reason": {
-    "low_teacher_confidence": 2818,
-    "teacher_weak_event_disagreement": 228
+    "low_teacher_confidence": 2788,
+    "teacher_weak_event_disagreement": 222
   },
   "pseudo_sample_influence_control": "confidence_threshold_and_label_quota_for_event_model_only",
   "event_probability_threshold": 0.42,

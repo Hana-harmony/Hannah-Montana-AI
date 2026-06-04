@@ -37,6 +37,10 @@ class MachineLearningFinancialNlpModel:
         self.sentiment_model = payload["sentiment_model"]
         self.importance_model = payload["importance_model"]
         self.event_probability_threshold = float(payload.get("event_probability_threshold", 0.5))
+        self.event_label_thresholds = {
+            str(label): float(threshold)
+            for label, threshold in payload.get("event_label_thresholds", {}).items()
+        }
 
     def _validate_payload(self, payload: dict[str, Any], model_path: Path) -> None:
         required_keys = {
@@ -58,7 +62,10 @@ class MachineLearningFinancialNlpModel:
         tags = [
             str(label)
             for label, probability in zip(classes, probabilities, strict=True)
-            if probability >= self.event_probability_threshold
+            if probability >= self.event_label_thresholds.get(
+                str(label),
+                self.event_probability_threshold,
+            )
         ]
         if tags:
             return sorted(tags)
