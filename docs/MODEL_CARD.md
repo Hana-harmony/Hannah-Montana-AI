@@ -27,6 +27,7 @@
 - 약지도 라벨 위치: `data/processed/weak_labeled_alerts.jsonl`
 - 약지도 distillation 리포트: `reports/weak-distillation-report.json`
 - 버전별 release 리포트: `reports/model-release-report.json`
+- pseudo-label promotion monitoring 리포트: `reports/pseudo-label-promotion-monitoring.json`
 - 수동 curated corpus: `data/training/financial_alert_corpus.jsonl`
 - 합성 증강 corpus: `data/training/financial_alert_augmented.jsonl`
 - 뉴스 제목체 증강 corpus: `data/training/financial_alert_news_style_augmented.jsonl`
@@ -120,6 +121,13 @@
 - 전체 상태: `pass`
 - release gate는 holdout, 768건 benchmark, 30건 OpenDART 실공시 gold, 56건 Naver 실제 뉴스 gold 평가를 모두 포함한다.
 - pseudo-label consistency check는 distillation 리포트의 승격 수와 학습 리포트의 pseudo-label 학습 수가 일치하는지 검증한다.
+
+## Pseudo-label promotion gate
+- 위치: `reports/pseudo-label-promotion-monitoring.json`
+- 37,278건 raw 후보 중 4,845건이 고신호 후보로 남았다.
+- teacher confidence 또는 weak-label 합의 기준에서 3,010건이 탈락했다.
+- `RISK` 140건, `CONTRACT` 180건, `CORPORATE_ACTION` 40건만 student 이벤트 모델 학습에 승격했다.
+- `CAPITAL_ACTION`, `DISCLOSURE`, `EARNINGS`, `MACRO`는 고신호 후보가 충분하지만 gold gate 실험 전까지 quota 0으로 유지한다.
 
 ## 한계
 - Naver 뉴스 gold set을 56건으로 확대했지만 종목·업종·기간을 넓혀 계속 확장해야 한다.

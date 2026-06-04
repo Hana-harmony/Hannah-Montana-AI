@@ -1,0 +1,119 @@
+{
+  "schema_version": "pseudo-label-monitor/v1",
+  "model_version": "financial-ml-tfidf-logreg-20260604122101",
+  "report_created_at": "2026-06-04T12:21:01.590362+00:00",
+  "overall_status": "pass",
+  "candidate_funnel": {
+    "raw_candidate_count": 37278,
+    "high_signal_candidate_count": 4845,
+    "teacher_rejected_count": 3010,
+    "teacher_rejected_count_by_reason": {
+      "low_teacher_confidence": 2788,
+      "teacher_weak_event_disagreement": 222
+    },
+    "teacher_passed_not_promoted_or_quota_limited_count": 1475,
+    "promoted_count": 360
+  },
+  "confidence_thresholds": {
+    "minimum_event_confidence": 0.58,
+    "minimum_sentiment_confidence": 0.72,
+    "minimum_importance_confidence": 0.68
+  },
+  "labels": [
+    {
+      "label": "CAPITAL_ACTION",
+      "high_signal_event_count": 950,
+      "student_training_quota": 0,
+      "promoted_count": 0,
+      "promotion_rate_from_high_signal": 0.0,
+      "decision": "expansion_candidate_hold_for_gold_gate"
+    },
+    {
+      "label": "CONTRACT",
+      "high_signal_event_count": 823,
+      "student_training_quota": 180,
+      "promoted_count": 180,
+      "promotion_rate_from_high_signal": 0.2187120291616039,
+      "decision": "quota_filled"
+    },
+    {
+      "label": "CORPORATE_ACTION",
+      "high_signal_event_count": 1080,
+      "student_training_quota": 40,
+      "promoted_count": 40,
+      "promotion_rate_from_high_signal": 0.037037037037037035,
+      "decision": "quota_filled"
+    },
+    {
+      "label": "DISCLOSURE",
+      "high_signal_event_count": 1902,
+      "student_training_quota": 0,
+      "promoted_count": 0,
+      "promotion_rate_from_high_signal": 0.0,
+      "decision": "expansion_candidate_hold_for_gold_gate"
+    },
+    {
+      "label": "EARNINGS",
+      "high_signal_event_count": 1453,
+      "student_training_quota": 0,
+      "promoted_count": 0,
+      "promotion_rate_from_high_signal": 0.0,
+      "decision": "expansion_candidate_hold_for_gold_gate"
+    },
+    {
+      "label": "GENERAL_MARKET",
+      "high_signal_event_count": 45,
+      "student_training_quota": 0,
+      "promoted_count": 0,
+      "promotion_rate_from_high_signal": 0.0,
+      "decision": "hold_low_pool_or_non_target_label"
+    },
+    {
+      "label": "MACRO",
+      "high_signal_event_count": 1777,
+      "student_training_quota": 0,
+      "promoted_count": 0,
+      "promotion_rate_from_high_signal": 0.0,
+      "decision": "expansion_candidate_hold_for_gold_gate"
+    },
+    {
+      "label": "RISK",
+      "high_signal_event_count": 900,
+      "student_training_quota": 140,
+      "promoted_count": 140,
+      "promotion_rate_from_high_signal": 0.15555555555555556,
+      "decision": "quota_filled"
+    }
+  ],
+  "quality_gate_snapshot": {
+    "holdout": {
+      "status": "pass",
+      "sample_count": 718,
+      "lowest_margin": 0.18746518105849574
+    },
+    "benchmark": {
+      "status": "pass",
+      "sample_count": 768,
+      "lowest_margin": 0.0
+    },
+    "real_disclosure_gold": {
+      "status": "pass",
+      "sample_count": 30,
+      "lowest_margin": 0.0
+    },
+    "real_news_gold": {
+      "status": "pass",
+      "sample_count": 56,
+      "lowest_margin": 0.0
+    }
+  },
+  "expansion_policy": {
+    "status": "guarded",
+    "rule": "zero_quota_labels_require_gold_gate_experiment_before_student_training",
+    "minimum_expansion_candidate_high_signal_count": 500
+  },
+  "report_inputs": {
+    "weak_distillation_report": "reports/weak-distillation-report.json",
+    "model_release_report": "reports/model-release-report.json"
+  }
+}

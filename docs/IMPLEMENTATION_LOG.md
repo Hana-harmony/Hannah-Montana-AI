@@ -188,6 +188,14 @@
 - pseudo-label 승격 수와 teacher 학습 샘플 수가 학습 리포트와 distillation 리포트 사이에서 일치하는지도 consistency check로 검증한다.
 - 수집 raw와 약지도 라벨 파일은 gitignore하지 않고 커밋해 학습 재현성과 PR 리뷰 가능성을 유지한다.
 
+## 2026-06-04 pseudo-label promotion gate 모니터링
+- `pseudo_label_monitor.py`를 추가해 weak distillation 리포트와 model release report를 운영용 promotion monitoring report로 변환한다.
+- `scripts/build_pseudo_label_monitoring_report.py`가 `reports/pseudo-label-promotion-monitoring.json`을 결정적으로 재생성한다.
+- raw 후보 37,278건, 고신호 후보 4,845건, teacher 탈락 3,010건, quota 보류 1,475건, 최종 승격 360건을 funnel로 기록한다.
+- active quota가 있는 `RISK`, `CONTRACT`, `CORPORATE_ACTION`은 모두 quota가 채워진 상태로 기록한다.
+- `CAPITAL_ACTION`, `DISCLOSURE`, `EARNINGS`, `MACRO`는 고신호 후보가 충분하지만 actual-news gold gate 실험 전까지 `expansion_candidate_hold_for_gold_gate`로 보류한다.
+- 테스트는 monitoring report가 distillation·release 리포트에서 재계산한 결과와 완전히 일치하는지 검증한다.
+
 ## 현재 구현 로직
 - 종목 매핑은 전달받은 `stock_universe`에서 종목코드, 한글명, 영문명 포함 여부로 판단한다.
 - 이벤트 태그는 한국어 금융 tokenizer feature를 포함한 학습된 multilabel classifier가 산출한다.
