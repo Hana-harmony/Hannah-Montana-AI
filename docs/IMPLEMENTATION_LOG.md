@@ -390,3 +390,14 @@
 - 1,607개 `no_raw_no_candidate` 종목을 229개 `raw_without_candidate` 종목보다 먼저 배치해 실제 데이터가 전혀 없는 종목부터 수집한다.
 - `scripts/collect_training_data.py`는 `--stock-collection-plan`과 `--stock-collection-plan-shard-index`를 받아 특정 shard만 수집할 수 있다.
 - shard 수집 결과도 raw 또는 검수 후보일 뿐이며, 사람 승인 전에는 supervised/gold 데이터로 승격하지 않는다.
+
+## 2026-06-05 누락 종목 shard 0 수집과 재학습
+- `stock_collection_shard_plan`의 shard 0을 Naver News Search로 수집해 512개 요청 모두 성공했고 rate limit은 0건이었다.
+- raw 후보는 37,278건에서 40,907건으로 늘었고, Naver 원천 데이터는 11,312건에서 14,941건으로 늘었다.
+- raw 종목 매칭은 2,356개에서 2,528개로 늘었고, 후보 큐는 6,244건/2,127종목에서 7,490건/2,314종목으로 확장됐다.
+- 누락 종목 shard plan은 1,836개/19개 shard에서 1,649개/17개 shard로 줄었다.
+- 새 모델 `financial-ml-tfidf-logreg-20260604210928`은 supervised 3,609건과 pseudo-label 900건을 합친 4,509건으로 학습했다.
+- 종목 후보 큐 중 teacher gate와 release gate를 통과한 540건, 540개 종목을 event-model-only pseudo-label로 제한 승격했다.
+- 실제 뉴스 gold에서 `GENERAL_MARKET` recall 하락을 확인해 label threshold를 0.38에서 0.34로 조정했고, recall 0.9412와 F1 0.9143으로 회복했다.
+- 새 release는 80건 Naver 실제 뉴스 gold 기준 이벤트 recall 0.9375, macro F1 0.9180, 감성 accuracy 0.9125, 중요도 accuracy 0.9250, 종목 accuracy 1.0으로 gate를 통과했다.
+- service readiness는 사람이 승인한 coverage gold가 아직 0건이라 계속 `fail`이다.
