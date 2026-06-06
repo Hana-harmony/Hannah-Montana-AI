@@ -24,13 +24,13 @@
           "RISK": 0.54
         }
       },
-      "model_version": "financial-ml-tfidf-logreg-20260605045728",
+      "model_version": "financial-ml-tfidf-logreg-20260605104401",
       "sample_count": 4469,
       "pseudo_labeled_sample_count": 860,
       "stock_candidate_labeling": {
         "status": "promoted_to_event_student_training",
         "source_path": "data/curation/stock_training_candidate_queue.jsonl",
-        "candidate_count": 11011,
+        "candidate_count": 12070,
         "accepted_count": 500,
         "accepted_stock_count": 500,
         "accepted_count_by_primary_label": {
@@ -44,11 +44,11 @@
           "GENERAL_MARKET": 0
         },
         "rejected_count_by_reason": {
-          "low_teacher_confidence": 2206,
-          "per_stock_quota_filled": 456,
-          "teacher_candidate_event_disagreement": 1,
-          "teacher_zero_quota_label": 76,
-          "zero_quota_label": 7648
+          "low_teacher_confidence": 2626,
+          "per_stock_quota_filled": 505,
+          "teacher_candidate_event_disagreement": 3,
+          "teacher_zero_quota_label": 86,
+          "zero_quota_label": 8190
         },
         "label_quotas": {
           "RISK": 250,
@@ -61,442 +61,6 @@
           "GENERAL_MARKET": 0
         },
         "per_stock_quota": 1,
-        "promotion_method": "supervised_teacher_gate_on_stock_balanced_queue",
-        "pseudo_sample_influence_control": "event_model_only"
-      },
-      "quality_gates": {
-        "holdout": {
-          "sample_count": 722,
-          "status": "pass",
-          "metrics": {
-            "event_subset_recall": {
-              "actual": 0.9889196675900277,
-              "minimum": 0.8,
-              "margin": 0.18891966759002765,
-              "status": "pass"
-            },
-            "event_macro_f1": {
-              "actual": 0.9880665660133557,
-              "minimum": 0.8,
-              "margin": 0.1880665660133557,
-              "status": "pass"
-            },
-            "sentiment_accuracy": {
-              "actual": 0.9889196675900277,
-              "minimum": 0.8,
-              "margin": 0.18891966759002765,
-              "status": "pass"
-            },
-            "importance_accuracy": {
-              "actual": 0.9930747922437673,
-              "minimum": 0.8,
-              "margin": 0.19307479224376722,
-              "status": "pass"
-            }
-          }
-        },
-        "benchmark": {
-          "sample_count": 768,
-          "status": "pass",
-          "metrics": {
-            "event_tag_recall": {
-              "actual": 0.9921875,
-              "minimum": 0.8,
-              "margin": 0.19218749999999996,
-              "status": "pass"
-            },
-            "event_macro_f1": {
-              "actual": 0.9977272727272727,
-              "minimum": 0.8,
-              "margin": 0.19772727272727264,
-              "status": "pass"
-            },
-            "sentiment_accuracy": {
-              "actual": 1.0,
-              "minimum": 0.85,
-              "margin": 0.15000000000000002,
-              "status": "pass"
-            },
-            "importance_accuracy": {
-              "actual": 0.9375,
-              "minimum": 0.8,
-              "margin": 0.13749999999999996,
-              "status": "pass"
-            },
-            "stock_accuracy": {
-              "actual": 1.0,
-              "minimum": 1.0,
-              "margin": 0.0,
-              "status": "pass"
-            }
-          }
-        },
-        "real_disclosure_gold": {
-          "sample_count": 30,
-          "status": "pass",
-          "metrics": {
-            "event_tag_recall": {
-              "actual": 1.0,
-              "minimum": 0.9,
-              "margin": 0.09999999999999998,
-              "status": "pass"
-            },
-            "event_macro_f1": {
-              "actual": 0.9846153846153847,
-              "minimum": 0.9,
-              "margin": 0.08461538461538465,
-              "status": "pass"
-            },
-            "sentiment_accuracy": {
-              "actual": 1.0,
-              "minimum": 0.9,
-              "margin": 0.09999999999999998,
-              "status": "pass"
-            },
-            "importance_accuracy": {
-              "actual": 0.9666666666666667,
-              "minimum": 0.9,
-              "margin": 0.06666666666666665,
-              "status": "pass"
-            },
-            "stock_accuracy": {
-              "actual": 1.0,
-              "minimum": 1.0,
-              "margin": 0.0,
-              "status": "pass"
-            }
-          }
-        },
-        "real_news_gold": {
-          "sample_count": 80,
-          "status": "pass",
-          "metrics": {
-            "event_tag_recall": {
-              "actual": 0.925,
-              "minimum": 0.9,
-              "margin": 0.025000000000000022,
-              "status": "pass"
-            },
-            "event_macro_f1": {
-              "actual": 0.915168670338949,
-              "minimum": 0.9,
-              "margin": 0.015168670338948975,
-              "status": "pass"
-            },
-            "sentiment_accuracy": {
-              "actual": 0.9125,
-              "minimum": 0.9,
-              "margin": 0.012499999999999956,
-              "status": "pass"
-            },
-            "importance_accuracy": {
-              "actual": 0.925,
-              "minimum": 0.9,
-              "margin": 0.025000000000000022,
-              "status": "pass"
-            },
-            "stock_accuracy": {
-              "actual": 1.0,
-              "minimum": 1.0,
-              "margin": 0.0,
-              "status": "pass"
-            }
-          }
-        }
-      },
-      "overall_status": "pass",
-      "evaluation": {
-        "benchmark": {
-          "sample_count": 768,
-          "event_tag_recall": 0.9921875,
-          "sentiment_accuracy": 1.0,
-          "importance_accuracy": 0.9375,
-          "stock_accuracy": 1.0,
-          "event_macro_f1": 0.9977272727272727,
-          "event_label_metrics": {
-            "CAPITAL_ACTION": {
-              "precision": 1.0,
-              "recall": 1.0,
-              "f1": 1.0,
-              "support": 72
-            },
-            "CONTRACT": {
-              "precision": 1.0,
-              "recall": 1.0,
-              "f1": 1.0,
-              "support": 72
-            },
-            "CORPORATE_ACTION": {
-              "precision": 1.0,
-              "recall": 1.0,
-              "f1": 1.0,
-              "support": 96
-            },
-            "DISCLOSURE": {
-              "precision": 1.0,
-              "recall": 1.0,
-              "f1": 1.0,
-              "support": 312
-            },
-            "EARNINGS": {
-              "precision": 1.0,
-              "recall": 1.0,
-              "f1": 1.0,
-              "support": 120
-            },
-            "GENERAL_MARKET": {
-              "precision": 1.0,
-              "recall": 1.0,
-              "f1": 1.0,
-              "support": 72
-            },
-            "MACRO": {
-              "precision": 1.0,
-              "recall": 1.0,
-              "f1": 1.0,
-              "support": 144
-            },
-            "RISK": {
-              "precision": 1.0,
-              "recall": 0.9642857142857143,
-              "f1": 0.9818181818181818,
-              "support": 168
-            }
-          },
-          "sentiment_confusion_matrix": {
-            "NEGATIVE": {
-              "NEGATIVE": 264
-            },
-            "NEUTRAL": {
-              "NEUTRAL": 264
-            },
-            "POSITIVE": {
-              "POSITIVE": 240
-            }
-          },
-          "importance_confusion_matrix": {
-            "CRITICAL": {
-              "CRITICAL": 85,
-              "HIGH": 11
-            },
-            "HIGH": {
-              "HIGH": 347,
-              "MEDIUM": 37
-            },
-            "LOW": {
-              "LOW": 48
-            },
-            "MEDIUM": {
-              "MEDIUM": 240
-            }
-          }
-        },
-        "real_disclosure_gold": {
-          "sample_count": 30,
-          "event_tag_recall": 1.0,
-          "sentiment_accuracy": 1.0,
-          "importance_accuracy": 0.9666666666666667,
-          "stock_accuracy": 1.0,
-          "event_macro_f1": 0.9846153846153847,
-          "event_label_metrics": {
-            "CAPITAL_ACTION": {
-              "precision": 1.0,
-              "recall": 1.0,
-              "f1": 1.0,
-              "support": 8
-            },
-            "CONTRACT": {
-              "precision": 1.0,
-              "recall": 1.0,
-              "f1": 1.0,
-              "support": 3
-            },
-            "CORPORATE_ACTION": {
-              "precision": 0.8571428571428571,
-              "recall": 1.0,
-              "f1": 0.923076923076923,
-              "support": 6
-            },
-            "DISCLOSURE": {
-              "precision": 1.0,
-              "recall": 1.0,
-              "f1": 1.0,
-              "support": 30
-            },
-            "RISK": {
-              "precision": 1.0,
-              "recall": 1.0,
-              "f1": 1.0,
-              "support": 7
-            }
-          },
-          "sentiment_confusion_matrix": {
-            "NEGATIVE": {
-              "NEGATIVE": 7
-            },
-            "NEUTRAL": {
-              "NEUTRAL": 19
-            },
-            "POSITIVE": {
-              "POSITIVE": 4
-            }
-          },
-          "importance_confusion_matrix": {
-            "CRITICAL": {
-              "CRITICAL": 5
-            },
-            "HIGH": {
-              "CRITICAL": 1,
-              "HIGH": 18
-            },
-            "LOW": {
-              "LOW": 6
-            }
-          }
-        },
-        "real_news_gold": {
-          "sample_count": 80,
-          "event_tag_recall": 0.925,
-          "sentiment_accuracy": 0.9125,
-          "importance_accuracy": 0.925,
-          "stock_accuracy": 1.0,
-          "event_macro_f1": 0.915168670338949,
-          "event_label_metrics": {
-            "CAPITAL_ACTION": {
-              "precision": 1.0,
-              "recall": 1.0,
-              "f1": 1.0,
-              "support": 15
-            },
-            "CONTRACT": {
-              "precision": 0.8888888888888888,
-              "recall": 1.0,
-              "f1": 0.9411764705882353,
-              "support": 8
-            },
-            "CORPORATE_ACTION": {
-              "precision": 0.8333333333333334,
-              "recall": 1.0,
-              "f1": 0.9090909090909091,
-              "support": 10
-            },
-            "EARNINGS": {
-              "precision": 0.9444444444444444,
-              "recall": 0.85,
-              "f1": 0.8947368421052632,
-              "support": 20
-            },
-            "GENERAL_MARKET": {
-              "precision": 0.9411764705882353,
-              "recall": 0.9411764705882353,
-              "f1": 0.9411764705882353,
-              "support": 17
-            },
-            "MACRO": {
-              "precision": 0.7058823529411765,
-              "recall": 0.9230769230769231,
-              "f1": 0.8000000000000002,
-              "support": 13
-            },
-            "RISK": {
-              "precision": 0.8846153846153846,
-              "recall": 0.9583333333333334,
-              "f1": 0.9199999999999999,
-              "support": 24
-            }
-          },
-          "sentiment_confusion_matrix": {
-            "NEGATIVE": {
-              "NEGATIVE": 18,
-              "NEUTRAL": 2
-            },
-            "NEUTRAL": {
-              "NEUTRAL": 15,
-              "POSITIVE": 3
-            },
-            "POSITIVE": {
-              "NEUTRAL": 2,
-              "POSITIVE": 40
-            }
-          },
-          "importance_confusion_matrix": {
-            "CRITICAL": {
-              "CRITICAL": 1
-            },
-            "HIGH": {
-              "HIGH": 29,
-              "MEDIUM": 4
-            },
-            "LOW": {
-              "LOW": 3
-            },
-            "MEDIUM": {
-              "HIGH": 2,
-              "MEDIUM": 41
-            }
-          }
-        }
-      }
-    },
-    {
-      "profile": {
-        "name": "risk_contract_per_stock_2",
-        "label_quotas": {
-          "RISK": 500,
-          "CONTRACT": 500,
-          "CAPITAL_ACTION": 0,
-          "CORPORATE_ACTION": 0,
-          "EARNINGS": 0,
-          "MACRO": 0,
-          "DISCLOSURE": 0,
-          "GENERAL_MARKET": 0
-        },
-        "per_stock_quota": 2,
-        "event_label_thresholds": {
-          "CONTRACT": 0.34,
-          "CORPORATE_ACTION": 0.18,
-          "EARNINGS": 0.36,
-          "MACRO": 0.22,
-          "RISK": 0.54
-        }
-      },
-      "model_version": "financial-ml-tfidf-logreg-20260605045902",
-      "sample_count": 4789,
-      "pseudo_labeled_sample_count": 1180,
-      "stock_candidate_labeling": {
-        "status": "promoted_to_event_student_training",
-        "source_path": "data/curation/stock_training_candidate_queue.jsonl",
-        "candidate_count": 11011,
-        "accepted_count": 820,
-        "accepted_stock_count": 624,
-        "accepted_count_by_primary_label": {
-          "RISK": 469,
-          "CONTRACT": 351,
-          "CAPITAL_ACTION": 0,
-          "CORPORATE_ACTION": 0,
-          "EARNINGS": 0,
-          "MACRO": 0,
-          "DISCLOSURE": 0,
-          "GENERAL_MARKET": 0
-        },
-        "rejected_count_by_reason": {
-          "low_teacher_confidence": 2405,
-          "per_stock_quota_filled": 59,
-          "teacher_candidate_event_disagreement": 1,
-          "teacher_zero_quota_label": 78,
-          "zero_quota_label": 7648
-        },
-        "label_quotas": {
-          "RISK": 500,
-          "CONTRACT": 500,
-          "CAPITAL_ACTION": 0,
-          "CORPORATE_ACTION": 0,
-          "EARNINGS": 0,
-          "MACRO": 0,
-          "DISCLOSURE": 0,
-          "GENERAL_MARKET": 0
-        },
-        "per_stock_quota": 2,
         "promotion_method": "supervised_teacher_gate_on_stock_balanced_queue",
         "pseudo_sample_influence_control": "event_model_only"
       },
@@ -578,9 +142,9 @@
               "status": "pass"
             },
             "event_macro_f1": {
-              "actual": 0.9846153846153847,
+              "actual": 0.96,
               "minimum": 0.9,
-              "margin": 0.08461538461538465,
+              "margin": 0.05999999999999994,
               "status": "pass"
             },
             "sentiment_accuracy": {
@@ -608,15 +172,15 @@
           "status": "fail",
           "metrics": {
             "event_tag_recall": {
-              "actual": 0.8875,
+              "actual": 0.9,
               "minimum": 0.9,
-              "margin": -0.012500000000000067,
-              "status": "fail"
+              "margin": 0.0,
+              "status": "pass"
             },
             "event_macro_f1": {
-              "actual": 0.8925272798444572,
+              "actual": 0.8934945406734123,
               "minimum": 0.9,
-              "margin": -0.007472720155542789,
+              "margin": -0.006505459326587748,
               "status": "fail"
             },
             "sentiment_accuracy": {
@@ -733,7 +297,7 @@
           "sentiment_accuracy": 1.0,
           "importance_accuracy": 0.9666666666666667,
           "stock_accuracy": 1.0,
-          "event_macro_f1": 0.9846153846153847,
+          "event_macro_f1": 0.96,
           "event_label_metrics": {
             "CAPITAL_ACTION": {
               "precision": 1.0,
@@ -748,9 +312,9 @@
               "support": 3
             },
             "CORPORATE_ACTION": {
-              "precision": 0.8571428571428571,
+              "precision": 0.6666666666666666,
               "recall": 1.0,
-              "f1": 0.923076923076923,
+              "f1": 0.8,
               "support": 6
             },
             "DISCLOSURE": {
@@ -792,11 +356,11 @@
         },
         "real_news_gold": {
           "sample_count": 80,
-          "event_tag_recall": 0.8875,
+          "event_tag_recall": 0.9,
           "sentiment_accuracy": 0.9125,
           "importance_accuracy": 0.925,
           "stock_accuracy": 1.0,
-          "event_macro_f1": 0.8925272798444572,
+          "event_macro_f1": 0.8934945406734123,
           "event_label_metrics": {
             "CAPITAL_ACTION": {
               "precision": 1.0,
@@ -811,9 +375,445 @@
               "support": 8
             },
             "CORPORATE_ACTION": {
-              "precision": 0.8888888888888888,
-              "recall": 0.8,
-              "f1": 0.8421052631578948,
+              "precision": 0.6666666666666666,
+              "recall": 1.0,
+              "f1": 0.8,
+              "support": 10
+            },
+            "EARNINGS": {
+              "precision": 0.9375,
+              "recall": 0.75,
+              "f1": 0.8333333333333334,
+              "support": 20
+            },
+            "GENERAL_MARKET": {
+              "precision": 0.9411764705882353,
+              "recall": 0.9411764705882353,
+              "f1": 0.9411764705882353,
+              "support": 17
+            },
+            "MACRO": {
+              "precision": 0.7058823529411765,
+              "recall": 0.9230769230769231,
+              "f1": 0.8000000000000002,
+              "support": 13
+            },
+            "RISK": {
+              "precision": 0.92,
+              "recall": 0.9583333333333334,
+              "f1": 0.9387755102040817,
+              "support": 24
+            }
+          },
+          "sentiment_confusion_matrix": {
+            "NEGATIVE": {
+              "NEGATIVE": 18,
+              "NEUTRAL": 2
+            },
+            "NEUTRAL": {
+              "NEUTRAL": 15,
+              "POSITIVE": 3
+            },
+            "POSITIVE": {
+              "NEUTRAL": 2,
+              "POSITIVE": 40
+            }
+          },
+          "importance_confusion_matrix": {
+            "CRITICAL": {
+              "CRITICAL": 1
+            },
+            "HIGH": {
+              "HIGH": 29,
+              "MEDIUM": 4
+            },
+            "LOW": {
+              "LOW": 3
+            },
+            "MEDIUM": {
+              "HIGH": 2,
+              "MEDIUM": 41
+            }
+          }
+        }
+      }
+    },
+    {
+      "profile": {
+        "name": "risk_contract_per_stock_2",
+        "label_quotas": {
+          "RISK": 500,
+          "CONTRACT": 500,
+          "CAPITAL_ACTION": 0,
+          "CORPORATE_ACTION": 0,
+          "EARNINGS": 0,
+          "MACRO": 0,
+          "DISCLOSURE": 0,
+          "GENERAL_MARKET": 0
+        },
+        "per_stock_quota": 2,
+        "event_label_thresholds": {
+          "CONTRACT": 0.34,
+          "CORPORATE_ACTION": 0.18,
+          "EARNINGS": 0.36,
+          "MACRO": 0.22,
+          "RISK": 0.54
+        }
+      },
+      "model_version": "financial-ml-tfidf-logreg-20260605104505",
+      "sample_count": 4830,
+      "pseudo_labeled_sample_count": 1221,
+      "stock_candidate_labeling": {
+        "status": "promoted_to_event_student_training",
+        "source_path": "data/curation/stock_training_candidate_queue.jsonl",
+        "candidate_count": 12070,
+        "accepted_count": 861,
+        "accepted_stock_count": 658,
+        "accepted_count_by_primary_label": {
+          "RISK": 500,
+          "CONTRACT": 361,
+          "CAPITAL_ACTION": 0,
+          "CORPORATE_ACTION": 0,
+          "EARNINGS": 0,
+          "MACRO": 0,
+          "DISCLOSURE": 0,
+          "GENERAL_MARKET": 0
+        },
+        "rejected_count_by_reason": {
+          "low_teacher_confidence": 2866,
+          "per_stock_quota_filled": 59,
+          "teacher_candidate_event_disagreement": 3,
+          "teacher_zero_quota_label": 89,
+          "zero_quota_label": 8190
+        },
+        "label_quotas": {
+          "RISK": 500,
+          "CONTRACT": 500,
+          "CAPITAL_ACTION": 0,
+          "CORPORATE_ACTION": 0,
+          "EARNINGS": 0,
+          "MACRO": 0,
+          "DISCLOSURE": 0,
+          "GENERAL_MARKET": 0
+        },
+        "per_stock_quota": 2,
+        "promotion_method": "supervised_teacher_gate_on_stock_balanced_queue",
+        "pseudo_sample_influence_control": "event_model_only"
+      },
+      "quality_gates": {
+        "holdout": {
+          "sample_count": 722,
+          "status": "pass",
+          "metrics": {
+            "event_subset_recall": {
+              "actual": 0.9889196675900277,
+              "minimum": 0.8,
+              "margin": 0.18891966759002765,
+              "status": "pass"
+            },
+            "event_macro_f1": {
+              "actual": 0.9880665660133557,
+              "minimum": 0.8,
+              "margin": 0.1880665660133557,
+              "status": "pass"
+            },
+            "sentiment_accuracy": {
+              "actual": 0.9889196675900277,
+              "minimum": 0.8,
+              "margin": 0.18891966759002765,
+              "status": "pass"
+            },
+            "importance_accuracy": {
+              "actual": 0.9930747922437673,
+              "minimum": 0.8,
+              "margin": 0.19307479224376722,
+              "status": "pass"
+            }
+          }
+        },
+        "benchmark": {
+          "sample_count": 768,
+          "status": "pass",
+          "metrics": {
+            "event_tag_recall": {
+              "actual": 0.98046875,
+              "minimum": 0.8,
+              "margin": 0.18046874999999996,
+              "status": "pass"
+            },
+            "event_macro_f1": {
+              "actual": 0.9941588785046729,
+              "minimum": 0.8,
+              "margin": 0.19415887850467284,
+              "status": "pass"
+            },
+            "sentiment_accuracy": {
+              "actual": 1.0,
+              "minimum": 0.85,
+              "margin": 0.15000000000000002,
+              "status": "pass"
+            },
+            "importance_accuracy": {
+              "actual": 0.9375,
+              "minimum": 0.8,
+              "margin": 0.13749999999999996,
+              "status": "pass"
+            },
+            "stock_accuracy": {
+              "actual": 1.0,
+              "minimum": 1.0,
+              "margin": 0.0,
+              "status": "pass"
+            }
+          }
+        },
+        "real_disclosure_gold": {
+          "sample_count": 30,
+          "status": "pass",
+          "metrics": {
+            "event_tag_recall": {
+              "actual": 1.0,
+              "minimum": 0.9,
+              "margin": 0.09999999999999998,
+              "status": "pass"
+            },
+            "event_macro_f1": {
+              "actual": 0.9714285714285713,
+              "minimum": 0.9,
+              "margin": 0.07142857142857129,
+              "status": "pass"
+            },
+            "sentiment_accuracy": {
+              "actual": 1.0,
+              "minimum": 0.9,
+              "margin": 0.09999999999999998,
+              "status": "pass"
+            },
+            "importance_accuracy": {
+              "actual": 0.9666666666666667,
+              "minimum": 0.9,
+              "margin": 0.06666666666666665,
+              "status": "pass"
+            },
+            "stock_accuracy": {
+              "actual": 1.0,
+              "minimum": 1.0,
+              "margin": 0.0,
+              "status": "pass"
+            }
+          }
+        },
+        "real_news_gold": {
+          "sample_count": 80,
+          "status": "fail",
+          "metrics": {
+            "event_tag_recall": {
+              "actual": 0.9125,
+              "minimum": 0.9,
+              "margin": 0.012499999999999956,
+              "status": "pass"
+            },
+            "event_macro_f1": {
+              "actual": 0.8974688367823379,
+              "minimum": 0.9,
+              "margin": -0.0025311632176621135,
+              "status": "fail"
+            },
+            "sentiment_accuracy": {
+              "actual": 0.9125,
+              "minimum": 0.9,
+              "margin": 0.012499999999999956,
+              "status": "pass"
+            },
+            "importance_accuracy": {
+              "actual": 0.925,
+              "minimum": 0.9,
+              "margin": 0.025000000000000022,
+              "status": "pass"
+            },
+            "stock_accuracy": {
+              "actual": 1.0,
+              "minimum": 1.0,
+              "margin": 0.0,
+              "status": "pass"
+            }
+          }
+        }
+      },
+      "overall_status": "fail",
+      "evaluation": {
+        "benchmark": {
+          "sample_count": 768,
+          "event_tag_recall": 0.98046875,
+          "sentiment_accuracy": 1.0,
+          "importance_accuracy": 0.9375,
+          "stock_accuracy": 1.0,
+          "event_macro_f1": 0.9941588785046729,
+          "event_label_metrics": {
+            "CAPITAL_ACTION": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "support": 72
+            },
+            "CONTRACT": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "support": 72
+            },
+            "CORPORATE_ACTION": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "support": 96
+            },
+            "DISCLOSURE": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "support": 312
+            },
+            "EARNINGS": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "support": 120
+            },
+            "GENERAL_MARKET": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "support": 72
+            },
+            "MACRO": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "support": 144
+            },
+            "RISK": {
+              "precision": 1.0,
+              "recall": 0.9107142857142857,
+              "f1": 0.9532710280373832,
+              "support": 168
+            }
+          },
+          "sentiment_confusion_matrix": {
+            "NEGATIVE": {
+              "NEGATIVE": 264
+            },
+            "NEUTRAL": {
+              "NEUTRAL": 264
+            },
+            "POSITIVE": {
+              "POSITIVE": 240
+            }
+          },
+          "importance_confusion_matrix": {
+            "CRITICAL": {
+              "CRITICAL": 85,
+              "HIGH": 11
+            },
+            "HIGH": {
+              "HIGH": 347,
+              "MEDIUM": 37
+            },
+            "LOW": {
+              "LOW": 48
+            },
+            "MEDIUM": {
+              "MEDIUM": 240
+            }
+          }
+        },
+        "real_disclosure_gold": {
+          "sample_count": 30,
+          "event_tag_recall": 1.0,
+          "sentiment_accuracy": 1.0,
+          "importance_accuracy": 0.9666666666666667,
+          "stock_accuracy": 1.0,
+          "event_macro_f1": 0.9714285714285713,
+          "event_label_metrics": {
+            "CAPITAL_ACTION": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "support": 8
+            },
+            "CONTRACT": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "support": 3
+            },
+            "CORPORATE_ACTION": {
+              "precision": 0.75,
+              "recall": 1.0,
+              "f1": 0.8571428571428571,
+              "support": 6
+            },
+            "DISCLOSURE": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "support": 30
+            },
+            "RISK": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "support": 7
+            }
+          },
+          "sentiment_confusion_matrix": {
+            "NEGATIVE": {
+              "NEGATIVE": 7
+            },
+            "NEUTRAL": {
+              "NEUTRAL": 19
+            },
+            "POSITIVE": {
+              "POSITIVE": 4
+            }
+          },
+          "importance_confusion_matrix": {
+            "CRITICAL": {
+              "CRITICAL": 5
+            },
+            "HIGH": {
+              "CRITICAL": 1,
+              "HIGH": 18
+            },
+            "LOW": {
+              "LOW": 6
+            }
+          }
+        },
+        "real_news_gold": {
+          "sample_count": 80,
+          "event_tag_recall": 0.9125,
+          "sentiment_accuracy": 0.9125,
+          "importance_accuracy": 0.925,
+          "stock_accuracy": 1.0,
+          "event_macro_f1": 0.8974688367823379,
+          "event_label_metrics": {
+            "CAPITAL_ACTION": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "support": 15
+            },
+            "CONTRACT": {
+              "precision": 0.8,
+              "recall": 1.0,
+              "f1": 0.888888888888889,
+              "support": 8
+            },
+            "CORPORATE_ACTION": {
+              "precision": 0.7692307692307693,
+              "recall": 1.0,
+              "f1": 0.8695652173913044,
               "support": 10
             },
             "EARNINGS": {
@@ -829,15 +829,15 @@
               "support": 17
             },
             "MACRO": {
-              "precision": 0.6875,
-              "recall": 0.8461538461538461,
-              "f1": 0.7586206896551724,
+              "precision": 0.7058823529411765,
+              "recall": 0.9230769230769231,
+              "f1": 0.8000000000000002,
               "support": 13
             },
             "RISK": {
-              "precision": 0.8518518518518519,
+              "precision": 0.8846153846153846,
               "recall": 0.9583333333333334,
-              "f1": 0.9019607843137256,
+              "f1": 0.9199999999999999,
               "support": 24
             }
           },
@@ -897,31 +897,31 @@
           "RISK": 0.5
         }
       },
-      "model_version": "financial-ml-tfidf-logreg-20260605051635",
-      "sample_count": 4627,
-      "pseudo_labeled_sample_count": 1018,
+      "model_version": "financial-ml-tfidf-logreg-20260605104826",
+      "sample_count": 4661,
+      "pseudo_labeled_sample_count": 1052,
       "stock_candidate_labeling": {
         "status": "promoted_to_event_student_training",
         "source_path": "data/curation/stock_training_candidate_queue.jsonl",
-        "candidate_count": 11011,
-        "accepted_count": 658,
-        "accepted_stock_count": 658,
+        "candidate_count": 12070,
+        "accepted_count": 692,
+        "accepted_stock_count": 692,
         "accepted_count_by_primary_label": {
-          "RISK": 236,
-          "CONTRACT": 220,
+          "RISK": 254,
+          "CONTRACT": 232,
           "CAPITAL_ACTION": 120,
-          "CORPORATE_ACTION": 45,
-          "EARNINGS": 23,
-          "MACRO": 14,
+          "CORPORATE_ACTION": 44,
+          "EARNINGS": 26,
+          "MACRO": 16,
           "DISCLOSURE": 0,
           "GENERAL_MARKET": 0
         },
         "rejected_count_by_reason": {
-          "low_teacher_confidence": 4259,
-          "per_stock_quota_filled": 2702,
-          "teacher_candidate_event_disagreement": 141,
+          "low_teacher_confidence": 4967,
+          "per_stock_quota_filled": 2977,
+          "teacher_candidate_event_disagreement": 139,
           "teacher_zero_quota_label": 25,
-          "zero_quota_label": 2684
+          "zero_quota_label": 2703
         },
         "label_quotas": {
           "RISK": 350,
@@ -973,15 +973,15 @@
           "status": "pass",
           "metrics": {
             "event_tag_recall": {
-              "actual": 1.0,
+              "actual": 0.9973958333333334,
               "minimum": 0.8,
-              "margin": 0.19999999999999996,
+              "margin": 0.19739583333333333,
               "status": "pass"
             },
             "event_macro_f1": {
-              "actual": 1.0,
+              "actual": 0.999251497005988,
               "minimum": 0.8,
-              "margin": 0.19999999999999996,
+              "margin": 0.199251497005988,
               "status": "pass"
             },
             "sentiment_accuracy": {
@@ -1081,11 +1081,11 @@
       "evaluation": {
         "benchmark": {
           "sample_count": 768,
-          "event_tag_recall": 1.0,
+          "event_tag_recall": 0.9973958333333334,
           "sentiment_accuracy": 1.0,
           "importance_accuracy": 0.9375,
           "stock_accuracy": 1.0,
-          "event_macro_f1": 1.0,
+          "event_macro_f1": 0.999251497005988,
           "event_label_metrics": {
             "CAPITAL_ACTION": {
               "precision": 1.0,
@@ -1131,8 +1131,8 @@
             },
             "RISK": {
               "precision": 1.0,
-              "recall": 1.0,
-              "f1": 1.0,
+              "recall": 0.9880952380952381,
+              "f1": 0.9940119760479043,
               "support": 168
             }
           },
@@ -1314,15 +1314,15 @@
   ],
   "best_promotable_profile": {
     "name": "current_release",
-    "accepted_count": 658,
-    "accepted_stock_count": 658,
+    "accepted_count": 692,
+    "accepted_stock_count": 692,
     "accepted_count_by_primary_label": {
-      "RISK": 236,
-      "CONTRACT": 220,
+      "RISK": 254,
+      "CONTRACT": 232,
       "CAPITAL_ACTION": 120,
-      "CORPORATE_ACTION": 45,
-      "EARNINGS": 23,
-      "MACRO": 14,
+      "CORPORATE_ACTION": 44,
+      "EARNINGS": 26,
+      "MACRO": 16,
       "DISCLOSURE": 0,
       "GENERAL_MARKET": 0
     }
