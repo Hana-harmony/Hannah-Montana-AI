@@ -9,7 +9,7 @@ from datetime import UTC, date, datetime, timedelta
 from email.utils import parsedate_to_datetime
 from pathlib import Path
 from typing import Any, cast
-from urllib.error import HTTPError
+from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
@@ -265,6 +265,16 @@ def _json_request_with_retry(
                 continue
             status.failed_requests += 1
             raise
+        except (TimeoutError, URLError) as exception:
+            status.failed_requests += 1
+            if attempt < max_retries:
+                time.sleep(_retry_sleep(base_sleep_seconds, attempt))
+                continue
+            status.record_error(
+                "transient network error exceeded retry budget: "
+                f"{exception.__class__.__name__}"
+            )
+            return None
 
     return None
 
