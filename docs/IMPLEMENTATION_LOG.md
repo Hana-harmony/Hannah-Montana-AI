@@ -712,3 +712,17 @@
 - 80건 Naver 실제 뉴스 gold 기준 이벤트 recall 0.9625, macro F1 0.9108, 감성 accuracy 0.9125, 중요도 accuracy 0.9250, 종목 accuracy 1.0을 기록했다.
 - risk/contract per-stock 2 확장 profile은 887건/705종목으로 확장됐지만 실제 뉴스 gold macro F1 gate를 통과하지 못해 current release에는 반영하지 않았다.
 - service readiness는 사람이 승인한 coverage gold가 아직 0건이라 계속 `fail`이다.
+
+## 2026-06-11 - 전 종목 후보 shard 18 추가 확장
+- 최신 `stock_collection_shard_plan`의 shard 0과 shard 1을 0.4초 보수적 sleep으로 Naver News Search 추가 수집했다. 두 shard 모두 512개 요청이 모두 성공했고 rate limit은 0건이었다.
+- shard 0은 dedupe 후 raw 후보를 67,286건에서 67,317건으로 늘렸고 raw 매칭 종목은 3,597개를 유지했다.
+- shard 1은 dedupe 후 raw 후보를 67,317건에서 67,707건으로 늘리고 raw 매칭 종목을 3,606개로 늘렸다.
+- Naver 원천 데이터는 41,320건에서 41,741건으로 확장됐다.
+- 후보 큐는 15,511건/3,485종목에서 15,608건/3,495종목으로 확장됐다.
+- 누락 종목 shard plan은 479개/5개 shard에서 469개/5개 shard로 줄었다. priority는 `no_raw_no_candidate` 367개에서 358개로 줄고 `raw_without_candidate`는 112개에서 111개로 줄었다.
+- 새 모델 `financial-ml-tfidf-logreg-20260610230131`은 supervised 3,609건과 pseudo-label 1,122건을 합친 4,731건으로 학습했다.
+- 종목 후보 큐 중 teacher gate와 release gate를 통과한 778건, 778개 종목을 event-model-only pseudo-label로 제한 승격했다.
+- 종목 후보 큐 승격 분포는 `RISK` 293건, `CONTRACT` 266건, `CAPITAL_ACTION` 120건, `CORPORATE_ACTION` 44건, `EARNINGS` 32건, `MACRO` 23건이다.
+- 80건 Naver 실제 뉴스 gold 기준 이벤트 recall 0.9625, macro F1 0.9108, 감성 accuracy 0.9125, 중요도 accuracy 0.9250, 종목 accuracy 1.0을 기록했다.
+- risk/contract per-stock 2 확장 profile은 894건/710종목으로 확장됐지만 실제 뉴스 gold macro F1 gate를 통과하지 못해 current release에는 반영하지 않았다.
+- service readiness는 사람이 승인한 coverage gold가 아직 0건이라 계속 `fail`이다.
