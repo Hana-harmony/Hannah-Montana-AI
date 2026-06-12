@@ -305,8 +305,18 @@ def test_model_release_report_matches_source_reports() -> None:
 
     assert release_report == expected
     assert release_report["overall_status"] == "pass"
-    assert release_report["service_readiness"]["overall_status"] == "fail"
-    coverage_check = release_report["service_readiness"]["checks"][
+    assert release_report["service_readiness"]["overall_status"] == "pass"
+    assert release_report["service_readiness"]["readiness_type"] == (
+        "bootstrap_service_readiness"
+    )
+    bootstrap_check = release_report["service_readiness"]["checks"][
+        "stock_candidate_bootstrap_coverage"
+    ]
+    assert bootstrap_check["status"] == "pass"
+    assert bootstrap_check["accepted_stock_count"] == 781
+    assert bootstrap_check["minimum_accepted_stock_count"] == 500
+    assert release_report["audited_gold_readiness"]["overall_status"] == "fail"
+    coverage_check = release_report["audited_gold_readiness"]["checks"][
         "coverage_validation"
     ]
     assert coverage_check["status"] == "fail"

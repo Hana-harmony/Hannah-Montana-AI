@@ -113,6 +113,8 @@ uv run python scripts/build_pseudo_label_monitoring_report.py
 - `reports/stock-coverage-report.json`의 `training_stock_count`와 `evaluation_stock_count`는 사람이 검수한 supervised/gold coverage다.
 - `event_model_pseudo_training_coverage`는 teacher-gated event-model-only pseudo-label coverage다.
 - 현재 event model pseudo training coverage는 781건, 781개 종목이며 supervised gold coverage로 간주하지 않는다.
+- `reports/model-release-report.json`의 `service_readiness`는 bootstrap 운영 판단이며, release quality gate와 stock-candidate pseudo coverage를 기준으로 한다.
+- `audited_gold_readiness`는 사람이 승인한 coverage gold 기준이며, bootstrap 운영 판단과 별도로 관리한다.
 - `reports/stock-collection-shard-plan.json`은 candidate queue, supervised training gold, evaluation gold가 모두 없는 종목을 shard 단위 수집 대상으로 기록한다.
 - 현재 shard plan은 351개 `no_raw_no_candidate` 종목과 107개 `raw_without_candidate` 종목을 우선 수집 대상으로 둔다.
 - `reports/stock-candidate-quota-experiment.json`은 calibrated current release 781건/781종목이 gate를 통과했고, risk/contract 확장 profile은 895건/709종목까지 확장됐지만 실제 뉴스 gold macro F1 gate를 통과하지 못했음을 기록한다.

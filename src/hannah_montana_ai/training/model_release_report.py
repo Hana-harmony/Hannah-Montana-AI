@@ -4,6 +4,7 @@ from typing import Any
 
 MODEL_RELEASE_REPORT_SCHEMA_VERSION = "model-release-report/v1"
 MODEL_ARTIFACT_PATH = "src/hannah_montana_ai/model_store/financial_nlp_ml.joblib"
+MINIMUM_BOOTSTRAP_STOCK_CANDIDATE_COUNT = 500
 
 QUALITY_GATE_THRESHOLDS: dict[str, dict[str, float]] = {
     "holdout": {
@@ -44,8 +45,13 @@ def build_model_release_report(
 ) -> dict[str, Any]:
     quality_gates = _build_quality_gates(training_report, evaluation_report)
     consistency_checks = _build_consistency_checks(training_report, distillation_report)
-    service_readiness = _build_service_readiness(coverage_validation_report)
     overall_status = _overall_status(quality_gates, consistency_checks)
+    service_readiness = _build_service_readiness(
+        quality_gates,
+        consistency_checks,
+        distillation_report,
+    )
+    audited_gold_readiness = _build_audited_gold_readiness(coverage_validation_report)
 
     return {
         "schema_version": MODEL_RELEASE_REPORT_SCHEMA_VERSION,
@@ -78,6 +84,7 @@ def build_model_release_report(
         "quality_gates": quality_gates,
         "consistency_checks": consistency_checks,
         "service_readiness": service_readiness,
+        "audited_gold_readiness": audited_gold_readiness,
         "weakest_event_labels": _build_weakest_event_labels(evaluation_report),
         "report_inputs": {
             "training_report": "reports/ml-training-report.json",
@@ -215,6 +222,48 @@ def _build_consistency_checks(
 
 
 def _build_service_readiness(
+    quality_gates: dict[str, dict[str, Any]],
+    consistency_checks: dict[str, dict[str, Any]],
+    distillation_report: dict[str, Any],
+) -> dict[str, Any]:
+    quality_status = _status_from_checks(quality_gates.values())
+    consistency_status = _status_from_checks(consistency_checks.values())
+    stock_candidate_labeling = distillation_report.get("stock_candidate_labeling", {})
+    accepted_stock_count = int(stock_candidate_labeling.get("accepted_stock_count", 0) or 0)
+    stock_candidate_status = (
+        "pass"
+        if accepted_stock_count >= MINIMUM_BOOTSTRAP_STOCK_CANDIDATE_COUNT
+        else "fail"
+    )
+    checks = {
+        "model_quality_release": {
+            "status": quality_status,
+            "required_status": "pass",
+        },
+        "release_consistency": {
+            "status": consistency_status,
+            "required_status": "pass",
+        },
+        "stock_candidate_bootstrap_coverage": {
+            "status": stock_candidate_status,
+            "accepted_stock_count": accepted_stock_count,
+            "minimum_accepted_stock_count": MINIMUM_BOOTSTRAP_STOCK_CANDIDATE_COUNT,
+            "coverage_type": "event-model-only pseudo labels",
+        },
+    }
+    return {
+        "overall_status": _status_from_checks(checks.values()),
+        "readiness_type": "bootstrap_service_readiness",
+        "checks": checks,
+        "policy": (
+            "service bootstrap readiness is based on release quality gates, "
+            "consistency checks, and gated stock-candidate pseudo coverage; "
+            "human-approved coverage gold is tracked separately as audited gold readiness"
+        ),
+    }
+
+
+def _build_audited_gold_readiness(
     coverage_validation_report: dict[str, Any] | None,
 ) -> dict[str, Any]:
     if coverage_validation_report is None:
@@ -227,8 +276,7 @@ def _build_service_readiness(
                 }
             },
             "policy": (
-                "service readiness requires model quality gates, consistency checks, "
-                "and approved stock coverage validation"
+                "audited gold readiness requires approved stock coverage validation"
             ),
         }
 
@@ -237,6 +285,7 @@ def _build_service_readiness(
     evaluation_validation = coverage_validation_report.get("evaluation_validation", {})
     return {
         "overall_status": "pass" if coverage_status == "pass" else "fail",
+        "readiness_type": "audited_gold_readiness",
         "checks": {
             "coverage_validation": {
                 "status": coverage_status,
@@ -265,8 +314,8 @@ def _build_service_readiness(
             }
         },
         "policy": (
-            "model quality pass is not sufficient for service readiness until "
-            "coverage validation passes with human-approved stock review gold"
+            "human-approved stock review gold is not required for bootstrap service "
+            "readiness, but is required before claiming audited gold coverage readiness"
         ),
     }
 

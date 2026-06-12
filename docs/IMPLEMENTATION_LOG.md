@@ -740,3 +740,10 @@
 - 80건 Naver 실제 뉴스 gold 기준 이벤트 recall 0.9625, macro F1 0.9108, 감성 accuracy 0.9125, 중요도 accuracy 0.9250, 종목 accuracy 1.0을 기록했다.
 - risk/contract per-stock 2 확장 profile은 895건/709종목으로 확장됐지만 실제 뉴스 gold gate를 통과하지 못해 current release에는 반영하지 않았다.
 - service readiness는 사람이 승인한 coverage gold가 아직 0건이라 계속 `fail`이다.
+
+## 2026-06-12 - bootstrap service readiness와 audited gold readiness 분리
+- `model_release_report.py`의 service readiness를 사람 승인 coverage gold 필수 조건에서 분리했다.
+- `service_readiness`는 release quality gate, consistency check, 500종목 이상 stock-candidate pseudo coverage를 만족하면 bootstrap 운영 기준 `pass`로 기록한다.
+- `audited_gold_readiness`는 기존 coverage validation을 유지해 사람이 승인한 stock review gold 기준을 별도로 추적한다.
+- 현재 모델은 stock-candidate pseudo coverage 781종목으로 bootstrap service readiness를 `pass`한다.
+- 사람 승인 coverage gold는 아직 0건이라 audited gold readiness는 계속 `fail`이다.
