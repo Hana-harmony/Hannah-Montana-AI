@@ -86,6 +86,7 @@ uv run python scripts/train_stock_linker_model.py
 - 실제 뉴스 gold 최소 기준은 이벤트 recall 0.9, 이벤트 macro F1 0.9, 감성 accuracy 0.9, 중요도 accuracy 0.9, 종목 accuracy 1.0이다.
 - 현재 실제 뉴스 gold 결과는 이벤트 recall 0.9625, 이벤트 macro F1 0.9108, 감성 accuracy 0.9125, 중요도 accuracy 0.9250, 종목 accuracy 1.0이다.
 - `reports/model-release-report.json`은 현재 모델 버전 `financial-ml-tfidf-logreg-20260612005235`의 전체 release gate와 pseudo-label consistency check를 `overall_status=pass`로 기록한다.
+- `reports/model-release-report.json`은 bootstrap service readiness를 `pass`로 기록하고, 사람 승인 coverage gold 기반 audited readiness를 별도 `fail`로 기록한다.
 - `reports/pseudo-label-promotion-monitoring.json`은 고신호 후보 5,204건, teacher 탈락 4,007건, quota 보류 72건, 최종 승격 1,125건을 `overall_status=pass`로 기록한다.
 - `reports/stock-coverage-report.json`은 universe 3,967개, raw 매칭 3,613개 종목, supervised 38개 종목, evaluation 57개 종목을 기록한다.
 - `reports/stock-coverage-report.json`은 event-model-only pseudo 학습 coverage 781건, 781개 종목도 별도 섹션으로 기록한다.
