@@ -7,6 +7,8 @@ Sentiment = Literal["POSITIVE", "NEUTRAL", "NEGATIVE"]
 Importance = Literal["LOW", "MEDIUM", "HIGH", "CRITICAL"]
 MarketType = Literal["KOSPI", "KOSDAQ", "KONEX", "OTHER"]
 PriceLimitStatus = Literal["UPPER", "LOWER", "NORMAL"]
+ForeignLimitUsageStatus = Literal["NORMAL", "CAUTION", "LIMIT_REACHED"]
+OrderAvailabilityIndicator = Literal["AVAILABLE", "CAUTION", "LIMITED"]
 YesNoFlag = Literal["Y", "N"]
 ViActivationStatus = YesNoFlag
 TradingSessionStatus = Literal["REGULAR", "SINGLE_PRICE", "PRE_OPEN", "CLOSED"]
@@ -84,15 +86,21 @@ class StockOrderStatusResponse(BaseModel):
     local_current_price: float
     foreign_owned_quantity: int
     foreign_limit_quantity: int
+    foreign_limit_remaining_quantity: int
     foreign_ownership_rate: float
     foreign_limit_exhaustion_rate: float
     fx_predicted_rate_min: float
     fx_predicted_rate_max: float
+    foreign_limit_usage_status: ForeignLimitUsageStatus
     foreign_limit_warning: bool
     vi_activation_status: ViActivationStatus
     vi_activation_reason: list[str]
     price_limit_status: PriceLimitStatus
     immediate_execution_available: bool
+    buy_order_available: bool
+    sell_order_available: bool
+    order_availability_indicator: OrderAvailabilityIndicator
+    order_restriction_reasons: list[str]
     order_guidance_message: str
     prediction_model_version: str
     trading_state_model_version: str

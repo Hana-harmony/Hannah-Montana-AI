@@ -7,8 +7,10 @@ from typing import Literal
 
 from hannah_montana_ai.domain.schemas import (
     AlertAnalysisRequest,
+    ForeignLimitUsageStatus,
     IntelligenceEventRequest,
     IntelligenceEventResponse,
+    OrderAvailabilityIndicator,
     PriceLimitStatus,
     StockOrderStatusRequest,
     StockOrderStatusResponse,
@@ -57,10 +59,12 @@ FINANCIAL_TRANSLATION_TERMS = {
 @dataclass(frozen=True)
 class ForeignOwnershipPrediction:
     foreign_limit_quantity: int
+    foreign_limit_remaining_quantity: int
     ownership_rate: float
     limit_exhaustion_rate: float
     predicted_rate_min: float
     predicted_rate_max: float
+    usage_status: ForeignLimitUsageStatus
     limit_warning: bool
     model_version: str
 
@@ -73,6 +77,14 @@ class TradingStatePrediction:
     immediate_execution_available: bool
     guidance_message: str
     model_version: str
+
+
+@dataclass(frozen=True)
+class OrderAvailabilityPrediction:
+    buy_order_available: bool
+    sell_order_available: bool
+    indicator: OrderAvailabilityIndicator
+    restriction_reasons: list[str]
 
 
 @dataclass(frozen=True)
@@ -129,15 +141,17 @@ class ForeignOwnershipBoundaryModel:
             request.foreign_limit_rate,
             predicted_center + request.prediction_confidence_interval_percent,
         )
+        limit_remaining_quantity = max(0, foreign_limit_quantity - request.foreign_owned_quantity)
+        usage_status = _foreign_limit_usage_status(predicted_max, request.foreign_limit_rate)
         return ForeignOwnershipPrediction(
             foreign_limit_quantity=foreign_limit_quantity,
+            foreign_limit_remaining_quantity=limit_remaining_quantity,
             ownership_rate=round(ownership_rate, 4),
             limit_exhaustion_rate=round(limit_exhaustion_rate, 4),
             predicted_rate_min=round(predicted_min, 4),
             predicted_rate_max=round(predicted_max, 4),
-            limit_warning=(
-                predicted_max >= request.foreign_limit_rate - FOREIGN_LIMIT_WARNING_BUFFER_PERCENT
-            ),
+            usage_status=usage_status,
+            limit_warning=usage_status != "NORMAL",
             model_version=self.version,
         )
 
@@ -262,6 +276,7 @@ class StockOrderStatusService:
     def build_response(self, request: StockOrderStatusRequest) -> StockOrderStatusResponse:
         ownership = self._ownership_model.predict(request)
         trading_state = self._trading_state_model.predict(request)
+        order_availability = _order_availability(ownership, trading_state)
 
         return StockOrderStatusResponse(
             stock_code=request.stock_code,
@@ -277,15 +292,21 @@ class StockOrderStatusService:
             local_current_price=round(request.current_price * request.local_fx_rate, 4),
             foreign_owned_quantity=request.foreign_owned_quantity,
             foreign_limit_quantity=ownership.foreign_limit_quantity,
+            foreign_limit_remaining_quantity=ownership.foreign_limit_remaining_quantity,
             foreign_ownership_rate=ownership.ownership_rate,
             foreign_limit_exhaustion_rate=ownership.limit_exhaustion_rate,
             fx_predicted_rate_min=ownership.predicted_rate_min,
             fx_predicted_rate_max=ownership.predicted_rate_max,
+            foreign_limit_usage_status=ownership.usage_status,
             foreign_limit_warning=ownership.limit_warning,
             vi_activation_status=trading_state.vi_activation_status,
             vi_activation_reason=trading_state.vi_reasons,
             price_limit_status=trading_state.price_limit_status,
             immediate_execution_available=trading_state.immediate_execution_available,
+            buy_order_available=order_availability.buy_order_available,
+            sell_order_available=order_availability.sell_order_available,
+            order_availability_indicator=order_availability.indicator,
+            order_restriction_reasons=order_availability.restriction_reasons,
             order_guidance_message=trading_state.guidance_message,
             prediction_model_version=ownership.model_version,
             trading_state_model_version=trading_state.model_version,
@@ -376,6 +397,17 @@ def _rate(numerator: int, denominator: int) -> float:
     return numerator / denominator * 100
 
 
+def _foreign_limit_usage_status(
+    predicted_max: float,
+    foreign_limit_rate: float,
+) -> ForeignLimitUsageStatus:
+    if predicted_max >= foreign_limit_rate:
+        return "LIMIT_REACHED"
+    if predicted_max >= foreign_limit_rate - FOREIGN_LIMIT_WARNING_BUFFER_PERCENT:
+        return "CAUTION"
+    return "NORMAL"
+
+
 def _vi_reasons(request: StockOrderStatusRequest) -> list[str]:
     reasons: list[str] = []
     if request.dynamic_vi_activated:
@@ -393,6 +425,39 @@ def _price_limit_status(request: StockOrderStatusRequest) -> PriceLimitStatus:
     if request.lower_limit_price and request.current_price <= request.lower_limit_price:
         return "LOWER"
     return "NORMAL"
+
+
+def _order_availability(
+    ownership: ForeignOwnershipPrediction,
+    trading_state: TradingStatePrediction,
+) -> OrderAvailabilityPrediction:
+    reasons: list[str] = []
+    if not trading_state.immediate_execution_available:
+        reasons.append("REALTIME_EXECUTION_LIMITED")
+    if ownership.usage_status == "LIMIT_REACHED":
+        reasons.append("FOREIGN_LIMIT_REACHED")
+    elif ownership.usage_status == "CAUTION":
+        reasons.append("FOREIGN_LIMIT_CAUTION")
+
+    buy_order_available = (
+        trading_state.immediate_execution_available
+        and ownership.usage_status != "LIMIT_REACHED"
+    )
+    sell_order_available = trading_state.immediate_execution_available
+    indicator: OrderAvailabilityIndicator
+    if not buy_order_available and not sell_order_available:
+        indicator = "LIMITED"
+    elif reasons:
+        indicator = "CAUTION"
+    else:
+        indicator = "AVAILABLE"
+
+    return OrderAvailabilityPrediction(
+        buy_order_available=buy_order_available,
+        sell_order_available=sell_order_available,
+        indicator=indicator,
+        restriction_reasons=reasons,
+    )
 
 
 def _order_guidance_message(

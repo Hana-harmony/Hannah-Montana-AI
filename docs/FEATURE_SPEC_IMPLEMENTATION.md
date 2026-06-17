@@ -17,16 +17,22 @@
   - 외국인 보유율 = `foreign_owned_quantity / issued_shares * 100`
   - 외국인 한도소진율 = `foreign_owned_quantity / foreign_limit_quantity * 100`
   - 당일 예측 지분율 구간 = 장중 순매수 반영 중심값 ± `prediction_confidence_interval_percent`
+  - 외국인 한도 잔여 수량 = `foreign_limit_quantity - foreign_owned_quantity`
+  - 외국인 한도 사용 상태 = 예측 최대치가 한도에 도달하면 `LIMIT_REACHED`, 1%p 이내 접근 시 `CAUTION`
   - VI 상태 = 동적 VI, 정적 VI, 단일가 세션 중 하나라도 있으면 `Y`
   - 제한가격 상태 = 현재가가 상한가 이상이면 `UPPER`, 하한가 이하이면 `LOWER`
+  - 주문 가능 여부 = 실시간 체결 가능 상태와 외국인 한도 사용 상태를 합성해 매수/매도 가능 여부와 제한 사유 코드를 산출
 - 모델:
   - `ForeignOwnershipBoundaryModel`: 외국인 지분율 및 당일 예측 boundary 산출
   - `TradingStateModel`: VI, 단일가, 상·하한가, 즉시체결 가능 여부 판정
 - 출력 핵심 필드:
   - `fx_predicted_rate_min`, `fx_predicted_rate_max`
+  - `foreign_limit_remaining_quantity`, `foreign_limit_usage_status`
   - `vi_activation_status`
   - `price_limit_status`
   - `immediate_execution_available`
+  - `buy_order_available`, `sell_order_available`
+  - `order_availability_indicator`, `order_restriction_reasons`
   - `order_guidance_message`
   - `prediction_model_version`, `trading_state_model_version`
   - `data_source="KIS/KRX/PredictEngine"`
@@ -83,7 +89,7 @@
 
 ## 하네스 보강
 - `tests/test_feature_definition_contracts.py`가 기능정의서의 세 도메인 계약을 직접 검증한다.
-- 주문 하네스는 외국인 한도 경고, VI, 상한가, 현지통화 환산, 즉시체결 제한 문구를 검증한다.
+- 주문 하네스는 외국인 한도 잔여 수량, 한도 사용 상태, 매수/매도 가능 여부, 제한 사유, VI, 상한가, 현지통화 환산, 즉시체결 제한 문구를 검증한다.
 - provider parser 하네스는 KIS 마스터, KIS 실시간 패킷, KRX 외국인 보유 row를 모델 입력으로 합성하고 종목코드 불일치를 거부하는지 검증한다.
 - 인텔리전스 하네스는 Naver/OpenDART provider row 파싱, API/WebSocket 중복키 생성, 종목·출처별 중복키 경계, 번역 제목, 요약, 이벤트 태그, 감성, 중요도, holder/watchlist target, WebSocket 이벤트 패킷, 데이터 출처를 검증한다.
 - 세무 하네스는 CASE_01 판정, 서류 검증, 배당 7%, 양도세 `min(11%, 22%)`, 3% 선지급 수수료, 사후 환수 플래그와 세무 provider row 파싱을 검증한다.

@@ -54,9 +54,55 @@ def test_provider_parsers_build_stock_order_model_input_from_kis_and_krx_rows() 
     assert response.foreign_limit_exhaustion_rate == 99.75
     assert response.fx_predicted_rate_min == 39.91
     assert response.fx_predicted_rate_max == 39.99
+    assert response.foreign_limit_usage_status == "CAUTION"
     assert response.vi_activation_status == "Y"
     assert response.price_limit_status == "UPPER"
     assert response.immediate_execution_available is False
+    assert response.buy_order_available is False
+    assert response.sell_order_available is False
+    assert response.order_availability_indicator == "LIMITED"
+
+
+def test_order_availability_allows_regular_session_with_foreign_limit_caution() -> None:
+    master = parse_kis_master_csv(
+        "stock_code,stock_name,stock_name_en,market,issued_shares,previous_close_price,upper_limit_price,lower_limit_price\n"
+        "005930,삼성전자,Samsung Electronics,KOSPI,100000000,65000,84500,45500\n"
+    )[0]
+    quote = parse_kis_realtime_packet(
+        {
+            "stock_code": "005930",
+            "current_price": "70000",
+            "dynamic_vi_activated": "N",
+            "static_vi_activated": "N",
+            "trading_session_status": "REGULAR",
+        }
+    )
+    foreign_holding = parse_krx_foreign_holding_row(
+        {
+            "stock_code": "005930",
+            "foreign_owned_quantity": "39,500,000",
+            "foreign_ownership_rate": "39.50",
+            "foreign_limit_exhaustion_rate": "98.75",
+            "foreign_limit_quantity": "40,000,000",
+        }
+    )
+
+    request = build_stock_order_status_request(
+        master=master,
+        quote=quote,
+        foreign_holding=foreign_holding,
+        foreign_limit_rate=40.0,
+        intraday_foreign_net_buy_quantity=400_000,
+    )
+    response = StockOrderStatusService().build_response(request)
+
+    assert response.foreign_limit_remaining_quantity == 500_000
+    assert response.foreign_limit_usage_status == "CAUTION"
+    assert response.immediate_execution_available is True
+    assert response.buy_order_available is True
+    assert response.sell_order_available is True
+    assert response.order_availability_indicator == "CAUTION"
+    assert response.order_restriction_reasons == ["FOREIGN_LIMIT_CAUTION"]
 
 
 def test_provider_parser_rejects_mismatched_stock_codes() -> None:

@@ -37,13 +37,22 @@ def test_korean_stock_order_status_contract_packs_foreign_limit_vi_and_price_lim
     assert payload["stock_code"] == "005930"
     assert payload["foreign_ownership_rate"] == 39.9
     assert payload["foreign_limit_exhaustion_rate"] == 99.75
+    assert payload["foreign_limit_remaining_quantity"] == 100_000
     assert payload["fx_predicted_rate_min"] == 39.91
     assert payload["fx_predicted_rate_max"] == 39.99
+    assert payload["foreign_limit_usage_status"] == "CAUTION"
     assert payload["foreign_limit_warning"] is True
     assert payload["vi_activation_status"] == "Y"
     assert payload["vi_activation_reason"] == ["DYNAMIC_VI", "SINGLE_PRICE_SESSION"]
     assert payload["price_limit_status"] == "UPPER"
     assert payload["immediate_execution_available"] is False
+    assert payload["buy_order_available"] is False
+    assert payload["sell_order_available"] is False
+    assert payload["order_availability_indicator"] == "LIMITED"
+    assert payload["order_restriction_reasons"] == [
+        "REALTIME_EXECUTION_LIMITED",
+        "FOREIGN_LIMIT_CAUTION",
+    ]
     assert payload["local_current_price"] == 490.1
     assert payload["prediction_model_version"] == "foreign-ownership-boundary-v1"
     assert payload["trading_state_model_version"] == "krx-vi-price-limit-state-v1"
