@@ -2,7 +2,7 @@
 
 ## 목적
 - Hana-OmniLens-API가 수집한 뉴스·공시 제목과 snippet을 분석한다.
-- ChatGPT API에 의존하지 않고 자체 Rule Engine과 자체 금융 NLP 기준 모델을 사용한다.
+- ChatGPT API에 의존하지 않고 자체 학습한 금융 NLP ML 모델을 사용한다.
 
 ## 서비스 구성
 - `api`: 분석 API route
@@ -14,12 +14,19 @@
 ## API 경계
 - 공개 endpoint: `GET /health`
 - 내부 endpoint: `POST /api/v1/alerts/analyze`
+- 내부 endpoint: `POST /api/v1/stocks/order-status`
+- 내부 endpoint: `POST /api/v1/intelligence/events`
+- 내부 endpoint: `POST /api/v1/tax/refund-status`
 - AI 서비스는 협력사용 `OMNILENS_API_KEY`를 요구하지 않는다.
 - AI 서비스는 별도 토큰을 검증하지 않고 Spring 컨테이너 전용 내부 네트워크에서만 접근 가능해야 한다.
 
 ## 현재 구현 상태
-- 종목 매핑은 전달받은 `stock_universe`에서 종목코드, 한글명, 영문명 포함 여부로 판단한다.
-- 이벤트 태그는 `financial_nlp_baseline.json`의 학습 키워드와 입력 텍스트를 비교한다.
-- 감성은 긍정/부정 금융 키워드 점수 차이로 분류한다.
-- 중요도는 위험 키워드, 공시 여부, 주요 이벤트 키워드 순서로 분류한다.
-- 중복 제거 키는 source type, 종목코드, 정규화 제목을 SHA-256으로 해시한다.
+- 종목 매핑은 요청 `stock_universe`를 우선 사용하고, 누락된 종목은 내부 `data/reference/korea_stock_universe.csv` master에서 종목코드, 한글명, 영문명, alias 포함 여부로 판단한다.
+- 내부 master fallback은 `stock_linker_ml.joblib`의 TF-IDF stock linker 예측을 먼저 확인하고, 대표 종목 오탐 방지를 위해 실제 선두 term 매칭 여부를 함께 검증한다.
+- 이벤트 태그는 `financial_nlp_ml.joblib`의 source type과 한국어 금융 token feature 포함 One-vs-Rest multilabel classifier로 예측한다.
+- 감성은 TF-IDF char n-gram, 한국어 금융 token feature, Logistic Regression 모델로 분류한다.
+- 중요도는 source type, TF-IDF char n-gram, 한국어 금융 token feature를 결합한 Logistic Regression 모델이 분류한다.
+- 중복 제거 키는 source type, 종목코드, 뉴스 라벨·꼬리표를 제거한 canonical title을 SHA-256으로 해시한다.
+- 주문 상태 계약은 외부 KIS/KRX/PredictEngine 입력값을 받아 외국인 보유율, 한도소진율, 예측 지분율 구간, VI, 상·하한가, 즉시체결 가능 여부를 계산한다.
+- 인텔리전스 이벤트 계약은 기존 분석 결과에 번역 제목·요약 필드를 붙여 현지 MTS WebSocket 패킷 형태로 패킹한다.
+- 세무 환급 계약은 OCR/위변조 검증 결과와 거래 원장을 입력받아 CASE_01 여부, 환급 가능액, 선지급 수수료, 사후 환수 플래그를 계산한다.
