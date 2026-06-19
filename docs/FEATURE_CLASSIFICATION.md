@@ -4,10 +4,10 @@
 
 | 기능 | 현재 상태 |
 | --- | --- |
-| 뉴스·공시 종목 매핑 | Implemented, audited gold coverage pending |
-| 이벤트 태그 분류 | Implemented, audited gold coverage pending |
-| 감성 분류 | Implemented, audited gold coverage pending |
-| 중요도 분류 | Implemented, audited gold coverage pending |
+| 뉴스·공시 종목 매핑 | Done: audited gold readiness pass, 운영 gold/drift 보강 지속 |
+| 이벤트 태그 분류 | Done: audited gold readiness pass, 운영 gold/drift 보강 지속 |
+| 감성 분류 | Done: audited gold readiness pass, 운영 gold/drift 보강 지속 |
+| 중요도 분류 | Done: audited gold readiness pass, 운영 gold/drift 보강 지속 |
 | 중복 제거 키 생성 | Implemented |
 | 간단 요약 생성 | Implemented |
 | 금융 용어 normalization과 번역 품질 보조 | Implemented |
@@ -17,7 +17,7 @@
 
 | 기능 | 담당 레포 |
 | --- | --- |
-| KIS/KRX/EXIM/Naver/OpenDART/Papago/DeepL credential 관리 | Hana-OmniLens-API |
+| KIS/KRX/Naver/OpenDART/DeepL credential 관리 | Hana-OmniLens-API |
 | 협력사 REST/WebSocket API와 API key 인증 | Hana-OmniLens-API |
 | 뉴스·공시 이벤트 수신 후 사용자별 푸시 대상자 매칭 | Stock-exchange-BE |
 | MTS 종목 상세, K-News 피드, 알림함 UI | Stock-exchange-FE |
