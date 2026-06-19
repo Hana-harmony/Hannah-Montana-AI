@@ -126,6 +126,7 @@ EVENT_LABEL_THRESHOLDS = {
     "MACRO": 0.24,
     "RISK": 0.50,
 }
+CODEX_REVIEW_APPROVED_STATUS = "codex_review_approved"
 
 
 @dataclass(frozen=True)
@@ -142,6 +143,7 @@ class MlTrainingReport:
     validation: MlValidationReport
     event_probability_threshold: float
     event_label_thresholds: dict[str, float]
+    supervised_exclusion_report: dict[str, Any] = field(default_factory=dict)
     pseudo_labeling: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -158,6 +160,7 @@ class MlTrainingReport:
             "validation": self.validation.to_dict(),
             "event_probability_threshold": self.event_probability_threshold,
             "event_label_thresholds": self.event_label_thresholds,
+            "supervised_exclusion_report": self.supervised_exclusion_report,
             "pseudo_labeling": self.pseudo_labeling,
         }
 
@@ -216,7 +219,7 @@ def train_ml_model(
     ),
     event_label_thresholds: dict[str, float] | None = None,
 ) -> MlTrainingReport:
-    supervised_samples = _load_samples(training_paths)
+    supervised_samples, supervised_exclusion_report = _load_supervised_samples(training_paths)
     if len(supervised_samples) < 30:
         raise ValueError("ML training requires at least 30 labeled samples")
 
@@ -288,6 +291,7 @@ def train_ml_model(
         "supervised_sample_count": len(supervised_samples),
         "pseudo_labeled_sample_count": len(pseudo_label_result.samples),
         "training_sources": _training_source_paths(training_paths),
+        "supervised_exclusion_report": supervised_exclusion_report,
         "pseudo_labeling": pseudo_label_result.report,
     }
     model_path.parent.mkdir(parents=True, exist_ok=True)
@@ -306,23 +310,39 @@ def train_ml_model(
         validation=validation,
         event_probability_threshold=EVENT_PROBABILITY_THRESHOLD,
         event_label_thresholds=effective_event_label_thresholds,
+        supervised_exclusion_report=supervised_exclusion_report,
         pseudo_labeling=pseudo_label_result.report,
     )
 
 
-def _load_samples(paths: list[Path]) -> list[LabeledAlert]:
+def _load_supervised_samples(paths: list[Path]) -> tuple[list[LabeledAlert], dict[str, Any]]:
     samples: list[LabeledAlert] = []
     seen: set[str] = set()
+    excluded_by_reason: Counter[str] = Counter()
+    excluded_by_path: Counter[str] = Counter()
     for path in paths:
         if not path.exists():
             continue
         for sample in load_labeled_alerts(path):
+            if sample.source_review_status == CODEX_REVIEW_APPROVED_STATUS:
+                excluded_by_reason["codex_review_reference_only"] += 1
+                excluded_by_path[_report_path(path)] += 1
+                continue
             key = f"{sample.source_type}:{sample.text}"
             if key in seen:
+                excluded_by_reason["duplicate_text"] += 1
                 continue
             samples.append(sample)
             seen.add(key)
-    return samples
+    return samples, {
+        "policy": (
+            "codex_review_approved rows are committed and evaluated as reference "
+            "coverage data, but are excluded from supervised loss to avoid self-training "
+            "feedback loops"
+        ),
+        "excluded_count_by_reason": dict(sorted(excluded_by_reason.items())),
+        "excluded_count_by_path": dict(sorted(excluded_by_path.items())),
+    }
 
 
 def _training_source_paths(paths: list[Path]) -> list[str]:

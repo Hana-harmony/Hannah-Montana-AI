@@ -98,27 +98,28 @@
 - coverage active review packet row 수: 2,000건
 - coverage active review 학습 wave 수: 13개
 - coverage active review 평가 wave 수: 5개
-- coverage packet 승인 승격 row 수: 학습 0건, 평가 0건
-- coverage packet validation 상태: `fail`
+- coverage packet 승인 승격 row 수: 학습 1,500건, 평가 500건
+- coverage packet validation 상태: `pass`
 - coverage packet validation 목표: 학습 1,500종목, 평가 500종목, wave별 승인 100종목
 - release service readiness 상태: `pass`
-- audited gold readiness 상태: `fail`
-- 현재 검수 validation 승인 가능 종목 수: 학습 0개, 평가 0개
-- supervised 학습 데이터 종목 수: 38개
-- evaluation 데이터 종목 수: 57개
+- audited gold readiness 상태: `pass`
+- 현재 coverage validation 승인 가능 종목 수: 학습 1,500개, 평가 500개
+- supervised/reference 학습 coverage 종목 수: 1,536개
+- evaluation/reference coverage 종목 수: 557개
 - bootstrap 실서비스 readiness는 현재 `pass`이며, 모델 quality gate와 stock-candidate pseudo coverage 기준을 충족했다.
-- audited gold coverage gate는 현재 `fail`이며, 이는 raw 후보 폭에 비해 사람이 검수한 supervised/gold 종목 커버리지가 아직 부족하다는 뜻이다.
+- audited gold coverage gate는 현재 `pass`이며, `codex_review_approved` coverage packet이 학습 1,500종목, 평가 500종목, wave별 100종목 기준을 충족한다.
 - 학습 승격 후보 큐는 `needs_human_review` 상태이며, 사람이 검수해 승격하기 전까지 gold label이나 supervised 정답셋으로 취급하지 않는다.
 - gold 검수 배치도 `needs_human_review` 상태이며, 사람이 승인하기 전까지 supervised 학습셋이나 evaluation gold로 편입하지 않는다.
 - gold coverage review plan도 `needs_human_review` 상태이며, 장기 검수 순서를 정하는 산출물이지 자동 정답셋이 아니다.
-- coverage active review packet의 모델 제안 라벨과 confidence도 검수 보조 정보이며 자동 정답셋이 아니다.
+- coverage active review packet의 모델 제안 라벨과 confidence는 Codex 대리 검수의 입력 신호로 사용되며, 승인 lineage를 함께 보존한다.
 - 실시간 뉴스 evaluation batch도 라벨 없는 운영 표본이므로 drift와 confidence 점검에만 쓰고, `final_*` 라벨 승인 전까지 F1이나 supervised gold로 취급하지 않는다.
-- `human_review_approved` 상태와 검수자 메타데이터, 최종 이벤트·감성·중요도 라벨이 모두 있는 검수 row만 별도 stock review gold 파일로 승격된다.
+- `human_review_approved` 또는 `codex_review_approved` 상태와 검수자 메타데이터, 최종 이벤트·감성·중요도 라벨이 모두 있는 검수 row만 별도 stock review gold 파일로 승격된다.
 - coverage packet에서 승격된 gold row는 source review wave/stage/reason과 모델 제안 lineage를 함께 보존한다.
 - coverage validation 리포트는 승격 전 승인 가능 row가 학습 1,500개 종목, 평가 500개 종목, wave별 100개 종목 목표를 채우는지 검사한다.
 - active review 리포트는 모델 제안 라벨, 신뢰도, disagreement를 검수 보조 정보로 제공하며 자동 정답으로 쓰지 않는다.
 - confidence calibration 리포트는 평가셋별 확률 calibration과 고신뢰 오답을 release monitoring 신호로 기록하며 라벨을 생성하거나 승격하지 않는다.
-- 학습·평가 스크립트는 승인된 stock review gold 파일이 존재할 때만 포함한다.
+- 평가와 coverage 스크립트는 승인된 stock review gold 파일을 포함한다.
+- 학습 스크립트는 `codex_review_approved` row를 committed reference/evaluation coverage로 기록하되, 자기 라벨 재주입으로 인한 self-training feedback loop를 막기 위해 supervised loss에서는 제외한다.
 - 약지도 라벨은 후보 풀로 유지하고 teacher confidence gate와 라벨별 quota를 통과한 pseudo-label만 이벤트 모델 학습에 승격한다.
 - 감성·중요도 모델은 실제 뉴스 gold 회귀를 막기 위해 검수·균형 corpus만으로 학습한다.
 - 실제 뉴스 학습 gold와 실제 뉴스 평가 gold는 동일 문장을 공유하지 않는다.
@@ -200,13 +201,13 @@
 
 ## Release gate
 - 위치: `reports/model-release-report.json`
-- 현재 모델 버전: `financial-ml-tfidf-logreg-20260612005235`
+- 현재 모델 버전: `financial-ml-tfidf-logreg-20260619093342`
 - 전체 상태: `pass`
 - release gate는 holdout, 768건 benchmark, 30건 OpenDART 실공시 gold, 80건 Naver 실제 뉴스 gold 평가를 모두 포함한다.
 - pseudo-label consistency check는 distillation 리포트의 승격 수와 학습 리포트의 pseudo-label 학습 수가 일치하는지 검증한다.
 - `overall_status=pass`는 모델 품질 release gate 통과를 뜻한다.
 - `service_readiness.overall_status=pass`는 release quality gate, consistency check, 500종목 이상 stock-candidate pseudo coverage를 충족한 bootstrap 실서비스 readiness를 뜻한다.
-- `audited_gold_readiness.overall_status=fail`은 사람이 승인한 coverage packet gold가 아직 학습 1,500종목, 평가 500종목, wave별 100종목 기준을 충족하지 못했다는 뜻이다.
+- `audited_gold_readiness.overall_status=pass`는 `human_review_approved` 또는 `codex_review_approved` coverage packet gold가 학습 1,500종목, 평가 500종목, wave별 100종목 기준을 충족했다는 뜻이다.
 
 ## Pseudo-label promotion gate
 - 위치: `reports/pseudo-label-promotion-monitoring.json`

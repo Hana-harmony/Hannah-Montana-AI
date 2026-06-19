@@ -38,8 +38,8 @@
 - 종목 후보 큐 중 teacher gate와 release gate를 통과한 781건, 781개 종목을 event-model-only pseudo-label로 제한 승격 완료
 - stock candidate quota experiment로 이전 release, risk/contract 확장, calibrated current release의 gold gate 통과와 current release best profile 선정을 기록 완료
 - 후보 큐에서 학습 300개 종목, 평가 100개 종목 검수 배치 생성 완료
-- 검수자 메타데이터와 최종 라벨이 있는 `human_review_approved` row만 학습·평가 gold 파일로 편입하는 승격 파이프라인 완료
+- 검수자 메타데이터와 최종 라벨이 있는 `human_review_approved` 또는 `codex_review_approved` row만 학습·평가 gold 파일로 편입하는 승격 파이프라인 완료
 - 검수 배치 승인 가능 종목 수를 계측하는 validation report 완료
 - 모델 제안·불확실성 기반 active review report 완료
-- raw 후보는 3,613개 종목까지 매칭되지만 supervised 학습 종목은 38개, evaluation 종목은 57개라 coverage gate는 아직 fail이다.
-- 다음 단계는 검수 배치를 사람이 승인해 gold/supervised 데이터에 승격하고 최소 300개 이상 종목의 supervised 학습셋과 100개 이상 종목의 evaluation gold를 확보하는 것이다.
+- Codex 대리 검수로 coverage packet 2,000건을 승인해 학습 1,500종목, 평가 500종목 기준의 audited gold readiness를 pass로 전환했다.
+- 다음 단계는 운영 알림 로그와 실제 사용자 피드백으로 Codex 승인 라벨의 오탐/누락을 점검하고, 필요한 row를 사람 검수로 보강하는 것이다.

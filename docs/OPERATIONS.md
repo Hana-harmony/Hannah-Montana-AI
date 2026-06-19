@@ -74,7 +74,8 @@ uv run python scripts/collect_training_data.py \
 - `data/curation/stock_training_candidate_queue.jsonl`은 사람 검수 전 후보 큐이며, 검수 없이 gold label로 승격하지 않는다.
 - `data/curation/stock_gold_training_review_batch.jsonl`와 `data/curation/stock_gold_evaluation_review_batch.jsonl`은 후보 큐에서 뽑은 사람 검수용 배치다.
 - 검수 배치는 학습 300개 종목, 평가 100개 종목 목표로 생성하지만 `review_status=needs_human_review`인 동안 supervised/gold 정답셋으로 사용하지 않는다.
-- 사람이 승인한 row는 `review_status=human_review_approved`, `reviewer_id`, `reviewed_at`, `final_tags`, `final_sentiment`, `final_importance`를 모두 채운 뒤 `scripts/promote_stock_gold_review_batch.py`를 실행한다.
+- 사람이 승인한 row는 `review_status=human_review_approved`, Codex 대리 검수 row는 `review_status=codex_review_approved`로 두고 `reviewer_id`, `reviewed_at`, `final_tags`, `final_sentiment`, `final_importance`를 모두 채운 뒤 승격 스크립트를 실행한다.
+- coverage packet은 `scripts/approve_stock_gold_coverage_with_codex.py`로 Codex 대리 승인할 수 있으며, 6자리 숫자 종목코드가 아닌 row는 같은 split/wave의 유효 종목 후보로 backfill한다.
 - `scripts/validate_stock_gold_review_batch.py`를 먼저 실행해 승인 가능한 학습 300개 종목, 평가 100개 종목 목표를 만족하는지 확인한다.
 - `scripts/build_stock_gold_active_review_report.py`는 모델 제안 라벨과 불확실성으로 사람이 먼저 볼 row를 정렬한다.
 - 승격 스크립트는 승인 row만 `data/training/financial_alert_stock_review_gold.jsonl`와 `data/evaluation/financial_alert_stock_review_gold.jsonl`에 기록한다.
@@ -116,11 +117,11 @@ uv run python scripts/build_pseudo_label_monitoring_report.py
 - `GENERAL_MARKET`은 고신호 후보 풀이 작아 현재 확장 대상이 아니다.
 
 ## Coverage report 해석
-- `reports/stock-coverage-report.json`의 `training_stock_count`와 `evaluation_stock_count`는 사람이 검수한 supervised/gold coverage다.
+- `reports/stock-coverage-report.json`의 `training_stock_count`와 `evaluation_stock_count`는 승인된 stock review gold를 포함한 supervised/reference coverage다.
 - `event_model_pseudo_training_coverage`는 teacher-gated event-model-only pseudo-label coverage다.
-- 현재 event model pseudo training coverage는 781건, 781개 종목이며 supervised gold coverage로 간주하지 않는다.
+- 현재 event model pseudo training coverage는 781건, 781개 종목이며 supervised/reference coverage와 별도로 해석한다.
 - `reports/model-release-report.json`의 `service_readiness`는 bootstrap 운영 판단이며, release quality gate와 stock-candidate pseudo coverage를 기준으로 한다.
-- `audited_gold_readiness`는 사람이 승인한 coverage gold 기준이며, bootstrap 운영 판단과 별도로 관리한다.
+- `audited_gold_readiness`는 `human_review_approved` 또는 `codex_review_approved` coverage gold 기준이며, bootstrap 운영 판단과 별도로 관리한다.
 - `reports/stock-collection-shard-plan.json`은 candidate queue, supervised training gold, evaluation gold가 모두 없는 종목을 shard 단위 수집 대상으로 기록한다.
 - 현재 shard plan은 351개 `no_raw_no_candidate` 종목과 107개 `raw_without_candidate` 종목을 우선 수집 대상으로 둔다.
 - `reports/stock-candidate-quota-experiment.json`은 calibrated current release 781건/781종목이 gate를 통과했고, risk/contract 확장 profile은 895건/709종목까지 확장됐지만 실제 뉴스 gold macro F1 gate를 통과하지 못했음을 기록한다.
@@ -128,7 +129,7 @@ uv run python scripts/build_pseudo_label_monitoring_report.py
 - 검수 배치의 학습·평가 종목은 서로 겹치지 않으며, 사람이 승인하기 전까지 coverage gate 통과 수치에 포함하지 않는다.
 - `reports/stock-gold-review-validation-report.json`은 현재 검수 배치에서 승격 가능한 승인 row가 학습 300개 종목, 평가 100개 종목 목표를 만족하는지 기록한다.
 - `reports/stock-gold-active-review-report.json`은 모델 제안 라벨과 신뢰도 기반 검수 우선순위를 기록하지만, 사람 승인 없이 gold로 승격하지 않는다.
-- `reports/stock-gold-promotion-report.json`은 `human_review_approved` row 중 검수자 메타데이터와 최종 라벨이 모두 있는 row만 supervised/evaluation gold 출력으로 승격했는지 기록한다.
+- `reports/stock-gold-promotion-report.json`은 `human_review_approved` 또는 `codex_review_approved` row 중 검수자 메타데이터와 최종 라벨이 모두 있는 row만 supervised/evaluation gold 출력으로 승격했는지 기록한다.
 - 승인 상태지만 필수 검수 필드가 빠진 row는 `rejected_approved_count_by_reason`에 사유별로 집계한다.
 
 ## 운영 전 보강

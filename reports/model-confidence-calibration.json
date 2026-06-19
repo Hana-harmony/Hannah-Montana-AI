@@ -1,6 +1,6 @@
 {
   "schema_version": "model-confidence-calibration/v1",
-  "model_version": "financial-ml-tfidf-logreg-20260612005235",
+  "model_version": "financial-ml-tfidf-logreg-20260619093342",
   "model_path": "src/hannah_montana_ai/model_store/financial_nlp_ml.joblib",
   "bin_count": 10,
   "high_confidence_threshold": 0.85,
@@ -295,29 +295,134 @@
       }
     },
     "stock_review_gold": {
-      "sample_count": 0,
+      "sample_count": 500,
       "event_tags": {
-        "decision_count": 0,
-        "brier_score": 0.0,
-        "expected_calibration_error": 0.0,
-        "labels": {},
-        "high_confidence_errors": []
+        "decision_count": 4000,
+        "brier_score": 0.042142,
+        "expected_calibration_error": 0.090912,
+        "labels": {
+          "CAPITAL_ACTION": {
+            "decision_count": 500,
+            "positive_count": 181,
+            "brier_score": 0.078478,
+            "expected_calibration_error": 0.191146,
+            "high_confidence_false_positive_count": 0,
+            "high_confidence_false_negative_count": 1
+          },
+          "CONTRACT": {
+            "decision_count": 500,
+            "positive_count": 181,
+            "brier_score": 0.056279,
+            "expected_calibration_error": 0.182611,
+            "high_confidence_false_positive_count": 0,
+            "high_confidence_false_negative_count": 0
+          },
+          "CORPORATE_ACTION": {
+            "decision_count": 500,
+            "positive_count": 61,
+            "brier_score": 0.053797,
+            "expected_calibration_error": 0.115118,
+            "high_confidence_false_positive_count": 0,
+            "high_confidence_false_negative_count": 0
+          },
+          "DISCLOSURE": {
+            "decision_count": 500,
+            "positive_count": 103,
+            "brier_score": 0.004319,
+            "expected_calibration_error": 0.034863,
+            "high_confidence_false_positive_count": 0,
+            "high_confidence_false_negative_count": 1
+          },
+          "EARNINGS": {
+            "decision_count": 500,
+            "positive_count": 30,
+            "brier_score": 0.019457,
+            "expected_calibration_error": 0.092378,
+            "high_confidence_false_positive_count": 0,
+            "high_confidence_false_negative_count": 0
+          },
+          "GENERAL_MARKET": {
+            "decision_count": 500,
+            "positive_count": 19,
+            "brier_score": 0.01825,
+            "expected_calibration_error": 0.092975,
+            "high_confidence_false_positive_count": 0,
+            "high_confidence_false_negative_count": 0
+          },
+          "MACRO": {
+            "decision_count": 500,
+            "positive_count": 23,
+            "brier_score": 0.019928,
+            "expected_calibration_error": 0.080238,
+            "high_confidence_false_positive_count": 0,
+            "high_confidence_false_negative_count": 0
+          },
+          "RISK": {
+            "decision_count": 500,
+            "positive_count": 197,
+            "brier_score": 0.086625,
+            "expected_calibration_error": 0.224488,
+            "high_confidence_false_positive_count": 1,
+            "high_confidence_false_negative_count": 0
+          }
+        },
+        "high_confidence_errors": [
+          {
+            "error_type": "high_confidence_false_positive",
+            "label": "RISK",
+            "probability": 0.945452,
+            "expected_tags": [
+              "CAPITAL_ACTION",
+              "DISCLOSURE"
+            ],
+            "source_type": "DISCLOSURE",
+            "stock_code": "000070",
+            "stock_name": "삼양홀딩스",
+            "text": "삼양홀딩스 현금ㆍ현물배당결정(자회사의 주요경영사항) 현금ㆍ현물배당결정(자회사의 주요경영사항)"
+          },
+          {
+            "error_type": "high_confidence_false_negative",
+            "label": "DISCLOSURE",
+            "probability": 0.065446,
+            "expected_tags": [
+              "CAPITAL_ACTION",
+              "DISCLOSURE"
+            ],
+            "source_type": "NEWS",
+            "stock_code": "000100",
+            "stock_name": "유한양행",
+            "text": "[제약 공시 책갈피] 5월 2주차 - 유한양행·이뮨온시아·HLB제약 外 HLB제약, 1200억 유증 결정…향남 신공장 건설, 연구소 확대 등에 투입 HLB제약은 13일 '주요사항보고서( 유상증자 결정)'를 통해 1200억원 규모 유상증자 를 결정했다고 공시 했다. 현 발행주식 총수는 3280만주, 발행되는..."
+          },
+          {
+            "error_type": "high_confidence_false_negative",
+            "label": "CAPITAL_ACTION",
+            "probability": 0.090355,
+            "expected_tags": [
+              "CAPITAL_ACTION",
+              "DISCLOSURE"
+            ],
+            "source_type": "DISCLOSURE",
+            "stock_code": "000070",
+            "stock_name": "삼양홀딩스",
+            "text": "삼양홀딩스 현금ㆍ현물배당결정(자회사의 주요경영사항) 현금ㆍ현물배당결정(자회사의 주요경영사항)"
+          }
+        ]
       },
       "sentiment": {
-        "sample_count": 0,
-        "accuracy": 0.0,
-        "average_top_confidence": 0.0,
-        "top_confidence_ece": 0.0,
-        "multiclass_brier_score": 0.0,
+        "sample_count": 500,
+        "accuracy": 0.998,
+        "average_top_confidence": 0.67262,
+        "top_confidence_ece": 0.32538,
+        "multiclass_brier_score": 0.218018,
         "high_confidence_error_count": 0,
         "high_confidence_errors": []
       },
       "importance": {
-        "sample_count": 0,
-        "accuracy": 0.0,
-        "average_top_confidence": 0.0,
-        "top_confidence_ece": 0.0,
-        "multiclass_brier_score": 0.0,
+        "sample_count": 500,
+        "accuracy": 0.998,
+        "average_top_confidence": 0.720946,
+        "top_confidence_ece": 0.277054,
+        "multiclass_brier_score": 0.169816,
         "high_confidence_error_count": 0,
         "high_confidence_errors": []
       }

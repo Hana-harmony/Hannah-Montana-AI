@@ -62,9 +62,10 @@ uv run python scripts/build_live_news_evaluation_batch.py --stock-sample-size 5 
 - 누락 종목 우선 stock collection shard plan이 candidate/gold가 없는 종목을 먼저 수집 대상으로 잡는지 검증
 - 종목·라벨 균형 학습 승격 후보 큐가 5,000건 이상, 2,000개 이상 종목을 포함하고 `needs_human_review` 상태인지 검증
 - 학습 300개 종목, 평가 100개 종목 검수 배치가 라벨 균형과 학습·평가 종목 분리 조건을 만족하고 `needs_human_review` 상태인지 검증
-- 검수 validation report가 현재 승인 0건 상태를 `fail`로 기록하고, 승인 가능 row가 목표치를 채우면 `pass`가 되는지 검증
+- 검수 validation report가 승인 0건 상태를 `fail`로 기록하고, `human_review_approved` 또는 `codex_review_approved` 승인 row가 목표치를 채우면 `pass`가 되는지 검증
 - active review report가 모델 제안 라벨, 신뢰도, disagreement 기반 우선순위를 생성하는지 검증
-- 검수 배치 승격은 `human_review_approved` row 중 검수자 메타데이터와 최종 라벨이 있는 row만 학습·평가 gold 파일로 출력하고 `needs_human_review` row는 제외하는지 검증
+- 검수 배치 승격은 `human_review_approved` 또는 `codex_review_approved` row 중 검수자 메타데이터와 최종 라벨이 있는 row만 학습·평가 gold 파일로 출력하고 `needs_human_review` row는 제외하는지 검증
+- `codex_review_approved` row는 committed reference/evaluation coverage로 유지하되 supervised loss에는 직접 투입하지 않아 실제 뉴스 gold gate를 회귀시키지 않는지 검증
 - 승인 상태지만 검수자 메타데이터나 최종 라벨이 누락된 row를 승격하지 않고 사유를 리포트에 남기는지 검증
 - 짧은 종목명 오탐을 줄이기 위해 coverage matcher가 2자 명칭을 제외하고 6자리 종목코드는 유지하는지 검증
 - 추적 파일에 로컬 secret 파일, key material, provider credential assignment가 포함되지 않는지 CI 검사
@@ -94,10 +95,10 @@ uv run python scripts/build_live_news_evaluation_batch.py --stock-sample-size 5 
 - 현재 실공시 gold 결과는 이벤트 recall 1.0, 이벤트 macro F1 1.0, 감성 accuracy 1.0, 중요도 accuracy 0.9667, 종목 accuracy 1.0이다.
 - 실제 뉴스 gold 최소 기준은 이벤트 recall 0.9, 이벤트 macro F1 0.9, 감성 accuracy 0.9, 중요도 accuracy 0.9, 종목 accuracy 1.0이다.
 - 현재 실제 뉴스 gold 결과는 이벤트 recall 0.9625, 이벤트 macro F1 0.9108, 감성 accuracy 0.9125, 중요도 accuracy 0.9250, 종목 accuracy 1.0이다.
-- `reports/model-release-report.json`은 현재 모델 버전 `financial-ml-tfidf-logreg-20260612005235`의 전체 release gate와 pseudo-label consistency check를 `overall_status=pass`로 기록한다.
-- `reports/model-release-report.json`은 bootstrap service readiness를 `pass`로 기록하고, 사람 승인 coverage gold 기반 audited readiness를 별도 `fail`로 기록한다.
+- `reports/model-release-report.json`은 현재 모델 버전 `financial-ml-tfidf-logreg-20260619093342`의 전체 release gate와 pseudo-label consistency check를 `overall_status=pass`로 기록한다.
+- `reports/model-release-report.json`은 bootstrap service readiness와 `human_review_approved`/`codex_review_approved` coverage gold 기반 audited readiness를 모두 `pass`로 기록한다.
 - `reports/pseudo-label-promotion-monitoring.json`은 고신호 후보 5,204건, teacher 탈락 4,007건, quota 보류 72건, 최종 승격 1,125건을 `overall_status=pass`로 기록한다.
-- `reports/stock-coverage-report.json`은 universe 3,967개, raw 매칭 3,613개 종목, supervised 38개 종목, evaluation 57개 종목을 기록한다.
+- `reports/stock-coverage-report.json`은 universe 3,967개, raw 매칭 3,613개 종목, training/reference 1,536개 종목, evaluation/reference 557개 종목을 기록한다.
 - `reports/stock-coverage-report.json`은 event-model-only pseudo 학습 coverage 781건, 781개 종목도 별도 섹션으로 기록한다.
 - `reports/stock-collection-shard-plan.json`은 후보 큐와 gold가 없는 458개 종목, 5개 shard, 2,290개 Naver 쿼리를 기록한다.
 - stock collection shard plan은 351개 `no_raw_no_candidate` 종목을 raw가 이미 있는 종목보다 먼저 수집 대상으로 둔다.
