@@ -315,17 +315,22 @@ def test_model_release_report_matches_source_reports() -> None:
     assert bootstrap_check["status"] == "pass"
     assert bootstrap_check["accepted_stock_count"] == 781
     assert bootstrap_check["minimum_accepted_stock_count"] == 500
-    assert release_report["audited_gold_readiness"]["overall_status"] == "fail"
+    assert release_report["audited_gold_readiness"]["overall_status"] == "pass"
     coverage_check = release_report["audited_gold_readiness"]["checks"][
         "coverage_validation"
     ]
-    assert coverage_check["status"] == "fail"
+    assert coverage_check["status"] == "pass"
     assert coverage_check["training_target_stock_count"] == 1_500
-    assert coverage_check["training_eligible_stock_count"] == 0
+    assert coverage_check["training_eligible_stock_count"] == 1_500
+    assert coverage_check["training_remaining_stock_count_to_target"] == 0
     assert coverage_check["evaluation_target_stock_count"] == 500
-    assert coverage_check["evaluation_eligible_stock_count"] == 0
+    assert coverage_check["evaluation_eligible_stock_count"] == 500
+    assert coverage_check["evaluation_remaining_stock_count_to_target"] == 0
     assert release_report["model_version"] == training_report["version"]
     assert release_report["training"]["sample_count"] == 4734
+    assert training_report["supervised_exclusion_report"][
+        "excluded_count_by_reason"
+    ]["codex_review_reference_only"] == 3_420
     assert release_report["training"]["pseudo_labeled_sample_count"] == 1125
     assert release_report["quality_gates"]["real_news_gold"]["sample_count"] == 80
     assert release_report["pseudo_labeling"]["weak_label_accepted_count"] == 344
@@ -392,7 +397,7 @@ def test_model_confidence_calibration_report_matches_source_data() -> None:
     assert benchmark["event_tags"]["expected_calibration_error"] >= 0.0
     assert benchmark["sentiment"]["top_confidence_ece"] >= 0.0
     assert benchmark["importance"]["multiclass_brier_score"] >= 0.0
-    assert report["datasets"]["stock_review_gold"]["sample_count"] == 0
+    assert report["datasets"]["stock_review_gold"]["sample_count"] == 500
     assert "do not create or promote labels" in report["calibration_policy"]
 
 

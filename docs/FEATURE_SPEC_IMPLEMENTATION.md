@@ -3,6 +3,7 @@
 ## 적용 범위
 - 이 서비스는 AI/계산/패킹 계층이다. KIS, KRX, Papago, DeepL, 국세청, 현지 MTS의 실제 계정·주문·세무 제출 실행은 외부 백엔드 어댑터가 담당한다.
 - 본 구현은 외부 어댑터가 넘긴 검증된 입력값을 기준으로 국내주식 주문 상태, 뉴스·공시 인텔리전스 이벤트, 세무 환급 선지급 상태를 계산하고 단일 JSON 계약으로 반환한다.
+- 모든 비즈니스 REST endpoint는 `success/status/code/message/data/timestamp` 공통 응답 envelope를 사용하며, 아래 출력 핵심 필드는 모두 `data` 내부에 위치한다.
 - API는 내부 네트워크용이며 별도 사용자 토큰을 검증하지 않는다.
 
 ## 1. 한국 주식 주문
@@ -48,7 +49,9 @@
   - provider 파서는 유효하지 않은 원문 URL과 잘못된 종목코드를 거부한다.
 - 처리:
   - 기존 ML 분석 엔진으로 종목 매핑, 중복키, 이벤트, 감성, 중요도, holder/watchlist target을 산출한다.
-  - 현재 로컬 하네스에서는 `FinancialTranslationModel`의 `local-financial-glossary` 번역기를 사용한다.
+  - 현재 로컬 하네스에서는 `FinancialTranslationModel`의 `local-financial-glossary` 번역 보조 모델을 사용한다.
+  - 금융 용어집은 종목명, 공시 이벤트, 재무 지표, 세무 용어의 alias를 canonical term으로 정규화하고 긴 용어부터 번역해 부분 치환 오류를 줄인다.
+  - 번역 결과에는 적용된 `glossary_terms`와 `translation_quality_flags`를 포함해 현지 거래소가 품질 검수나 fallback 표시 여부를 판단할 수 있게 한다.
   - 실제 Papago/DeepL 호출은 `PapagoDeepLAdapter` 어댑터 자리로 명시하고, 계약 필드는 동일하게 유지한다.
 - 출력 핵심 필드:
   - `alert_id`, `duplicate_key`, `stock_code`, `news_disclosure_type`
@@ -56,10 +59,15 @@
   - `summary`, `translated_summary`
   - `sentiment`, `importance`, `event_tag`, `event_tags`
   - `is_holder_target`, `is_watchlist_target`
+  - `glossary_terms`, `translation_quality_flags`
   - `translation_provider`, `translation_model_version`, `translation_status`
   - `data_source="Naver/OpenDART/NLP/PapagoDeepLAdapter"`
 
 ## 3. 최종 투자자별 세무 전산화 및 환급금 선지급
+- endpoint: `POST /api/v1/tax/documents/verify`
+  - 입력: 서류 유형, 파일명, OCR 추출 텍스트, OCR 신뢰도, 위변조 signal, 기대 투자자 ID/거주지 국가.
+  - 처리: OCR confidence와 fraud signal score, 필수 field 누락 여부로 `VERIFIED`, `PENDING`, `REJECTED`를 산출한다.
+  - 출력: `verification_status`, `fraud_risk_score`, `risk_level`, `manual_review_required`, `missing_required_fields`, `rejection_reasons`, `document_model_version`.
 - endpoint: `POST /api/v1/tax/refund-status`
 - 입력: 투자자 ID, 거주지 국가, 과세연도, OCR/위변조 검증 완료 서류, 배당·매도 거래 원장.
 - 파서:

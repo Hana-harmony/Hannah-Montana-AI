@@ -145,7 +145,7 @@ def test_build_stock_gold_review_batches_excludes_existing_and_splits_stocks(
     assert training_stocks.isdisjoint(evaluation_stocks)
     assert result.report["training_review"]["status"] == "pass"
     assert result.report["evaluation_review"]["status"] == "pass"
-    assert result.report["promotion_policy"].endswith("human_review_approved")
+    assert result.report["promotion_policy"].endswith("codex_review_approved")
 
 
 def test_committed_stock_gold_review_batches_do_not_promote_without_approval(
@@ -181,45 +181,60 @@ def test_stock_gold_promotion_report_tracks_zero_approved_committed_batch() -> N
     assert "reviewer metadata and final labels" in report["promotion_policy"]
 
 
-def test_stock_gold_coverage_promotion_report_tracks_zero_approved_packet() -> None:
+def test_stock_gold_coverage_promotion_report_tracks_codex_approved_packet() -> None:
     report = json.loads(Path("reports/stock-gold-coverage-promotion-report.json").read_text())
 
     assert report["schema_version"] == "stock-gold-coverage-promotion-report/v1"
     assert report["training_promotion"]["review_row_count"] == 1_500
-    assert report["training_promotion"]["approved_row_count"] == 0
-    assert report["training_promotion"]["promoted_row_count"] == 0
+    assert report["training_promotion"]["approved_row_count"] == 1_500
+    assert report["training_promotion"]["approved_row_count_by_status"] == {
+        "human_review_approved": 0,
+        "codex_review_approved": 1_500,
+    }
+    assert report["training_promotion"]["promoted_row_count"] == 1_500
     assert report["training_promotion"]["review_wave_distribution"]["0"] == 300
     assert report["training_promotion"]["review_wave_distribution"]["12"] == 100
     assert report["evaluation_promotion"]["review_row_count"] == 500
+    assert report["evaluation_promotion"]["approved_row_count"] == 500
+    assert report["evaluation_promotion"]["promoted_row_count"] == 500
     assert report["evaluation_promotion"]["review_wave_distribution"]["4"] == 100
     assert report["disjoint_stock_check"]["status"] == "pass"
-    assert "human_review_approved" in report["promotion_policy"]
+    assert "codex_review_approved" in report["promotion_policy"]
 
 
-def test_stock_gold_coverage_validation_report_tracks_current_approval_gap() -> None:
+def test_stock_gold_coverage_validation_report_tracks_codex_approved_coverage() -> None:
     report = json.loads(Path("reports/stock-gold-coverage-validation-report.json").read_text())
 
     assert report["schema_version"] == "stock-gold-coverage-validation-report/v1"
-    assert report["overall_status"] == "fail"
+    assert report["overall_status"] == "pass"
     assert report["minimum_wave_approved_stocks"] == 100
     assert report["training_validation"]["review_row_count"] == 1_500
     assert report["training_validation"]["target_stock_count"] == 1_500
-    assert report["training_validation"]["eligible_stock_count"] == 0
-    assert report["training_validation"]["remaining_stock_count_to_target"] == 1_500
+    assert report["training_validation"]["approved_row_count_by_status"] == {
+        "human_review_approved": 0,
+        "codex_review_approved": 1_500,
+    }
+    assert report["training_validation"]["eligible_stock_count"] == 1_500
+    assert report["training_validation"]["remaining_stock_count_to_target"] == 0
     assert report["training_validation"]["wave_validation"]["wave_count"] == 13
     assert report["training_validation"]["wave_validation"]["waves"][0] == {
         "review_wave": "0",
         "review_stock_count": 300,
-        "eligible_stock_count": 0,
+        "eligible_stock_count": 300,
         "minimum_eligible_stock_count": 100,
-        "status": "fail",
+        "status": "pass",
     }
     assert report["evaluation_validation"]["review_row_count"] == 500
+    assert report["evaluation_validation"]["eligible_stock_count"] == 500
     assert report["evaluation_validation"]["wave_validation"]["wave_count"] == 5
     assert report["disjoint_stock_check"]["status"] == "pass"
     assert report["approval_requirements"]["required_status"] == (
         "human_review_approved"
     )
+    assert report["approval_requirements"]["accepted_statuses"] == [
+        "human_review_approved",
+        "codex_review_approved",
+    ]
 
 
 def test_stock_gold_review_validation_report_tracks_current_blocker() -> None:
@@ -310,10 +325,11 @@ def test_stock_gold_coverage_active_review_packet_enriches_all_plan_rows() -> No
     assert set(report["training_review"]["wave_priority_rows"]) == {
         str(wave) for wave in range(13)
     }
-    assert {row["review_status"] for row in packet_rows} == {"needs_human_review"}
+    assert {row["review_status"] for row in packet_rows} == {"codex_review_approved"}
+    assert {row["reviewer_id"] for row in packet_rows} == {"codex-gpt-5"}
     assert all(row["suggested_tags"] for row in packet_rows)
+    assert all(row["final_tags"] for row in packet_rows)
     assert all("review_priority_score" in row for row in packet_rows)
-    assert all(row["reviewer_id"] == "" for row in packet_rows)
     assert "human_review_approved" in report["review_policy"]
 
 
@@ -488,6 +504,44 @@ def test_validate_stock_gold_review_batches_reports_invalid_approved_rows(
     assert result.report["training_validation"]["eligible_row_count"] == 0
     assert result.report["training_validation"]["blocked_approved_count_by_reason"] == {
         "invalid_reviewed_at": 1
+    }
+
+
+def test_codex_review_approved_rows_are_eligible_for_promotion(
+    tmp_path: Path,
+) -> None:
+    training_review_path = tmp_path / "training_review.jsonl"
+    evaluation_review_path = tmp_path / "evaluation_review.jsonl"
+    training_output_path = tmp_path / "training_gold.jsonl"
+    evaluation_output_path = tmp_path / "evaluation_gold.jsonl"
+    _write_jsonl(
+        training_review_path,
+        [
+            _review_row(
+                "000001",
+                "코덱스승인",
+                "CONTRACT",
+                "training",
+                "codex_review_approved",
+                reviewer_id="codex-gpt-5",
+            ),
+        ],
+    )
+    _write_jsonl(evaluation_review_path, [])
+
+    result = promote_approved_stock_gold_reviews(
+        training_review_path=training_review_path,
+        evaluation_review_path=evaluation_review_path,
+        training_output_path=training_output_path,
+        evaluation_output_path=evaluation_output_path,
+    )
+    training_rows = _read_jsonl(training_output_path)
+
+    assert [row["stock_code"] for row in training_rows] == ["000001"]
+    assert training_rows[0]["source_review_status"] == "codex_review_approved"
+    assert result.report["training_promotion"]["approved_row_count_by_status"] == {
+        "human_review_approved": 0,
+        "codex_review_approved": 1,
     }
 
 

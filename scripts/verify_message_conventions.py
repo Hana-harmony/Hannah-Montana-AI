@@ -147,7 +147,7 @@ def _commit_subjects(base: str, head: str) -> list[str]:
     if git_path is None:
         raise RuntimeError("git 실행 파일을 찾을 수 없음")
     result = subprocess.run(  # noqa: S603
-        [git_path, "log", "--format=%s", f"{base}..{head}"],
+        [git_path, "log", "--no-merges", "--format=%s", f"{base}..{head}"],
         check=True,
         capture_output=True,
         text=True,

@@ -228,5 +228,90 @@
         "MEDIUM": 41
       }
     }
+  },
+  "stock_review_gold": {
+    "sample_count": 500,
+    "event_tag_recall": 0.996,
+    "sentiment_accuracy": 0.998,
+    "importance_accuracy": 0.998,
+    "stock_accuracy": 1.0,
+    "event_macro_f1": 0.9987275278184249,
+    "event_label_metrics": {
+      "CAPITAL_ACTION": {
+        "precision": 1.0,
+        "recall": 0.994475138121547,
+        "f1": 0.9972299168975068,
+        "support": 181
+      },
+      "CONTRACT": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 181
+      },
+      "CORPORATE_ACTION": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 61
+      },
+      "DISCLOSURE": {
+        "precision": 1.0,
+        "recall": 0.9902912621359223,
+        "f1": 0.9951219512195122,
+        "support": 103
+      },
+      "EARNINGS": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 30
+      },
+      "GENERAL_MARKET": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 19
+      },
+      "MACRO": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 23
+      },
+      "RISK": {
+        "precision": 0.9949494949494949,
+        "recall": 1.0,
+        "f1": 0.9974683544303797,
+        "support": 197
+      }
+    },
+    "sentiment_confusion_matrix": {
+      "NEGATIVE": {
+        "NEGATIVE": 138
+      },
+      "NEUTRAL": {
+        "NEUTRAL": 163
+      },
+      "POSITIVE": {
+        "NEGATIVE": 1,
+        "POSITIVE": 198
+      }
+    },
+    "importance_confusion_matrix": {
+      "CRITICAL": {
+        "CRITICAL": 85
+      },
+      "HIGH": {
+        "CRITICAL": 1,
+        "HIGH": 336
+      },
+      "LOW": {
+        "LOW": 24
+      },
+      "MEDIUM": {
+        "MEDIUM": 54
+      }
+    }
   }
 }

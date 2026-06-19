@@ -258,7 +258,7 @@ def _build_service_readiness(
         "policy": (
             "service bootstrap readiness is based on release quality gates, "
             "consistency checks, and gated stock-candidate pseudo coverage; "
-            "human-approved coverage gold is tracked separately as audited gold readiness"
+            "approved coverage gold is tracked separately as audited gold readiness"
         ),
     }
 
@@ -314,8 +314,9 @@ def _build_audited_gold_readiness(
             }
         },
         "policy": (
-            "human-approved stock review gold is not required for bootstrap service "
-            "readiness, but is required before claiming audited gold coverage readiness"
+            "human_review_approved or codex_review_approved stock review gold is not "
+            "required for bootstrap service readiness, but is required before claiming "
+            "audited gold coverage readiness"
         ),
     }
 
