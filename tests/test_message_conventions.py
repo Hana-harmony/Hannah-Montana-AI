@@ -9,6 +9,7 @@ assert SPEC.loader is not None
 SPEC.loader.exec_module(verify_message_conventions)
 
 _validate_commit_subject = verify_message_conventions._validate_commit_subject
+_commit_subjects = verify_message_conventions._commit_subjects
 _validate_pr_body = verify_message_conventions._validate_pr_body
 _validate_pr_title = verify_message_conventions._validate_pr_title
 
@@ -67,3 +68,22 @@ def test_commit_subject_requires_conventional_commit_and_korean_title() -> None:
     assert _validate_commit_subject("Add live news evaluation batch")
     assert _validate_commit_subject("feat(model): Add live news evaluation batch")
     assert _validate_commit_subject("feat(model): 기능정의서 모델 계약 추가") == ""
+
+
+def test_commit_subject_collection_skips_merge_commits(monkeypatch) -> None:
+    seen_command: list[str] = []
+
+    class _Result:
+        stdout = "fix(api): 비즈니스 응답 envelope 계약 통일\n"
+
+    def fake_run(command, **_kwargs):  # type: ignore[no-untyped-def]
+        seen_command.extend(command)
+        return _Result()
+
+    monkeypatch.setattr(verify_message_conventions.shutil, "which", lambda _name: "git")
+    monkeypatch.setattr(verify_message_conventions.subprocess, "run", fake_run)
+
+    assert _commit_subjects("base", "head") == [
+        "fix(api): 비즈니스 응답 envelope 계약 통일"
+    ]
+    assert "--no-merges" in seen_command
