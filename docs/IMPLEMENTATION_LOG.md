@@ -761,6 +761,11 @@
 - risk/contract per-stock 2 확장 profile은 895건/709종목으로 확장됐지만 실제 뉴스 gold gate를 통과하지 못해 current release에는 반영하지 않았다.
 - service readiness는 사람이 승인한 coverage gold가 아직 0건이라 계속 `fail`이다.
 
+## 2026-06-19 - 하네스·문서 최신화
+- Papago와 한국수출입은행 환율 provider 표현을 현재 경계에 맞게 제거했다. AI 서비스는 외부 credential을 관리하지 않고, 번역 provider 연동은 Hana-OmniLens-API의 DeepL adapter가 담당한다.
+- 외국인 보유 row는 KIS 현재가 REST snapshot 스키마를 기준으로 설명하되, 기존 `parse_krx_foreign_holding_row` 함수명은 하위 호환을 위해 유지한다고 명시했다.
+- current release 기준 service readiness와 audited gold readiness는 `pass`이며, 사람 검수 gold 확장과 운영 drift 점검은 지속 품질 관리 항목으로 정리했다.
+
 ## 2026-06-12 - bootstrap service readiness와 audited gold readiness 분리
 - `model_release_report.py`의 service readiness를 사람 승인 coverage gold 필수 조건에서 분리했다.
 - `service_readiness`는 release quality gate, consistency check, 500종목 이상 stock-candidate pseudo coverage를 만족하면 bootstrap 운영 기준 `pass`로 기록한다.

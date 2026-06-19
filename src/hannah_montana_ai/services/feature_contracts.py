@@ -400,7 +400,7 @@ class StockOrderStatusService:
             order_guidance_message=trading_state.guidance_message,
             prediction_model_version=ownership.model_version,
             trading_state_model_version=trading_state.model_version,
-            data_source="KIS/KRX/PredictEngine",
+            data_source="KIS/PredictEngine",
         )
 
 
@@ -446,7 +446,7 @@ class IntelligenceEventService:
             translation_model_version=translation.model_version,
             translation_status=translation.translation_status,
             model_version=analysis.model_version,
-            data_source="Naver/OpenDART/NLP/PapagoDeepLAdapter",
+            data_source="Naver/OpenDART/NLP/DeepLTranslationAdapter",
         )
 
 
