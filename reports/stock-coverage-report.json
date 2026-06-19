@@ -1,22 +1,22 @@
 {
   "schema_version": "stock-coverage-report/v1",
-  "generated_at": "2026-06-12T00:55:00.931225+00:00",
+  "generated_at": "2026-06-19T09:35:22.024677+00:00",
   "universe_path": "data/reference/korea_stock_universe.csv",
   "universe_count": 3967,
-  "training_stock_count": 38,
-  "evaluation_stock_count": 57,
+  "training_stock_count": 1536,
+  "evaluation_stock_count": 557,
   "raw_matched_stock_count": 3613,
-  "training_coverage_ratio": 0.009579026972523318,
-  "evaluation_coverage_ratio": 0.014368540458784976,
+  "training_coverage_ratio": 0.38719435341567937,
+  "evaluation_coverage_ratio": 0.1404083690446181,
   "raw_coverage_ratio": 0.9107638013612301,
-  "training_sample_count": 3609,
-  "evaluation_sample_count": 878,
+  "training_sample_count": 5109,
+  "evaluation_sample_count": 1378,
   "raw_sample_count": 68710,
   "top_training_stocks": [
     {
       "stock_code": "000660",
       "stock_name": "SK하이닉스",
-      "sample_count": 404
+      "sample_count": 405
     },
     {
       "stock_code": "005930",
@@ -31,7 +31,7 @@
     {
       "stock_code": "000270",
       "stock_name": "기아",
-      "sample_count": 223
+      "sample_count": 224
     },
     {
       "stock_code": "066570",
@@ -217,7 +217,7 @@
     }
   ],
   "coverage_gates": {
-    "overall_status": "fail",
+    "overall_status": "pass",
     "checks": {
       "universe_count": {
         "actual": 3967,
@@ -230,14 +230,14 @@
         "status": "pass"
       },
       "training_stock_count": {
-        "actual": 38,
+        "actual": 1536,
         "minimum": 300,
-        "status": "fail"
+        "status": "pass"
       },
       "evaluation_stock_count": {
-        "actual": 57,
+        "actual": 557,
         "minimum": 100,
-        "status": "fail"
+        "status": "pass"
       }
     }
   },
@@ -257,7 +257,7 @@
       "GENERAL_MARKET": 0
     },
     "stock_candidate_per_stock_quota": 1,
-    "effective_event_training_stock_count_lower_bound": 781,
+    "effective_event_training_stock_count_lower_bound": 1536,
     "interpretation": "pseudo event labels are model-training coverage, not supervised gold coverage"
   }
 }

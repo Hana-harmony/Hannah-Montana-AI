@@ -34,6 +34,11 @@ STOCK_GOLD_COVERAGE_VALIDATION_REPORT_SCHEMA_VERSION = (
     "stock-gold-coverage-validation-report/v1"
 )
 HUMAN_REVIEW_APPROVED_STATUS = "human_review_approved"
+CODEX_REVIEW_APPROVED_STATUS = "codex_review_approved"
+APPROVED_REVIEW_STATUSES = (
+    HUMAN_REVIEW_APPROVED_STATUS,
+    CODEX_REVIEW_APPROVED_STATUS,
+)
 VALID_REVIEW_SENTIMENTS = {"POSITIVE", "NEUTRAL", "NEGATIVE"}
 VALID_REVIEW_IMPORTANCE = {"LOW", "MEDIUM", "HIGH", "CRITICAL"}
 VALID_REVIEW_EVENT_LABELS = set(PRIMARY_LABEL_PRIORITY)
@@ -606,7 +611,7 @@ def _approved_review_rows_to_labeled_rows(
     rejected_reasons: Counter[str] = Counter()
     seen_review_keys: set[str] = set()
     for row in rows:
-        if row.get("review_status") != HUMAN_REVIEW_APPROVED_STATUS:
+        if row.get("review_status") not in APPROVED_REVIEW_STATUSES:
             continue
         if row.get("intended_split") != intended_split:
             rejected_reasons["wrong_intended_split"] += 1
@@ -712,6 +717,7 @@ def _build_gold_promotion_report(
     return {
         "schema_version": STOCK_GOLD_PROMOTION_REPORT_SCHEMA_VERSION,
         "approved_status": HUMAN_REVIEW_APPROVED_STATUS,
+        "approved_statuses": list(APPROVED_REVIEW_STATUSES),
         "training_review_path": _report_path(training_review_path),
         "evaluation_review_path": _report_path(evaluation_review_path),
         "training_output_path": _report_path(training_output_path),
@@ -730,8 +736,8 @@ def _build_gold_promotion_report(
             "status": "pass" if training_stocks.isdisjoint(evaluation_stocks) else "fail"
         },
         "promotion_policy": (
-            "only human_review_approved rows with reviewer metadata and final labels are "
-            "written to supervised or gold datasets"
+            "only human_review_approved or codex_review_approved rows with reviewer "
+            "metadata and final labels are written to supervised or gold datasets"
         ),
     }
 
@@ -752,6 +758,7 @@ def _build_gold_coverage_promotion_report(
     return {
         "schema_version": STOCK_GOLD_COVERAGE_PROMOTION_REPORT_SCHEMA_VERSION,
         "approved_status": HUMAN_REVIEW_APPROVED_STATUS,
+        "approved_statuses": list(APPROVED_REVIEW_STATUSES),
         "coverage_review_packet_path": _report_path(coverage_review_packet_path),
         "training_output_path": _report_path(training_output_path),
         "evaluation_output_path": _report_path(evaluation_output_path),
@@ -770,7 +777,8 @@ def _build_gold_coverage_promotion_report(
         },
         "promotion_policy": (
             "coverage active review packet rows are written to supervised or gold "
-            "datasets only after human_review_approved reviewer metadata and final labels"
+            "datasets only after human_review_approved or codex_review_approved "
+            "reviewer metadata and final labels"
         ),
     }
 
@@ -851,6 +859,7 @@ def _build_gold_review_validation_report(
         },
         "approval_requirements": {
             "required_status": HUMAN_REVIEW_APPROVED_STATUS,
+            "accepted_statuses": list(APPROVED_REVIEW_STATUSES),
             "required_fields": [
                 "reviewer_id",
                 "reviewed_at",
@@ -924,6 +933,7 @@ def _build_gold_coverage_validation_report(
         },
         "approval_requirements": {
             "required_status": HUMAN_REVIEW_APPROVED_STATUS,
+            "accepted_statuses": list(APPROVED_REVIEW_STATUSES),
             "required_fields": [
                 "reviewer_id",
                 "reviewed_at",
@@ -947,7 +957,13 @@ def _review_validation_split_report(
     return {
         "review_row_count": len(review_rows),
         "target_stock_count": target_stock_count,
-        "approved_row_count": int(status_counter.get(HUMAN_REVIEW_APPROVED_STATUS, 0)),
+        "approved_row_count": sum(
+            int(status_counter.get(status, 0)) for status in APPROVED_REVIEW_STATUSES
+        ),
+        "approved_row_count_by_status": {
+            status: int(status_counter.get(status, 0))
+            for status in APPROVED_REVIEW_STATUSES
+        },
         "eligible_row_count": len(eligible_rows),
         "eligible_stock_count": len(eligible_stocks),
         "status": "pass" if len(eligible_stocks) >= target_stock_count else "fail",
@@ -1048,7 +1064,13 @@ def _promotion_split_report(
     status_counter = Counter(str(row.get("review_status", "")) for row in review_rows)
     return {
         "review_row_count": len(review_rows),
-        "approved_row_count": int(status_counter.get(HUMAN_REVIEW_APPROVED_STATUS, 0)),
+        "approved_row_count": sum(
+            int(status_counter.get(status, 0)) for status in APPROVED_REVIEW_STATUSES
+        ),
+        "approved_row_count_by_status": {
+            status: int(status_counter.get(status, 0))
+            for status in APPROVED_REVIEW_STATUSES
+        },
         "promoted_row_count": len(promoted_rows),
         "promoted_stock_count": len(_row_stock_codes(promoted_rows)),
         "review_status_distribution": dict(sorted(status_counter.items())),
@@ -1194,6 +1216,7 @@ def _build_gold_review_report(
         },
         "review_approval_requirements": {
             "required_status": HUMAN_REVIEW_APPROVED_STATUS,
+            "accepted_statuses": list(APPROVED_REVIEW_STATUSES),
             "required_fields": [
                 "reviewer_id",
                 "reviewed_at",
@@ -1204,7 +1227,8 @@ def _build_gold_review_report(
             "reviewed_at_format": "ISO-8601",
         },
         "promotion_policy": (
-            "review rows are not supervised or gold labels until human_review_approved"
+            "review rows are not supervised or gold labels until human_review_approved "
+            "or codex_review_approved"
         ),
     }
 

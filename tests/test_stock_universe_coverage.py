@@ -30,13 +30,15 @@ def test_stock_coverage_report_tracks_event_model_pseudo_training_coverage() -> 
     report = json.loads(Path("reports/stock-coverage-report.json").read_text())
     pseudo_coverage = report["event_model_pseudo_training_coverage"]
 
-    assert report["coverage_gates"]["overall_status"] == "fail"
+    assert report["coverage_gates"]["overall_status"] == "pass"
+    assert report["training_stock_count"] == 1_536
+    assert report["evaluation_stock_count"] == 557
     assert pseudo_coverage["status"] == "promoted_to_event_student_training"
     assert pseudo_coverage["source_path"] == "reports/ml-training-report.json"
     assert pseudo_coverage["stock_candidate_event_training_sample_count"] == 781
     assert pseudo_coverage["stock_candidate_event_training_stock_count"] == 781
     assert pseudo_coverage["stock_candidate_per_stock_quota"] == 1
-    assert pseudo_coverage["effective_event_training_stock_count_lower_bound"] == 781
+    assert pseudo_coverage["effective_event_training_stock_count_lower_bound"] == 1_536
     assert pseudo_coverage["stock_candidate_label_distribution"]["RISK"] == 294
     assert pseudo_coverage["stock_candidate_label_distribution"]["CONTRACT"] == 266
     assert pseudo_coverage["stock_candidate_label_distribution"]["CAPITAL_ACTION"] == 120
