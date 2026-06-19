@@ -60,7 +60,7 @@ def test_korean_stock_order_status_contract_packs_foreign_limit_vi_and_price_lim
     assert payload["local_current_price"] == 490.1
     assert payload["prediction_model_version"] == "foreign-ownership-boundary-v1"
     assert payload["trading_state_model_version"] == "krx-vi-price-limit-state-v1"
-    assert payload["data_source"] == "KIS/KRX/PredictEngine"
+    assert payload["data_source"] == "KIS/PredictEngine"
 
 
 def test_korean_stock_intelligence_event_contract_translates_summarizes_and_targets() -> None:
@@ -115,7 +115,7 @@ def test_korean_stock_intelligence_event_contract_translates_summarizes_and_targ
     assert "FINANCIAL_GLOSSARY_APPLIED" in payload["translation_quality_flags"]
     assert payload["translation_provider"] == "local-financial-glossary"
     assert payload["translation_model_version"] == "local-financial-glossary-v1"
-    assert payload["data_source"] == "Naver/OpenDART/NLP/PapagoDeepLAdapter"
+    assert payload["data_source"] == "Naver/OpenDART/NLP/DeepLTranslationAdapter"
 
 
 def test_tax_refund_status_contract_computes_case_01_advance_payment() -> None:

@@ -1,18 +1,18 @@
 # 기능정의서 구현 계약
 
 ## 적용 범위
-- 이 서비스는 AI/계산/패킹 계층이다. KIS, KRX, Papago, DeepL, 국세청, 현지 MTS의 실제 계정·주문·세무 제출 실행은 외부 백엔드 어댑터가 담당한다.
+- 이 서비스는 AI/계산/패킹 계층이다. KIS, KRX, DeepL, 국세청, 현지 MTS의 실제 계정·주문·세무 제출 실행은 외부 백엔드 어댑터가 담당한다.
 - 본 구현은 외부 어댑터가 넘긴 검증된 입력값을 기준으로 국내주식 주문 상태, 뉴스·공시 인텔리전스 이벤트, 세무 환급 선지급 상태를 계산하고 단일 JSON 계약으로 반환한다.
 - 모든 비즈니스 REST endpoint는 `success/status/code/message/data/timestamp` 공통 응답 envelope를 사용하며, 아래 출력 핵심 필드는 모두 `data` 내부에 위치한다.
 - API는 내부 네트워크용이며 별도 사용자 토큰을 검증하지 않는다.
 
 ## 1. 한국 주식 주문
 - endpoint: `POST /api/v1/stocks/order-status`
-- 입력: KIS/KRX/PredictEngine에서 동기화된 종목 마스터, 현재가, 상·하한가, VI 플래그, 외국인 보유수량, 외국인 한도율, 장중 외국인 순매수 추정량.
+- 입력: KIS/PredictEngine에서 동기화된 종목 마스터, 현재가, 상·하한가, VI 플래그, 외국인 보유수량, 외국인 한도율, 장중 외국인 순매수 추정량.
 - 파서:
   - `parse_kis_master_csv`: KIS 종목 마스터 파일의 종목코드, 국문명, 영문명, 시장, 발행주식수, 상·하한가 기준가를 정규화한다.
   - `parse_kis_realtime_packet`: KIS 실시간 현재가/VI/단일가 패킷을 정규화한다.
-  - `parse_krx_foreign_holding_row`: KRX 전일 확정 외국인 보유수량, 보유율, 한도소진율을 정규화한다.
+  - `parse_krx_foreign_holding_row`: 레거시 함수명은 유지하되, 현재는 KIS 현재가 REST snapshot 또는 동일 스키마의 외국인 보유 row를 정규화한다.
   - `build_stock_order_status_request`: 세 provider row의 종목코드 일치성을 검증하고 모델 입력을 생성한다.
 - 계산:
   - 외국인 보유율 = `foreign_owned_quantity / issued_shares * 100`
@@ -36,7 +36,7 @@
   - `order_availability_indicator`, `order_restriction_reasons`
   - `order_guidance_message`
   - `prediction_model_version`, `trading_state_model_version`
-  - `data_source="KIS/KRX/PredictEngine"`
+  - `data_source="KIS/PredictEngine"`
 
 ## 2. 한국 주식 정보 취득 및 분석
 - endpoint: `POST /api/v1/intelligence/events`
@@ -52,7 +52,7 @@
   - 현재 로컬 하네스에서는 `FinancialTranslationModel`의 `local-financial-glossary` 번역 보조 모델을 사용한다.
   - 금융 용어집은 종목명, 공시 이벤트, 재무 지표, 세무 용어의 alias를 canonical term으로 정규화하고 긴 용어부터 번역해 부분 치환 오류를 줄인다.
   - 번역 결과에는 적용된 `glossary_terms`와 `translation_quality_flags`를 포함해 현지 거래소가 품질 검수나 fallback 표시 여부를 판단할 수 있게 한다.
-  - 실제 Papago/DeepL 호출은 `PapagoDeepLAdapter` 어댑터 자리로 명시하고, 계약 필드는 동일하게 유지한다.
+  - 실제 DeepL 호출은 Hana-OmniLens-API 어댑터가 담당하며, AI 서비스는 로컬 금융 용어집 번역 보조와 품질 플래그만 생성한다.
 - 출력 핵심 필드:
   - `alert_id`, `duplicate_key`, `stock_code`, `news_disclosure_type`
   - `original_title`, `translated_title`
@@ -61,7 +61,7 @@
   - `is_holder_target`, `is_watchlist_target`
   - `glossary_terms`, `translation_quality_flags`
   - `translation_provider`, `translation_model_version`, `translation_status`
-  - `data_source="Naver/OpenDART/NLP/PapagoDeepLAdapter"`
+  - `data_source="Naver/OpenDART/NLP/DeepLTranslationAdapter"`
 
 ## 3. 최종 투자자별 세무 전산화 및 환급금 선지급
 - endpoint: `POST /api/v1/tax/documents/verify`
@@ -103,6 +103,6 @@
 ## 하네스 보강
 - `tests/test_feature_definition_contracts.py`가 기능정의서의 세 도메인 계약을 직접 검증한다.
 - 주문 하네스는 외국인 한도 잔여 수량, 한도 사용 상태, 매수/매도 가능 여부, 제한 사유, VI, 상한가, 현지통화 환산, 즉시체결 제한 문구를 검증한다.
-- provider parser 하네스는 KIS 마스터, KIS 실시간 패킷, KRX 외국인 보유 row를 모델 입력으로 합성하고 종목코드 불일치를 거부하는지 검증한다.
+- provider parser 하네스는 KIS 마스터, KIS 실시간 패킷, 외국인 보유 snapshot row를 모델 입력으로 합성하고 종목코드 불일치를 거부하는지 검증한다.
 - 인텔리전스 하네스는 Naver/OpenDART provider row 파싱, API/WebSocket 중복키 생성, 종목·출처별 중복키 경계, 번역 제목, 요약, 이벤트 태그, 감성, 중요도, holder/watchlist target, WebSocket 이벤트 패킷, 데이터 출처를 검증한다.
 - 세무 하네스는 CASE_01 판정, 서류 검증, 배당 7%, 양도세 `min(11%, 22%)`, 국세/지방세 분해, 진행 상태, 다음 조치, 3% 선지급 수수료, 사후 환수 플래그와 세무 provider row 파싱을 검증한다.
