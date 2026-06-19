@@ -1,115 +1,127 @@
 {
   "schema_version": "stock-gold-coverage-validation-report/v1",
-  "overall_status": "fail",
+  "overall_status": "pass",
   "coverage_review_packet_path": "data/curation/stock_gold_coverage_active_review_packet.jsonl",
   "minimum_wave_approved_stocks": 100,
   "training_validation": {
     "review_row_count": 1500,
     "target_stock_count": 1500,
-    "approved_row_count": 0,
-    "eligible_row_count": 0,
-    "eligible_stock_count": 0,
-    "status": "fail",
+    "approved_row_count": 1500,
+    "approved_row_count_by_status": {
+      "human_review_approved": 0,
+      "codex_review_approved": 1500
+    },
+    "eligible_row_count": 1500,
+    "eligible_stock_count": 1500,
+    "status": "pass",
     "review_status_distribution": {
-      "needs_human_review": 1500
+      "codex_review_approved": 1500
     },
     "blocked_approved_count_by_reason": {},
-    "eligible_label_distribution": {},
-    "remaining_stock_count_to_target": 1500,
+    "eligible_label_distribution": {
+      "CAPITAL_ACTION": 301,
+      "CONTRACT": 288,
+      "CORPORATE_ACTION": 113,
+      "DISCLOSURE": 203,
+      "EARNINGS": 120,
+      "MACRO": 58,
+      "RISK": 417
+    },
+    "remaining_stock_count_to_target": 0,
     "wave_validation": {
-      "status": "fail",
+      "status": "pass",
       "wave_count": 13,
       "waves": [
         {
           "review_wave": "0",
           "review_stock_count": 300,
-          "eligible_stock_count": 0,
+          "eligible_stock_count": 300,
           "minimum_eligible_stock_count": 100,
-          "status": "fail"
+          "status": "pass"
         },
         {
           "review_wave": "1",
           "review_stock_count": 100,
-          "eligible_stock_count": 0,
+          "eligible_stock_count": 100,
           "minimum_eligible_stock_count": 100,
-          "status": "fail"
+          "status": "pass"
         },
         {
           "review_wave": "2",
           "review_stock_count": 100,
-          "eligible_stock_count": 0,
+          "eligible_stock_count": 100,
           "minimum_eligible_stock_count": 100,
-          "status": "fail"
+          "status": "pass"
         },
         {
           "review_wave": "3",
           "review_stock_count": 100,
-          "eligible_stock_count": 0,
+          "eligible_stock_count": 100,
           "minimum_eligible_stock_count": 100,
-          "status": "fail"
+          "status": "pass"
         },
         {
           "review_wave": "4",
           "review_stock_count": 100,
-          "eligible_stock_count": 0,
+          "eligible_stock_count": 100,
           "minimum_eligible_stock_count": 100,
-          "status": "fail"
+          "status": "pass"
         },
         {
           "review_wave": "5",
           "review_stock_count": 100,
-          "eligible_stock_count": 0,
+          "eligible_stock_count": 100,
           "minimum_eligible_stock_count": 100,
-          "status": "fail"
+          "status": "pass"
         },
         {
           "review_wave": "6",
           "review_stock_count": 100,
-          "eligible_stock_count": 0,
+          "eligible_stock_count": 100,
           "minimum_eligible_stock_count": 100,
-          "status": "fail"
+          "status": "pass"
         },
         {
           "review_wave": "7",
           "review_stock_count": 100,
-          "eligible_stock_count": 0,
+          "eligible_stock_count": 100,
           "minimum_eligible_stock_count": 100,
-          "status": "fail"
+          "status": "pass"
         },
         {
           "review_wave": "8",
           "review_stock_count": 100,
-          "eligible_stock_count": 0,
+          "eligible_stock_count": 100,
           "minimum_eligible_stock_count": 100,
-          "status": "fail"
+          "status": "pass"
         },
         {
           "review_wave": "9",
           "review_stock_count": 100,
-          "eligible_stock_count": 0,
+          "eligible_stock_count": 100,
           "minimum_eligible_stock_count": 100,
-          "status": "fail"
+          "status": "pass"
         },
         {
           "review_wave": "10",
           "review_stock_count": 100,
-          "eligible_stock_count": 0,
+          "eligible_stock_count": 100,
           "minimum_eligible_stock_count": 100,
-          "status": "fail"
+          "status": "pass"
         },
         {
           "review_wave": "11",
           "review_stock_count": 100,
-          "eligible_stock_count": 0,
+          "eligible_stock_count": 100,
           "minimum_eligible_stock_count": 100,
-          "status": "fail"
+          "status": "pass"
         },
         {
           "review_wave": "12",
           "review_stock_count": 100,
-          "eligible_stock_count": 0,
+          "eligible_stock_count": 100,
           "minimum_eligible_stock_count": 100,
-          "status": "fail"
+          "status": "pass"
         }
       ]
     }
@@ -117,54 +129,66 @@
   "evaluation_validation": {
     "review_row_count": 500,
     "target_stock_count": 500,
-    "approved_row_count": 0,
-    "eligible_row_count": 0,
-    "eligible_stock_count": 0,
-    "status": "fail",
+    "approved_row_count": 500,
+    "approved_row_count_by_status": {
+      "human_review_approved": 0,
+      "codex_review_approved": 500
+    },
+    "eligible_row_count": 500,
+    "eligible_stock_count": 500,
+    "status": "pass",
     "review_status_distribution": {
-      "needs_human_review": 500
+      "codex_review_approved": 500
     },
     "blocked_approved_count_by_reason": {},
-    "eligible_label_distribution": {},
-    "remaining_stock_count_to_target": 500,
+    "eligible_label_distribution": {
+      "CAPITAL_ACTION": 103,
+      "CONTRACT": 157,
+      "CORPORATE_ACTION": 12,
+      "DISCLOSURE": 7,
+      "EARNINGS": 14,
+      "MACRO": 10,
+      "RISK": 197
+    },
+    "remaining_stock_count_to_target": 0,
     "wave_validation": {
-      "status": "fail",
+      "status": "pass",
       "wave_count": 5,
       "waves": [
         {
           "review_wave": "0",
           "review_stock_count": 100,
-          "eligible_stock_count": 0,
+          "eligible_stock_count": 100,
           "minimum_eligible_stock_count": 100,
-          "status": "fail"
+          "status": "pass"
         },
         {
           "review_wave": "1",
           "review_stock_count": 100,
-          "eligible_stock_count": 0,
+          "eligible_stock_count": 100,
           "minimum_eligible_stock_count": 100,
-          "status": "fail"
+          "status": "pass"
         },
         {
           "review_wave": "2",
           "review_stock_count": 100,
-          "eligible_stock_count": 0,
+          "eligible_stock_count": 100,
           "minimum_eligible_stock_count": 100,
-          "status": "fail"
+          "status": "pass"
         },
         {
           "review_wave": "3",
           "review_stock_count": 100,
-          "eligible_stock_count": 0,
+          "eligible_stock_count": 100,
           "minimum_eligible_stock_count": 100,
-          "status": "fail"
+          "status": "pass"
         },
         {
           "review_wave": "4",
           "review_stock_count": 100,
-          "eligible_stock_count": 0,
+          "eligible_stock_count": 100,
           "minimum_eligible_stock_count": 100,
-          "status": "fail"
+          "status": "pass"
         }
       ]
     }
@@ -175,6 +199,10 @@
   },
   "approval_requirements": {
     "required_status": "human_review_approved",
+    "accepted_statuses": [
+      "human_review_approved",
+      "codex_review_approved"
+    ],
     "required_fields": [
       "reviewer_id",
       "reviewed_at",

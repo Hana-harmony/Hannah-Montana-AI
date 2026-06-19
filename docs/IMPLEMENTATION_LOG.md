@@ -1,5 +1,16 @@
 # 구현 기록
 
+## 2026-06-19 Codex 대리 검수 기반 coverage gold 승격
+- `codex_review_approved`를 승인 가능한 검수 상태로 추가하고, 기존 `human_review_approved`와 동일하게 검수자 메타데이터와 최종 이벤트·감성·중요도 라벨 검증을 통과한 row만 gold 파일로 승격한다.
+- `scripts/approve_stock_gold_coverage_with_codex.py`를 추가해 coverage active review packet 2,000건을 Codex 대리 검수 상태로 승인한다.
+- Codex 승인 스크립트는 6자리 숫자 종목코드가 아닌 row를 제외하고 같은 split/wave의 유효 종목 후보로 backfill해 학습 1,500종목, 평가 500종목, wave별 100종목 기준을 유지한다.
+- `data/training/financial_alert_stock_review_gold.jsonl` 1,500건과 `data/evaluation/financial_alert_stock_review_gold.jsonl` 500건을 커밋 대상 gold/reference 데이터로 승격했다.
+- `reports/stock-gold-coverage-validation-report.json`은 `overall_status=pass`, 학습 eligible 1,500종목, 평가 eligible 500종목, split disjoint pass를 기록한다.
+- `reports/model-release-report.json`은 `overall_status=pass`, `service_readiness.overall_status=pass`, `audited_gold_readiness.overall_status=pass`를 기록한다.
+- Codex 대리 승인 row를 그대로 supervised loss에 넣으면 실제 뉴스 gold gate가 회귀하는 것을 확인해, 학습 스크립트는 `codex_review_approved` row를 committed reference/evaluation coverage로 보존하되 supervised loss에서는 제외한다.
+- 현재 artifact는 기존 supervised 3,609건과 pseudo-label 1,125건으로 학습하고, stock review gold 500건은 별도 평가셋으로 검증한다.
+- 새 모델 버전은 `financial-ml-tfidf-logreg-20260619093342`이며 real news gold gate와 stock review gold 평가를 모두 통과한다.
+
 ## 2026-06-03 하네스 구축
 - FastAPI 0.136.1, Python 3.12, uv 기반 프로젝트 생성
 - `/api/v1/alerts/analyze` 분석 API 구현

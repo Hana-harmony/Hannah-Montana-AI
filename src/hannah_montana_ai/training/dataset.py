@@ -15,6 +15,8 @@ class LabeledAlert:
     stock_code: str | None = None
     stock_name: str | None = None
     stock_aliases: list[str] = field(default_factory=list)
+    source_review_status: str = ""
+    reviewer_id: str = ""
 
 
 def load_labeled_alerts(path: Path) -> list[LabeledAlert]:
@@ -33,6 +35,8 @@ def load_labeled_alerts(path: Path) -> list[LabeledAlert]:
                 stock_code=payload.get("stock_code"),
                 stock_name=payload.get("stock_name"),
                 stock_aliases=payload.get("stock_aliases", []),
+                source_review_status=payload.get("source_review_status", ""),
+                reviewer_id=payload.get("reviewer_id", ""),
             )
         )
     return samples
