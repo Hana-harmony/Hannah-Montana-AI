@@ -43,4 +43,5 @@
 - 모델 제안·불확실성 기반 active review report 완료
 - Codex 대리 검수로 coverage packet 2,000건을 승인해 학습 1,500종목, 평가 500종목 기준의 audited gold readiness를 pass로 전환했다.
 - 유효 6자리 국내주식 3,920개 전체가 stock review gold train/eval reference coverage에 포함되도록 full-universe Codex reference row 1,920건을 추가했다.
+- service readiness report로 release, live-news monitoring, 전 종목 reference coverage, stock linker, pseudo-label, confidence calibration, confidence observe-only 정책을 최종 gate로 집계 완료
 - 다음 단계는 운영 알림 로그와 실제 사용자 피드백으로 Codex 승인 라벨의 오탐/누락을 점검하고, 필요한 row를 사람 검수 gold로 보강하는 것이다.

@@ -242,18 +242,16 @@
 - 본문 전문을 저장·재배포하지 않고 제목·snippet 중심으로 학습한다.
 - 실제 투자 판단을 위한 추천 모델이 아니다.
 
-## 운영 전 필수 보강
-- Naver 뉴스 수집 쿼리 확대와 일 단위 증분 수집
-- `scripts/collect_training_data.py --use-stock-universe-news-queries` 기반 종목 universe 증분 수집
-- `reports/full-universe-codex-coverage-report.json` 기준 유효 6자리 국내주식 reference coverage 누락 0 유지
-- `reports/stock-coverage-report.json` 기준 supervised/reference 3,422개 이상 종목, evaluation/reference 557개 이상 종목 coverage 유지
-- `data/curation/stock_gold_training_review_batch.jsonl`와 `data/curation/stock_gold_evaluation_review_batch.jsonl`의 사람 검수 승인, 최종 라벨 확정, 정답셋 승격
-- `data/curation/stock_gold_coverage_review_plan.jsonl`의 wave 단위 검수 승인과 stock review gold 증분 승격
-- `data/curation/stock_gold_coverage_active_review_packet.jsonl`의 모델 제안 라벨을 참고한 사람 검수와 최종 라벨 확정
-- `scripts/promote_stock_gold_coverage_review_packet.py` 실행 후 승인된 stock review gold를 포함한 재학습
-- `scripts/validate_stock_gold_coverage_review_packet.py` 기준 coverage packet 승인 gate 통과
-- `scripts/build_full_universe_codex_stock_review_gold.py` 실행 후 full-universe Codex reference coverage 리포트 누락 0 확인
-- 사람이 검수한 gold label과 약지도 label의 품질 비교
-- 실제 뉴스 gold label set 월별 증분 확대와 drift 감시
-- 모델 drift 감시와 재학습 기준 정의. 최신 모델로 생성한 `reports/live-news-evaluation-report.json`에서 confidence 분포, 종목 미매칭률, label distribution drift를 같이 확인한다.
-- 최신 `reports/live-news-monitoring-status.json`은 `overall_status=pass`이며, live-news smoke 표본 기준 `predicted_stock_null_count=0`, `sampled_stock_primary_match_count=10`, `sampled_stock_model_match_rate=1.0`, `stock_match_confidence.average=1.0`을 기록한다. `stale`이면 해당 리포트는 최신 release 품질 근거에서 제외하고 운영 Naver credential로 배치를 다시 생성한다.
+## 서비스 readiness gate
+- `reports/service-readiness-report.json`은 현재 release, audited gold readiness, live-news monitoring, full-universe reference coverage, stock linker coverage, pseudo-label monitoring, confidence calibration, confidence observe-only 정책을 집계한다.
+- 최신 `reports/service-readiness-report.json`은 `overall_status=pass`이며, 모델 버전 `financial-ml-tfidf-logreg-20260619095828` 기준 전체 readiness check가 통과한다.
+- `reports/full-universe-codex-coverage-report.json` 기준 유효 6자리 국내주식 reference coverage 누락은 0이다.
+- `reports/stock-coverage-report.json` 기준 supervised/reference coverage는 3,422개 종목, evaluation/reference coverage는 557개 종목이다.
+- 최신 `reports/live-news-monitoring-status.json`은 `overall_status=pass`이며, live-news smoke 표본 기준 `predicted_stock_null_count=0`, `sampled_stock_primary_match_count=10`, `sampled_stock_model_match_rate=1.0`, `stock_match_confidence.average=1.0`을 기록한다.
+- service readiness gate는 confidence를 품질 관측과 UI 표시용 메타데이터로만 인정하며, Hannah는 신뢰도 기반 자동 차단 결정을 만들지 않는다.
+
+## 지속 운영 관리
+- 실제 뉴스 gold label set을 월별로 증분 확대하고 drift를 감시한다.
+- Naver 뉴스 수집 쿼리와 일 단위 shard 수집을 운영 credential 환경에서 계속 수행한다.
+- 사람이 검수한 gold label과 약지도 label 품질을 비교해 사람 검수 supervised/evaluation gold를 보강한다.
+- live-news report가 `stale`이면 최신 release 품질 근거에서 제외하고 운영 Naver credential로 배치를 다시 생성한다.
