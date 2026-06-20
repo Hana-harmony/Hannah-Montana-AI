@@ -17,6 +17,7 @@ uv run python scripts/build_model_confidence_calibration_report.py
 uv run python scripts/build_stock_candidate_quota_experiment.py
 uv run python scripts/build_model_release_report.py
 uv run python scripts/build_pseudo_label_monitoring_report.py
+uv run python scripts/build_service_readiness_report.py
 uv run python scripts/sync_stock_universe.py
 uv run python scripts/build_stock_coverage_report.py
 uv run python scripts/build_stock_training_candidate_queue.py
@@ -74,6 +75,7 @@ uv run python scripts/build_translation_sample_report.py --sample-limit-per-sour
 - 모델 release report가 학습·평가·distillation 리포트와 동기화되어 있고 모든 gate가 통과하는지 검증
 - 모델 confidence calibration report가 평가셋별 확률 calibration과 고신뢰 오답을 결정적으로 기록하는지 검증
 - pseudo-label promotion monitoring report가 distillation·release 리포트와 동기화되어 있고 라벨별 확장 결정을 고정하는지 검증
+- service readiness report가 모델 release, audited gold readiness, live-news monitoring, 전 종목 reference coverage, stock linker coverage, confidence observe-only 정책을 모두 통합 gate로 검증하는지 확인
 - 중복 제거 키가 뉴스 라벨·언론사·기자 꼬리표를 제거하면서 종목·출처 경계를 유지하는지 검증
 - 실시간 Naver 뉴스 표본 배치가 라벨 없는 smoke/drift row와 provider status, confidence 분포를 기록하는지 검증
 - 실제 Naver 뉴스 gold와 OpenDART 공시 gold 샘플의 원문, Hannah 로컬 금융용어 번역 보조 결과, AI 분석 결과, glossary, fallback/review finding을 `reports/translation-sample-report.json`에 기록하는지 검증
@@ -118,6 +120,7 @@ uv run python scripts/build_translation_sample_report.py --sample-limit-per-sour
 - `reports/live-news-monitoring-status.json`은 현재 커밋된 실시간 뉴스 리포트가 최신 release 모델과 schema, confidence summary를 만족해 `overall_status=pass`를 기록한다. 최신성 검증은 `uv run python scripts/build_live_news_monitoring_status.py`로 재생성한다.
 - 최신 live-news smoke 표본은 `predicted_stock_null_count=0`, `sampled_stock_primary_match_count=10`, `sampled_stock_model_match_rate=1.0`, `stock_match_confidence.average=1.0`을 기록해 query-scoped stock candidate 기반 primary/related 종목 매핑이 모두 유효함을 확인한다.
 - 전 종목 reference coverage gate는 현재 `pass`이며, 다음 확장은 운영 알림 로그와 사람 검수 gold 품질 보강을 기준선으로 사용한다.
+- `reports/service-readiness-report.json`은 현재 release, live-news smoke/drift, 전 종목 reference coverage, stock linker, pseudo-label monitoring, confidence calibration, confidence observe-only 정책을 집계해 `overall_status=pass`를 기록한다.
 
 ## 추가 예정
 - 배포 네트워크에서 외부 접근 차단 확인

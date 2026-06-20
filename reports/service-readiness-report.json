@@ -1,0 +1,82 @@
+{
+  "schema_version": "service-readiness-report/v1",
+  "generated_at": "2026-06-20T03:40:15.919685+00:00",
+  "overall_status": "pass",
+  "model_version": "financial-ml-tfidf-logreg-20260619095828",
+  "checks": {
+    "model_release_gate": {
+      "actual": "pass",
+      "expected": "pass",
+      "status": "pass"
+    },
+    "bootstrap_service_readiness": {
+      "actual": "pass",
+      "expected": "pass",
+      "status": "pass"
+    },
+    "audited_gold_readiness": {
+      "actual": "pass",
+      "expected": "pass",
+      "status": "pass"
+    },
+    "live_news_monitoring": {
+      "actual": "pass",
+      "expected": "pass",
+      "status": "pass"
+    },
+    "confidence_policy_observe_only": {
+      "actual": "observe_only",
+      "expected": "observe_only",
+      "status": "pass"
+    },
+    "full_universe_reference_coverage": {
+      "valid_numeric_universe_count": 3920,
+      "full_coverage_stock_count": 3920,
+      "missing_stock_count_after_generation": 0,
+      "review_status": "codex_review_approved",
+      "status": "pass"
+    },
+    "stock_reference_coverage": {
+      "coverage_gate_status": "pass",
+      "training_stock_count": 3422,
+      "minimum_training_stock_count": 3000,
+      "evaluation_stock_count": 557,
+      "minimum_evaluation_stock_count": 500,
+      "status": "pass"
+    },
+    "stock_linker_coverage": {
+      "coverage_gate_status": "pass",
+      "all_stock_code_template_accuracy": 1.0,
+      "required_all_stock_code_template_accuracy": 1.0,
+      "trainable_stock_name_template_accuracy": 0.9921238457360131,
+      "minimum_trainable_stock_name_template_accuracy": 0.99,
+      "status": "pass"
+    },
+    "pseudo_label_monitoring": {
+      "actual": "pass",
+      "expected": "pass",
+      "status": "pass"
+    },
+    "confidence_calibration_report": {
+      "schema_version": "model-confidence-calibration/v1",
+      "model_version": "financial-ml-tfidf-logreg-20260619095828",
+      "expected_model_version": "financial-ml-tfidf-logreg-20260619095828",
+      "required_datasets": [
+        "benchmark",
+        "real_news_gold"
+      ],
+      "missing_datasets": [],
+      "status": "pass"
+    }
+  },
+  "policy": {
+    "confidence_usage": "observe_only",
+    "description": "confidence 값은 품질 관측과 UI 표시용 메타데이터로만 제공한다. Hannah는 신뢰도 기반 자동 차단 결정을 만들지 않는다."
+  },
+  "continuous_operations": {
+    "human_gold_increment": "사람 검수 gold label은 운영 로그와 월별 증분 수집으로 계속 확대한다.",
+    "drift_monitoring": "live-news smoke/drift 리포트가 stale 또는 attention이면 운영 credential 환경에서 배치를 재생성하고 release 전 원인을 확인한다.",
+    "rollback": "model-release-report와 service-readiness-report가 pass였던 직전 artifact로 되돌린다."
+  },
+  "required_action": "추가 조치 없음. 현재 release, coverage, live-news, confidence 정책이 서비스 readiness gate를 통과했다."
+}

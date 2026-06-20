@@ -107,6 +107,7 @@ uv run python scripts/build_model_confidence_calibration_report.py
 uv run python scripts/build_stock_candidate_quota_experiment.py
 uv run python scripts/build_model_release_report.py
 uv run python scripts/build_pseudo_label_monitoring_report.py
+uv run python scripts/build_service_readiness_report.py
 ```
 
 - `reports/model-release-report.json`은 모델 버전, 학습 샘플 수, pseudo-label 승격 내역, holdout·benchmark·실공시·실뉴스 quality gate를 한 파일로 묶는다.
@@ -130,6 +131,8 @@ uv run python scripts/build_pseudo_label_monitoring_report.py
 - 현재 event model pseudo training coverage는 781건, 781개 종목이며 supervised/reference coverage와 별도로 해석한다.
 - `reports/model-release-report.json`의 `service_readiness`는 bootstrap 운영 판단이며, release quality gate와 stock-candidate pseudo coverage를 기준으로 한다.
 - `audited_gold_readiness`는 `human_review_approved` 또는 `codex_review_approved` coverage gold 기준이며, bootstrap 운영 판단과 별도로 관리한다.
+- `reports/service-readiness-report.json`은 release gate, audited gold readiness, live-news monitoring, full-universe reference coverage, stock linker coverage, pseudo-label monitoring, confidence calibration을 최종 운영 readiness gate로 집계한다.
+- service readiness gate는 confidence 값을 `observe_only` 정책으로만 인정하며 Hannah가 신뢰도 기반 자동 차단 결정을 만들면 실패해야 한다.
 - `reports/stock-collection-shard-plan.json`은 candidate queue, supervised training gold, evaluation gold가 모두 없는 종목을 shard 단위 수집 대상으로 기록한다.
 - 현재 shard plan은 351개 `no_raw_no_candidate` 종목과 107개 `raw_without_candidate` 종목을 우선 수집 대상으로 둔다.
 - `reports/stock-candidate-quota-experiment.json`은 calibrated current release 781건/781종목이 gate를 통과했고, risk/contract 확장 profile은 895건/709종목까지 확장됐지만 실제 뉴스 gold macro F1 gate를 통과하지 못했음을 기록한다.
@@ -140,10 +143,14 @@ uv run python scripts/build_pseudo_label_monitoring_report.py
 - `reports/stock-gold-promotion-report.json`은 `human_review_approved` 또는 `codex_review_approved` row 중 검수자 메타데이터와 최종 라벨이 모두 있는 row만 supervised/evaluation gold 출력으로 승격했는지 기록한다.
 - 승인 상태지만 필수 검수 필드가 빠진 row는 `rejected_approved_count_by_reason`에 사유별로 집계한다.
 
-## 운영 전 보강
-- drift 감시
-- full-universe Codex reference coverage 누락 0 유지
-- 사람이 검수한 supervised/evaluation gold label 증분 확대
-- 후보 큐 3,506개 종목에서 종목·라벨별 human review batch 운영
-- 재학습 기준과 rollback 절차
-- 배포 환경별 Secret Manager 연동 완료 후 secret rotation runbook 작성
+## 운영 readiness gate
+- `reports/service-readiness-report.json`의 `overall_status=pass`를 release 전 최종 gate로 사용한다.
+- gate가 `fail`이면 실패한 check를 수정하고 관련 하위 리포트를 재생성한 뒤 다시 실행한다.
+- rollback은 `model-release-report`와 `service-readiness-report`가 모두 `pass`였던 직전 model artifact로 되돌린다.
+
+## 지속 운영 관리
+- live-news smoke/drift 리포트가 `stale` 또는 `attention`이면 운영 credential 환경에서 배치를 재생성한다.
+- full-universe Codex reference coverage 누락 0을 유지한다.
+- 사람이 검수한 supervised/evaluation gold label을 월별로 증분 확대한다.
+- 후보 큐 3,506개 종목에서 종목·라벨별 human review batch를 운영한다.
+- 배포 환경별 Secret Manager 연동 완료 후 secret rotation runbook을 유지한다.
