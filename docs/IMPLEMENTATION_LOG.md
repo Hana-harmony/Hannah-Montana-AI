@@ -1,5 +1,10 @@
 # 구현 기록
 
+## 2026-06-20 서비스 readiness 통합 gate 추가
+- `scripts/build_service_readiness_report.py`와 `reports/service-readiness-report.json`을 추가해 모델 release, audited gold readiness, live-news monitoring, full-universe reference coverage, stock linker coverage, pseudo-label monitoring, confidence calibration을 최종 운영 gate로 집계한다.
+- confidence는 `observe_only` 정책으로만 인정하며 Hannah는 신뢰도 기반 자동 차단 결정을 만들지 않는다.
+- 현재 release `financial-ml-tfidf-logreg-20260619095828`의 service readiness는 `overall_status=pass`다.
+
 ## 2026-06-19 유효 6자리 국내주식 전체 Codex reference coverage 확장
 - `scripts/build_full_universe_codex_stock_review_gold.py`를 추가해 `data/reference/korea_stock_universe.csv`의 유효 6자리 숫자 종목코드 3,920개 중 stock review gold train/eval 합집합에 없는 1,920개 종목을 Codex reference row로 보강한다.
 - 생성 row는 `codex_review_approved`, `reviewer_id=codex-gpt-5`, `source_review_stage=full_universe_codex_reference` lineage를 남기고 `data/training/financial_alert_stock_review_gold.jsonl`에 커밋한다.
