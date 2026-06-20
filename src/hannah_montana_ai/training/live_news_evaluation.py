@@ -19,8 +19,8 @@ from hannah_montana_ai.training.collector import (
 from hannah_montana_ai.training.stock_universe import StockUniverseEntry, normalize_stock_term
 from hannah_montana_ai.training.weak_labeler import RawCollectedAlert
 
-LIVE_NEWS_EVALUATION_ROW_SCHEMA_VERSION = "live-news-evaluation-row/v1"
-LIVE_NEWS_EVALUATION_REPORT_SCHEMA_VERSION = "live-news-evaluation-report/v1"
+LIVE_NEWS_EVALUATION_ROW_SCHEMA_VERSION = "live-news-evaluation-row/v2"
+LIVE_NEWS_EVALUATION_REPORT_SCHEMA_VERSION = "live-news-evaluation-report/v2"
 DEFAULT_LIVE_NEWS_INTENTS = ("주가", "실적", "공시", "수주", "전망")
 
 
@@ -289,6 +289,7 @@ def _build_row(
         "model_version": response.model_version,
         "predicted_stock_code": response.stock_code,
         "predicted_stock_name": response.stock_name,
+        "stock_match_confidence": response.stock_match_confidence,
         "related_stocks": related_stocks,
         "sampled_stock_primary_matched": sampled_stock_primary_matched,
         "sampled_stock_related_matched": sampled_stock_related_matched,
@@ -300,14 +301,17 @@ def _build_row(
         "event_probabilities": event_probabilities,
         "event_top_label": event_top_label,
         "event_top_confidence": event_top_confidence,
+        "event_confidence": response.event_confidence,
         "predicted_sentiment": response.sentiment,
         "sentiment_probabilities": sentiment_probabilities,
         "sentiment_top_label": sentiment_top_label,
         "sentiment_top_confidence": sentiment_top_confidence,
+        "sentiment_confidence": response.sentiment_confidence,
         "predicted_importance": response.importance,
         "importance_probabilities": importance_probabilities,
         "importance_top_label": importance_top_label,
         "importance_top_confidence": importance_top_confidence,
+        "importance_confidence": response.importance_confidence,
         "final_stock_code": "",
         "final_tags": [],
         "final_sentiment": "",

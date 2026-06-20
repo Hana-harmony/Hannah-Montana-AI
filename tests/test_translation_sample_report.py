@@ -35,6 +35,10 @@ class FakeAnalyzer:
             watchlist_target=True,
             duplicate_key="fake-duplicate-key",
             model_version=self.model.version,
+            event_confidence=0.9,
+            sentiment_confidence=0.86,
+            importance_confidence=0.88,
+            stock_match_confidence=1.0 if stock_code else 0.0,
         )
 
 

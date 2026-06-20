@@ -43,6 +43,10 @@ class FakeAnalyzer:
             watchlist_target=True,
             duplicate_key="fake",
             model_version=self.model.version,
+            event_confidence=0.82,
+            sentiment_confidence=0.8,
+            importance_confidence=0.85,
+            stock_match_confidence=1.0,
         )
 
 
@@ -117,6 +121,8 @@ def test_live_news_evaluation_batch_records_unlabeled_model_review_rows() -> Non
     assert row["sampled_stock_text_matched"] is True
     assert row["event_top_label"] == "CONTRACT"
     assert row["sentiment_top_confidence"] == 0.8
+    assert row["event_confidence"] == 0.82
+    assert row["stock_match_confidence"] == 1.0
     assert row["final_tags"] == []
     assert row["final_sentiment"] == ""
 
