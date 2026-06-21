@@ -48,6 +48,14 @@
 - Swagger UI: `/docs`
 - OpenAPI JSON: `/openapi.json`
 
+## Foreign Ownership Timeseries Prediction
+
+- `POST /api/v1/market/foreign-ownership/predict`
+- Hana-OmniLens-API가 수집한 KIS 외국인 보유 snapshot, 일별 시계열, KIS WebSocket 장중 누적 거래량을 받아 외국인 한도소진율 예측 boundary를 반환한다.
+- 요청 `data`에는 `stock_code`, `side`, `quantity`, `foreign_owned_quantity`, `foreign_ownership_rate`, `foreign_limit_quantity`, `foreign_limit_exhaustion_rate`, `base_date`, `observed_intraday_volume`, `history[]`를 포함한다.
+- 응답 `data`에는 `min_foreign_limit_exhaustion_rate`, `base_foreign_limit_exhaustion_rate`, `max_foreign_limit_exhaustion_rate`, `order_impact_rate`, `trend_daily_change_rate`, `history_observation_count`, `confidence_level`, `confidence_score`, `model_version`, `source`를 포함한다.
+- 이 endpoint는 confidence와 boundary를 관측/표시용으로 제공하며 주문 차단 결정을 반환하지 않는다.
+
 ## Tax Document Verification
 
 - `POST /api/v1/tax/documents/verify`

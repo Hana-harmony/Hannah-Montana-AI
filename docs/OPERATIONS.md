@@ -21,6 +21,12 @@ docker run --rm --network hana-internal hannah-montana-ai
 ## 헬스체크
 - `GET /health`
 
+## 외국인 보유 시계열 예측
+- `POST /api/v1/market/foreign-ownership/predict`는 OmniLens가 저장한 외국인 보유수량, 보유율, 한도소진율 일별 시계열과 KIS WebSocket 장중 누적 거래량을 입력으로 받는다.
+- 응답은 한도소진율 `min/base/max`, 주문수량 영향도, 일별 추세, 관측치 수, window, confidence, model version을 공통 envelope으로 반환한다.
+- confidence는 품질 관측과 UI 표시용이며 Hannah는 주문 차단, orderable 판정, 신뢰도 기반 자동 차단 결정을 만들지 않는다.
+- OmniLens는 Hannah 장애 시 자체 deterministic 시계열 fallback을 사용하고, 확정 한도소진율이 100% 이상인 경우에만 차단한다.
+
 ## 추론 audit log
 - 분석 API는 요청마다 `hannah_montana_ai.audit.analysis` logger에 JSON audit log를 남긴다.
 - 로그에는 `model_version`, `latency_ms`, 예측 이벤트·감성·중요도, 종목코드, 결과 상태를 기록한다.
