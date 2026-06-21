@@ -7,6 +7,7 @@ Hana-OmniLens-API의 뉴스·공시 알림 분석을 담당하는 FastAPI 기반
 - 이벤트 분류
 - 감성 분류
 - 중요도 분류
+- What/Why/Impact 3줄 요약
 - 중복 제거 키 생성
 - 금융 용어 normalization과 번역 품질 보조
 
@@ -45,6 +46,8 @@ uv run python scripts/build_translation_sample_report.py --sample-limit-per-sour
 최종 운영 readiness는 `reports/service-readiness-report.json`에서 모델 release, live-news smoke/drift, 전 종목 reference coverage, stock linker, confidence observe-only 정책을 통합해 확인한다.
 번역 품질 보조 결과는 `reports/translation-sample-report.json`에 실제 뉴스·공시 gold 원문, 로컬 glossary 번역, AI 분석 결과, review finding을 함께 기록한다.
 분석 응답은 이벤트·감성·중요도·종목 매핑 confidence를 포함한다. 이 값은 품질 관측과 UI 표시용 메타데이터이며, Hannah는 신뢰도 기반 자동 차단 결정을 만들지 않는다.
+
+현재 운영 모델은 Naver News Search 제목/snippet과 OpenDART 공시검색 row를 기반으로 학습한 v1 baseline이다. v2는 Hana-OmniLens-API가 합법적으로 수집한 전문과 이미지 metadata를 추가 입력으로 받아 자연스러운 What/Why/Impact 3줄 요약과 전문 기반 중복 키를 생성한다. 기존 v1 모델과 학습 데이터는 폐기하지 않고 full-content v2의 fallback, 회귀 비교, teacher 후보로 유지한다.
 
 AI 서비스는 협력사용 `OMNILENS_API_KEY`나 별도 서비스 토큰을 요구하지 않는다. 배포 환경에서는 외부에 포트를 공개하지 않고 Spring 컨테이너에서만 접근 가능한 내부 네트워크로 격리한다.
 

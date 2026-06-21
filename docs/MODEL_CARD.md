@@ -142,6 +142,8 @@
 
 ## 학습 방식
 - `scripts/collect_training_data.py`가 Naver News Search와 OpenDART에서 원문 제목·snippet·링크를 수집한다.
+- full-content v2 학습 파이프라인은 Naver News Search를 발견 단계로만 사용하고, Hana-OmniLens-API가 권리 확인 후 저장한 전문/이미지 metadata와 OpenDART 원문을 추가 feature로 사용한다.
+- 기존 제목/snippet v1 artifact는 폐기하지 않고 full-content v2의 fallback, 회귀 비교, teacher 후보로 유지한다.
 - `weak_labeler.py`가 수집 원문에 약지도 라벨을 부여해 학습 후보를 만든다.
 - `weak_distiller.py`가 약지도 후보의 노이즈를 제거하고 고신호 후보를 선별한다.
 - supervised teacher 모델이 distillation 후보를 다시 예측하고, 이벤트·감성·중요도 confidence와 weak-label 합의 기준을 통과한 후보만 pseudo-label로 승격한다.
@@ -247,7 +249,7 @@
 - 현재 distillation 후보는 supervised teacher가 다시 검증해야 하는 후보 풀이지 최종 정답셋이 아니다.
 - pseudo-label은 teacher confidence와 release gate를 통과한 라벨만 제한 승격한다. `DISCLOSURE`와 `GENERAL_MARKET`은 후보가 있어도 현재 artifact 학습에는 투입하지 않는다.
 - 사람이 검수한 실데이터 gold label set은 현재 실공시 30건, 실제 뉴스 80건이므로 주기적으로 확대해야 한다.
-- 본문 전문을 저장·재배포하지 않고 제목·snippet 중심으로 학습한다.
+- 현재 release artifact는 본문 전문을 저장·재배포하지 않고 제목·snippet 중심으로 학습했다. v2 artifact는 권리 확인된 전문만 사용하고, 재배포 불가 본문은 학습 원문 저장 없이 feature hash와 사람이 검수한 요약 label만 남긴다.
 - 실제 투자 판단을 위한 추천 모델이 아니다.
 
 ## 서비스 readiness gate

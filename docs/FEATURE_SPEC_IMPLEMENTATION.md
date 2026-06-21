@@ -40,7 +40,8 @@
 
 ## 2. 한국 주식 정보 취득 및 분석
 - endpoint: `POST /api/v1/intelligence/events`
-- 입력: Naver News/OpenDART가 수집한 제목, snippet, 원문 링크, 발행시각, 언론사, 종목 후보.
+- 입력 v1: Naver News/OpenDART가 수집한 제목, snippet, 원문 링크, 발행시각, 언론사, 종목 후보.
+- 입력 v2: v1 필드에 Hana-OmniLens-API가 권리 확인 후 수집한 전문, 이미지 URL 목록, canonical URL, content hash, source license policy를 추가한다.
 - 파서:
   - `parse_naver_news_row`: Naver News Search API row의 제목, snippet, 원문 링크, 발행시각, 언론사, 종목 후보를 정규화한다.
   - `parse_opendart_disclosure_row`: OpenDART 공시검색 row의 접수번호, 공시 제목, 회사명, 종목코드, 제출일자를 정규화하고 DART 원문 링크를 구성한다.
@@ -49,6 +50,8 @@
   - provider 파서는 유효하지 않은 원문 URL과 잘못된 종목코드를 거부한다.
 - 처리:
   - 기존 ML 분석 엔진으로 종목 매핑, 중복키, 이벤트, 감성, 중요도, holder/watchlist target을 산출한다.
+  - v2에서는 전문을 우선 사용해 자연어 What/Why/Impact 3줄 요약을 만든다. 전문이 없거나 권리 정책상 저장할 수 없으면 제목/snippet 기반 v1 요약으로 fallback하고 `content_availability`를 명시한다.
+  - 중복 제거는 canonical URL, normalized title, content hash, 전문 기반 duplicate key를 함께 사용한다.
   - 현재 로컬 하네스에서는 `FinancialTranslationModel`의 `local-financial-glossary` 번역 보조 모델을 사용한다.
   - 금융 용어집은 종목명, 공시 이벤트, 재무 지표, 세무 용어의 alias를 canonical term으로 정규화하고 긴 용어부터 번역해 부분 치환 오류를 줄인다.
   - `local-financial-glossary-v2`는 실공시에서 자주 오역되는 매매거래정지, 상장폐지 사유, 소송 청구, 타법인 주식 취득, 자기주식, 전환사채, 관리·투자주의 환기 용어를 우선 치환한다.
@@ -58,7 +61,8 @@
 - 출력 핵심 필드:
   - `alert_id`, `duplicate_key`, `stock_code`, `news_disclosure_type`
   - `original_title`, `translated_title`
-  - `summary`, `translated_summary`
+  - `summary`, `summary_lines.what`, `summary_lines.why`, `summary_lines.impact`, `translated_summary`
+  - `original_content`, `translated_content`, `image_urls`, `content_availability`
   - `sentiment`, `importance`, `event_tag`, `event_tags`
   - `is_holder_target`, `is_watchlist_target`
   - `glossary_terms`, `translation_quality_flags`
