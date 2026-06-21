@@ -8,6 +8,14 @@
 - Hana-OmniLens-API의 Watchlist News & Disclosure Alert API payload 생성에 사용한다.
 - ChatGPT API나 외부 LLM에 의존하지 않는다.
 
+## 외국인 보유 시계열 예측 모델
+- 모델 버전: `hannah-foreign-ownership-timeseries-v1`
+- 목적: OmniLens가 저장한 외국인 보유수량, 보유율, 한도소진율 일별 시계열과 KIS WebSocket 장중 누적 거래량을 사용해 금일 한도소진율 boundary와 confidence를 산출한다.
+- 입력: 현재 KIS 외국인 보유 snapshot, 주문 side/수량, 최근 일별 외국인 보유 시계열, 장중 누적 거래량.
+- 출력: 한도소진율 `min/base/max`, 주문 영향도, 장중/시계열 불확실성, 추세 변화율, 관측치 수, confidence, model version.
+- 한계: confidence는 observe-only이며 주문 차단 정책으로 사용하지 않는다. 확정 차단은 OmniLens가 현재 snapshot과 주문수량 영향도로 계산한 deterministic boundary에서만 수행한다.
+- fallback: Hannah 호출 실패 시 OmniLens 내부 deterministic 시계열 엔진이 동일 응답 계약을 유지한다.
+
 ## 입력
 - source type: `NEWS` 또는 `DISCLOSURE`
 - 제목

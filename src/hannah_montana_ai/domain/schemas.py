@@ -1,3 +1,4 @@
+from datetime import date, datetime
 from typing import Literal
 
 from pydantic import BaseModel, Field, HttpUrl
@@ -117,6 +118,46 @@ class StockOrderStatusResponse(BaseModel):
     prediction_model_version: str
     trading_state_model_version: str
     data_source: str
+
+
+class ForeignOwnershipHistoryPoint(BaseModel):
+    base_date: date
+    foreign_owned_quantity: int = Field(ge=0)
+    foreign_ownership_rate: float = Field(ge=0.0, le=100.0)
+    foreign_limit_quantity: int = Field(gt=0)
+    foreign_limit_exhaustion_rate: float = Field(ge=0.0)
+
+
+class ForeignOwnershipTimeseriesPredictionRequest(BaseModel):
+    stock_code: str = Field(pattern=r"^\d{6}$")
+    side: Literal["BUY", "SELL"] = "BUY"
+    quantity: int = Field(default=0, ge=0)
+    foreign_owned_quantity: int = Field(ge=0)
+    foreign_ownership_rate: float = Field(ge=0.0, le=100.0)
+    foreign_limit_quantity: int = Field(gt=0)
+    foreign_limit_exhaustion_rate: float = Field(ge=0.0)
+    base_date: date
+    observed_intraday_volume: int = Field(default=0, ge=0)
+    history: list[ForeignOwnershipHistoryPoint] = Field(default_factory=list, max_length=90)
+
+
+class ForeignOwnershipTimeseriesPredictionResponse(BaseModel):
+    stock_code: str
+    min_foreign_limit_exhaustion_rate: float
+    base_foreign_limit_exhaustion_rate: float
+    max_foreign_limit_exhaustion_rate: float
+    order_impact_rate: float
+    intraday_uncertainty_rate: float
+    observed_intraday_volume: int
+    trend_daily_change_rate: float
+    history_observation_count: int
+    history_window_days: int
+    base_date: date
+    calculated_at: datetime
+    confidence_level: str
+    confidence_score: float = Field(ge=0.0, le=1.0)
+    model_version: str
+    source: str
 
 
 class IntelligenceEventRequest(AlertAnalysisRequest):
