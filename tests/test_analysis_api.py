@@ -144,6 +144,7 @@ def test_openapi_docs_expose_analysis_contract() -> None:
     payload = response.json()
     assert payload["info"]["title"] == "Hannah-Montana-AI"
     assert "/api/v1/alerts/analyze" in payload["paths"]
+    assert "/api/v1/market/foreign-ownership/predict" in payload["paths"]
 
 
 def test_analyze_alert_detects_critical_disclosure_risk() -> None:

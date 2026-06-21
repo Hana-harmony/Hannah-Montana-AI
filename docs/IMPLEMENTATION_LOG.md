@@ -852,3 +852,8 @@
 - `/api/v1/tax/documents/verify`를 추가해 외부 OCR 결과와 위변조 signal을 `VERIFIED`, `PENDING`, `REJECTED` 상태로 판정한다.
 - OCR confidence, fraud risk, 필수 field 누락, manual review 여부, rejection reason, document model version을 공통 응답 envelope으로 반환한다.
 - CASE_01 환급 모델이 소비하는 `ocr-fraud-risk-gate-v1` 문서 검증 결과를 API 계약 테스트로 고정했다.
+
+## 2026-06-21 - 외국인 보유 시계열 예측 API
+- `/api/v1/market/foreign-ownership/predict`를 추가해 OmniLens 외국인 보유 snapshot, 일별 시계열, KIS WebSocket 장중 누적 거래량 기반 한도소진율 boundary를 반환한다.
+- 모델 버전은 `hannah-foreign-ownership-timeseries-v1`이며 confidence, 추세 변화율, 관측치 수, source를 함께 응답한다.
+- confidence는 observe-only 정책으로 유지하고 Hannah는 주문 차단 여부를 반환하지 않는다.

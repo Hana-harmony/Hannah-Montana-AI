@@ -8,6 +8,8 @@ from hannah_montana_ai.api.exceptions import ApiException, ErrorCode
 from hannah_montana_ai.domain.schemas import (
     AlertAnalysisRequest,
     AlertAnalysisResponse,
+    ForeignOwnershipTimeseriesPredictionRequest,
+    ForeignOwnershipTimeseriesPredictionResponse,
     IntelligenceEventRequest,
     IntelligenceEventResponse,
     StockOrderStatusRequest,
@@ -24,6 +26,9 @@ from hannah_montana_ai.services.feature_contracts import (
     StockOrderStatusService,
     TaxDocumentVerificationService,
     TaxRefundStatusService,
+)
+from hannah_montana_ai.services.foreign_ownership import (
+    ForeignOwnershipTimeseriesPredictionService,
 )
 from hannah_montana_ai.services.model import ModelArtifactError
 
@@ -43,6 +48,11 @@ def get_audit_logger() -> AnalysisAuditLogger:
 @lru_cache
 def get_stock_order_status_service() -> StockOrderStatusService:
     return StockOrderStatusService()
+
+
+@lru_cache
+def get_foreign_ownership_prediction_service() -> ForeignOwnershipTimeseriesPredictionService:
+    return ForeignOwnershipTimeseriesPredictionService()
 
 
 @lru_cache
@@ -104,6 +114,16 @@ def analyze_alert(request: AlertAnalysisRequest) -> ApiResponse[AlertAnalysisRes
 )
 def stock_order_status(request: StockOrderStatusRequest) -> ApiResponse[StockOrderStatusResponse]:
     return success_response(get_stock_order_status_service().build_response(request))
+
+
+@router.post(
+    "/market/foreign-ownership/predict",
+    response_model=ApiResponse[ForeignOwnershipTimeseriesPredictionResponse],
+)
+def predict_foreign_ownership(
+    request: ForeignOwnershipTimeseriesPredictionRequest,
+) -> ApiResponse[ForeignOwnershipTimeseriesPredictionResponse]:
+    return success_response(get_foreign_ownership_prediction_service().predict(request))
 
 
 @router.post(
