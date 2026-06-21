@@ -1,5 +1,14 @@
 # 구현 기록
 
+## 2026-06-22 기사·공시 전문 기반 학습 v2 완료
+- `data/training/financial_alert_full_content_gold.jsonl`에 권리 안전 기사·공시 전문 gold 14건을 추가하고 `source_license_policy`, `content_hash`, `content_availability` lineage를 검증한다.
+- 학습 입력은 전문이 있으면 `title + snippet + full_content`를 우선 사용하며, 전문이 없는 기존 row는 제목·snippet fallback으로 유지한다.
+- 새 모델 `financial-ml-tfidf-logreg-20260621225355`은 supervised 3,623건과 teacher-gated pseudo-label 1,028건을 합친 4,651건으로 학습했다.
+- 종목 후보 큐 중 teacher gate와 release gate를 통과한 687건, 687개 종목을 event-model-only pseudo-label로 제한 승격했다.
+- 이벤트 threshold는 실제 뉴스 gold 기준으로 `CONTRACT` 0.46, `CORPORATE_ACTION` 0.18, `EARNINGS` 0.40, `GENERAL_MARKET` 0.22, `MACRO` 0.30, `RISK` 0.50으로 calibration했다.
+- 80건 실제 뉴스 gold 기준 이벤트 recall 0.9625, macro F1 0.9170, 감성 accuracy 0.9000, 중요도 accuracy 0.9250, 종목 accuracy 1.0으로 gate를 통과했다.
+- `reports/model-release-report.json`, `reports/model-confidence-calibration.json`, `reports/pseudo-label-promotion-monitoring.json`, `reports/service-readiness-report.json`을 새 모델 버전으로 재생성했고 전체 상태는 `pass`다.
+
 ## 2026-06-20 서비스 readiness 통합 gate 추가
 - `scripts/build_service_readiness_report.py`와 `reports/service-readiness-report.json`을 추가해 모델 release, audited gold readiness, live-news monitoring, full-universe reference coverage, stock linker coverage, pseudo-label monitoring, confidence calibration을 최종 운영 gate로 집계한다.
 - confidence는 `observe_only` 정책으로만 인정하며 Hannah는 신뢰도 기반 자동 차단 결정을 만들지 않는다.

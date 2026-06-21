@@ -1,7 +1,7 @@
 # 금융 NLP ML 모델 카드
 
 ## 모델명
-`financial-ml-tfidf-logreg-20260612005235`
+`financial-ml-tfidf-logreg-20260621225355`
 
 ## 목적
 - 한국 주식 뉴스·공시의 이벤트 태그, 감성, 중요도를 자체 ML 모델로 분류한다.
@@ -46,24 +46,27 @@
 - curated gold benchmark: `data/evaluation/financial_alert_eval.jsonl`
 - 사람이 검수한 실공시 gold: `data/evaluation/financial_alert_real_disclosure_gold.jsonl`
 - 사람이 검수한 실제 뉴스 평가 gold: `data/evaluation/financial_alert_real_news_gold.jsonl`
-- 이번 artifact 학습 샘플 수: 4,734
-- supervised 학습 샘플 수: 3,609
-- teacher-gated pseudo-label 학습 샘플 수: 1,125
+- 이번 artifact 학습 샘플 수: 4,651
+- supervised 학습 샘플 수: 3,623
+- teacher-gated pseudo-label 학습 샘플 수: 1,028
 - 실제 수집 raw 총량: 68,710건
 - 실제 수집 원천: OpenDART 공시검색 25,966건
 - 실제 수집 원천: Naver News Search 42,744건
 - 합성 증강 샘플 수: 1,656건
 - 뉴스 제목체 증강 샘플 수: 1,872건
 - 실제 뉴스 학습 gold 샘플 수: 63건
+- 권리 안전 기사·공시 전문 학습 gold 샘플 수: 14건
+- 전문 학습 gold 구성: 뉴스 10건, 공시 4건
+- 전문 학습 권리 정책: `internal_rights_safe_full_article_v1` 10건, `internal_rights_safe_disclosure_text_v1` 4건
 - gold benchmark 샘플 수: 768건
 - 실공시 gold 샘플 수: 30건
 - 실제 뉴스 gold 샘플 수: 80건
 - 약지도 후보 수: 68,710건
 - distillation 통과 후보 수: 5,204건
-- teacher confidence gate 통과 후 artifact 학습 승격 후보 수: 1,125건
-- weak-label distillation 승격 수: 344건
-- 종목 후보 큐 승격 수: 781건
-- 종목 후보 큐 승격 종목 수: 781개
+- teacher confidence gate 통과 후 artifact 학습 승격 후보 수: 1,028건
+- weak-label distillation 승격 수: 341건
+- 종목 후보 큐 승격 수: 687건
+- 종목 후보 큐 승격 종목 수: 687개
 - 수집기는 429 rate limit, 5xx 장애, 일시적 read timeout과 네트워크 오류에 대해 재시도와 지수 백오프를 수행한다.
 - 수집 실패로 새 결과가 기존 raw 수보다 줄어들면 기본값으로 기존 코퍼스를 덮어쓰지 않는다.
 - 수집 raw와 약지도 라벨은 학습 재현성 때문에 커밋하지만, 외부 API 키와 비공개 credential은 포함하지 않는다.
@@ -163,30 +166,30 @@
 - 번역 품질 보조 모델은 `local-financial-glossary-v2`이며, 실제 공시에서 반복되는 매매거래정지, 상장폐지 사유, 소송 청구, 타법인 주식 취득, 자기주식, 전환사채, 관리·투자주의 환기 용어를 우선 glossary/fallback rule로 정규화한다.
 - `reports/translation-sample-report.json`은 실제 뉴스·공시 gold 표본 기준 원문, 로컬 번역 보조 결과, AI 분석 결과, glossary, review finding을 함께 보존한다.
 - stock linker는 전체 universe 3,967개 종목코드와 trainable 종목명을 학습 term으로 사용한다. 현재 전 종목코드 템플릿 정확도는 1.0, trainable 종목명 템플릿 정확도는 0.9921이다.
-- 이벤트 태그 probability threshold는 기본 0.30으로 두고, 실제 뉴스 gold 기준으로 `CONTRACT` 0.42, `CORPORATE_ACTION` 0.18, `EARNINGS` 0.36, `GENERAL_MARKET` 0.32, `MACRO` 0.24, `RISK` 0.50을 label별 calibration했다.
+- 이벤트 태그 probability threshold는 기본 0.30으로 두고, 실제 뉴스 gold 기준으로 `CONTRACT` 0.46, `CORPORATE_ACTION` 0.18, `EARNINGS` 0.40, `GENERAL_MARKET` 0.22, `MACRO` 0.30, `RISK` 0.50을 label별 calibration했다.
 - 학습 시 검수·균형 코퍼스를 80:20 holdout으로 나눠 검증한 뒤 전체 코퍼스로 최종 artifact를 재학습한다.
-- 약지도 후보 중 `RISK` 140건, `CONTRACT` 180건, `CORPORATE_ACTION` 24건을 이벤트 모델 학습에 승격했다.
-- 종목 후보 큐에서는 teacher gate와 종목별 quota를 통과한 `RISK` 294건, `CONTRACT` 266건, `CAPITAL_ACTION` 120건, `CORPORATE_ACTION` 44건, `EARNINGS` 35건, `MACRO` 22건을 이벤트 모델 학습에 추가했다.
-- 종목 후보의 per-stock quota는 1건으로 제한해 781건이 781개 종목에 분산되도록 했다.
-- `stock-candidate-quota-experiment`에서 current release는 781건/781종목으로 실제 뉴스 gold gate를 통과해 best profile로 선택했다. risk/contract per-stock 2 profile은 895건/709종목까지 늘었지만 실제 뉴스 gold macro F1 gate를 통과하지 못했다.
+- 약지도 후보 중 `RISK` 140건, `CONTRACT` 180건, `CORPORATE_ACTION` 21건을 이벤트 모델 학습에 승격했다.
+- 종목 후보 큐에서는 teacher gate와 종목별 quota를 통과한 `RISK` 256건, `CONTRACT` 242건, `CAPITAL_ACTION` 120건, `CORPORATE_ACTION` 42건, `EARNINGS` 17건, `MACRO` 10건을 이벤트 모델 학습에 추가했다.
+- 종목 후보의 per-stock quota는 1건으로 제한해 687건이 687개 종목에 분산되도록 했다.
+- `stock-candidate-quota-experiment`는 quota 탐색 참고 리포트이며, current release artifact는 full-content v2 재학습 리포트의 687건/687종목 bootstrap coverage를 기준으로 pass했다.
 - 생성 artifact는 `src/hannah_montana_ai/model_store/financial_nlp_ml.joblib`이다.
 
 ## Holdout 검증 결과
 - 위치: `reports/ml-training-report.json`
-- supervised 학습 split: 2,887건
-- supervised 검증 split: 722건
-- 이벤트 subset recall: 0.9889
-- 이벤트 macro F1: 0.9881
-- 감성 accuracy: 0.9889
-- 중요도 accuracy: 0.9931
-- 라벨별 F1: `DISCLOSURE` 1.0, `RISK` 0.9947, `CAPITAL_ACTION` 0.9942, `GENERAL_MARKET` 0.9538, `EARNINGS` 0.9828, `CONTRACT` 0.9941, `CORPORATE_ACTION` 1.0, `MACRO` 0.9849
+- supervised 학습 split: 2,898건
+- supervised 검증 split: 725건
+- 이벤트 subset recall: 0.9931
+- 이벤트 macro F1: 0.9945
+- 감성 accuracy: 0.9917
+- 중요도 accuracy: 0.9945
+- 라벨별 F1: `DISCLOSURE` 1.0, `RISK` 0.9947, `CAPITAL_ACTION` 0.9885, `GENERAL_MARKET` 1.0, `EARNINGS` 0.9932, `CONTRACT` 0.9942, `CORPORATE_ACTION` 1.0, `MACRO` 0.9851
 - 감성·중요도 confusion matrix를 함께 기록한다.
 
 ## Gold 평가 결과
 - 위치: `reports/ml-model-evaluation.json`
 - 평가 샘플 수: 768
 - 이벤트 태그 recall: 0.9922
-- 이벤트 태그 macro F1: 0.9939
+- 이벤트 태그 macro F1: 0.9977
 - 감성 accuracy: 1.0
 - 중요도 accuracy: 0.9375
 - 종목 매핑 accuracy: 1.0
@@ -205,8 +208,8 @@
 - 위치: `data/evaluation/financial_alert_real_news_gold.jsonl`
 - 평가 샘플 수: 80
 - 이벤트 태그 recall: 0.9625
-- 이벤트 태그 macro F1: 0.9108
-- 감성 accuracy: 0.9125
+- 이벤트 태그 macro F1: 0.9170
+- 감성 accuracy: 0.9000
 - 중요도 accuracy: 0.9250
 - 종목 매핑 accuracy: 1.0
 
@@ -214,16 +217,16 @@
 - 위치: `reports/model-confidence-calibration.json`
 - benchmark 샘플 수: 768
 - benchmark 이벤트 멀티라벨 결정 수: 6,144
-- benchmark 이벤트 expected calibration error: 0.074152
-- benchmark 이벤트 Brier score: 0.012809
-- benchmark 감성 top confidence ECE: 0.149164
-- benchmark 중요도 top confidence ECE: 0.118967
+- benchmark 이벤트 expected calibration error: 0.074884
+- benchmark 이벤트 Brier score: 0.012825
+- benchmark 감성 top confidence ECE: 0.164898
+- benchmark 중요도 top confidence ECE: 0.129593
 - 실제 뉴스 gold 이벤트 expected calibration error: 0.113693
 - confidence 리포트는 고신뢰 오답을 따로 기록해 운영 알림 노출 전 threshold 재보정과 human review 우선순위 판단에 사용한다.
 
 ## Release gate
 - 위치: `reports/model-release-report.json`
-- 현재 모델 버전: `financial-ml-tfidf-logreg-20260619095828`
+- 현재 모델 버전: `financial-ml-tfidf-logreg-20260621225355`
 - 전체 상태: `pass`
 - release gate는 holdout, 768건 benchmark, 30건 OpenDART 실공시 gold, 80건 Naver 실제 뉴스 gold 평가를 모두 포함한다.
 - pseudo-label consistency check는 distillation 리포트의 승격 수와 학습 리포트의 pseudo-label 학습 수가 일치하는지 검증한다.
@@ -246,17 +249,17 @@
 - raw 후보는 3,613개 종목까지 매칭되므로 다음 단계는 raw 후보를 종목별·라벨별로 검수해 사람이 승인한 supervised/gold 데이터로 승격하는 것이다.
 - 후보 큐는 3,506개 종목을 포함하지만 약지도 기반 검수 대기 데이터이므로 gold label로 직접 사용하지 않는다.
 - coverage review plan은 2,000개 종목의 검수 과제였고, 현재 Codex 대리 승인 기준으로 audited readiness는 통과했다.
-- 현재 artifact는 후보 큐 중 781개 종목의 781건만 teacher gate를 통과한 event-model-only pseudo-label로 제한 투입했다.
+- 현재 artifact는 후보 큐 중 687개 종목의 687건만 teacher gate를 통과한 event-model-only pseudo-label로 제한 투입했다.
 - 약지도 라벨은 대규모 bootstrapping 용도이며, teacher confidence gate를 통과한 일부 후보만 artifact 이벤트 모델 학습에 투입한다.
 - 현재 distillation 후보는 supervised teacher가 다시 검증해야 하는 후보 풀이지 최종 정답셋이 아니다.
 - pseudo-label은 teacher confidence와 release gate를 통과한 라벨만 제한 승격한다. `DISCLOSURE`와 `GENERAL_MARKET`은 후보가 있어도 현재 artifact 학습에는 투입하지 않는다.
 - 사람이 검수한 실데이터 gold label set은 현재 실공시 30건, 실제 뉴스 80건이므로 주기적으로 확대해야 한다.
-- 현재 release artifact는 본문 전문을 저장·재배포하지 않고 제목·snippet 중심으로 학습했다. v2 artifact는 권리 확인된 전문만 사용하고, 재배포 불가 본문은 학습 원문 저장 없이 feature hash와 사람이 검수한 요약 label만 남긴다.
+- 현재 release artifact는 권리 안전 기사·공시 전문 gold 14건을 supervised 입력으로 사용한다. 재배포 불가 본문은 학습 원문으로 저장하지 않고, 권리 확인된 전문·metadata 또는 feature hash와 사람이 검수한 label lineage만 남긴다.
 - 실제 투자 판단을 위한 추천 모델이 아니다.
 
 ## 서비스 readiness gate
 - `reports/service-readiness-report.json`은 현재 release, audited gold readiness, live-news monitoring, full-universe reference coverage, stock linker coverage, pseudo-label monitoring, confidence calibration, confidence observe-only 정책을 집계한다.
-- 최신 `reports/service-readiness-report.json`은 `overall_status=pass`이며, 모델 버전 `financial-ml-tfidf-logreg-20260619095828` 기준 전체 readiness check가 통과한다.
+- 최신 `reports/service-readiness-report.json`은 `overall_status=pass`이며, 모델 버전 `financial-ml-tfidf-logreg-20260621225355` 기준 전체 readiness check가 통과한다.
 - `reports/full-universe-codex-coverage-report.json` 기준 유효 6자리 국내주식 reference coverage 누락은 0이다.
 - `reports/stock-coverage-report.json` 기준 supervised/reference coverage는 3,422개 종목, evaluation/reference coverage는 557개 종목이다.
 - 최신 `reports/live-news-monitoring-status.json`은 `overall_status=pass`이며, live-news smoke 표본 기준 `predicted_stock_null_count=0`, `sampled_stock_primary_match_count=10`, `sampled_stock_model_match_rate=1.0`, `stock_match_confidence.average=1.0`을 기록한다.
