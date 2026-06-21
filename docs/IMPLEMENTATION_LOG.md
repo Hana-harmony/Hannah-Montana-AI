@@ -857,6 +857,7 @@
 - `/api/v1/market/foreign-ownership/predict`를 추가해 OmniLens 외국인 보유 snapshot, 일별 시계열, KIS WebSocket 장중 누적 거래량 기반 한도소진율 boundary를 반환한다.
 - 모델 버전은 `hannah-foreign-ownership-timeseries-v1`이며 confidence, 추세 변화율, 관측치 수, source를 함께 응답한다.
 - confidence는 observe-only 정책으로 유지하고 Hannah는 주문 차단 여부를 반환하지 않는다.
+
 ## 2026-06-21 - 뉴스·공시 full-content v2 계약
 - 현재 release 모델을 제목/snippet 기반 v1 baseline과 fallback으로 보존하기로 정리했다.
 - v2 분석 계약은 전문 입력, 이미지 URL metadata, content availability, What/Why/Impact 3줄 요약, 전문 기반 duplicate key를 추가한다.
