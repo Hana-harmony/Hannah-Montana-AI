@@ -17,6 +17,9 @@ from hannah_montana_ai.training.calibration import (
 from hannah_montana_ai.training.collector import should_write_raw_alerts
 from hannah_montana_ai.training.dataset import load_labeled_alerts
 from hannah_montana_ai.training.evaluator import evaluate_alert_analyzer
+from hannah_montana_ai.training.full_content_dataset import (
+    build_full_content_dataset_report,
+)
 from hannah_montana_ai.training.ml_trainer import financial_tokenize, train_ml_model
 from hannah_montana_ai.training.model_release_report import build_model_release_report
 from hannah_montana_ai.training.pseudo_label_monitor import (
@@ -54,6 +57,7 @@ def test_training_builds_supervised_ml_artifact(tmp_path: Path) -> None:
             Path("data/training/financial_alert_augmented.jsonl"),
             Path("data/training/financial_alert_news_style_augmented.jsonl"),
             Path("data/training/financial_alert_real_news_gold.jsonl"),
+            Path("data/training/financial_alert_full_content_gold.jsonl"),
         ],
         model_path,
     )
@@ -71,7 +75,17 @@ def test_training_builds_supervised_ml_artifact(tmp_path: Path) -> None:
         "data/training/financial_alert_augmented.jsonl",
         "data/training/financial_alert_news_style_augmented.jsonl",
         "data/training/financial_alert_real_news_gold.jsonl",
+        "data/training/financial_alert_full_content_gold.jsonl",
     ]
+    assert report.full_content_training["status"] == "enabled"
+    assert report.full_content_training["full_text_sample_count"] >= 10
+    assert report.full_content_training["full_text_source_type_count"]["NEWS"] >= 8
+    assert (
+        report.full_content_training["source_license_policy_count"][
+            "internal_rights_safe_full_article_v1"
+        ]
+        >= 8
+    )
     assert report.validation.sample_count >= 90
     assert report.validation.train_sample_count >= 300
     assert report.validation.event_macro_f1 >= 0.8
@@ -123,6 +137,23 @@ def test_training_promotes_teacher_gated_pseudo_labels(tmp_path: Path) -> None:
     assert report.pseudo_labeling["status"] == "promoted_to_student_training"
     assert report.pseudo_labeling["promotion_method"] == "supervised_teacher_confidence_filter"
     assert report.pseudo_labeling["label_quotas"]["CORPORATE_ACTION"] == 40
+
+
+def test_full_content_training_dataset_is_rights_safe_and_traceable() -> None:
+    report = build_full_content_dataset_report(
+        Path("data/training/financial_alert_full_content_gold.jsonl")
+    )
+    samples = load_labeled_alerts(Path("data/training/financial_alert_full_content_gold.jsonl"))
+
+    assert report["status"] == "pass"
+    assert report["row_count"] >= 10
+    assert report["source_type_count"]["NEWS"] >= 8
+    assert report["source_type_count"]["DISCLOSURE"] >= 4
+    assert "internal_rights_safe_full_article_v1" in report["source_license_policy_count"]
+    assert "internal_rights_safe_disclosure_text_v1" in report["source_license_policy_count"]
+    assert all(sample.content_availability == "FULL_TEXT" for sample in samples)
+    assert all(sample.full_content in sample.model_text for sample in samples)
+    assert all(sample.content_hash for sample in samples)
 
 
 def test_financial_tokenizer_extracts_domain_terms_without_spacing_dependency() -> None:
