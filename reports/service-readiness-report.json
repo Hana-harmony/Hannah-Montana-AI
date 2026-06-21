@@ -1,8 +1,8 @@
 {
   "schema_version": "service-readiness-report/v1",
-  "generated_at": "2026-06-20T03:40:15.919685+00:00",
+  "generated_at": "2026-06-21T22:54:09.950733+00:00",
   "overall_status": "pass",
-  "model_version": "financial-ml-tfidf-logreg-20260619095828",
+  "model_version": "financial-ml-tfidf-logreg-20260621225355",
   "checks": {
     "model_release_gate": {
       "actual": "pass",
@@ -59,8 +59,8 @@
     },
     "confidence_calibration_report": {
       "schema_version": "model-confidence-calibration/v1",
-      "model_version": "financial-ml-tfidf-logreg-20260619095828",
-      "expected_model_version": "financial-ml-tfidf-logreg-20260619095828",
+      "model_version": "financial-ml-tfidf-logreg-20260621225355",
+      "expected_model_version": "financial-ml-tfidf-logreg-20260621225355",
       "required_datasets": [
         "benchmark",
         "real_news_gold"

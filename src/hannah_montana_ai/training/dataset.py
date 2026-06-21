@@ -17,6 +17,26 @@ class LabeledAlert:
     stock_aliases: list[str] = field(default_factory=list)
     source_review_status: str = ""
     reviewer_id: str = ""
+    title: str = ""
+    snippet: str = ""
+    full_content: str = ""
+    content_availability: str = "SUMMARY_ONLY"
+    source_license_policy: str = ""
+    source_url: str = ""
+    content_hash: str = ""
+
+    @property
+    def model_text(self) -> str:
+        parts = [
+            self.title or self.text,
+            self.snippet,
+            self.full_content,
+        ]
+        return " ".join(part.strip() for part in parts if part and part.strip())
+
+    @property
+    def dedupe_text(self) -> str:
+        return self.model_text or self.text
 
 
 def load_labeled_alerts(path: Path) -> list[LabeledAlert]:
@@ -37,6 +57,13 @@ def load_labeled_alerts(path: Path) -> list[LabeledAlert]:
                 stock_aliases=payload.get("stock_aliases", []),
                 source_review_status=payload.get("source_review_status", ""),
                 reviewer_id=payload.get("reviewer_id", ""),
+                title=payload.get("title", ""),
+                snippet=payload.get("snippet", ""),
+                full_content=payload.get("full_content", payload.get("content", "")),
+                content_availability=payload.get("content_availability", "SUMMARY_ONLY"),
+                source_license_policy=payload.get("source_license_policy", ""),
+                source_url=payload.get("source_url", payload.get("original_url", "")),
+                content_hash=payload.get("content_hash", ""),
             )
         )
     return samples
