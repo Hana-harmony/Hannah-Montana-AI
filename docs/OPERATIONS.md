@@ -38,7 +38,8 @@ docker run --rm --network hana-internal hannah-montana-ai
 - 로컬에서는 `secrets.local.env.example`을 기준으로 `secrets.local.env`를 만들고 실제 credential은 해당 파일에만 작성한다.
 - 필요한 수집 변수명은 `NAVER_NEWS_CLIENT_ID`, `NAVER_NEWS_CLIENT_SECRET`, `OPEN_DART_API_KEY`다.
 - 수집 credential이 없으면 네트워크 요청 전에 실패하며, 오류에는 변수명만 남긴다.
-- `scripts/collect_training_data.py`는 Naver News Search와 OpenDART에서 제목·snippet·링크만 수집한다.
+- `scripts/collect_training_data.py`는 현재 v1 기준 Naver News Search와 OpenDART에서 제목·snippet·링크만 수집한다.
+- full-content v2 학습 데이터는 Hana-OmniLens-API가 권리 확인 후 저장한 전문/이미지 metadata export를 사용한다. 재배포 권리가 불확실한 본문은 저장하지 않고 content hash, 요약 label, 원문 링크만 사용한다.
 - 국내주식 universe는 로컬 `OPEN_DART_API_KEY`로 동기화한다.
 - 분석 API는 `data/reference/korea_stock_universe.csv`를 내부 종목 master로 로드하므로 배포 artifact에 이 파일을 포함해야 한다.
 - 분석 API는 `src/hannah_montana_ai/model_store/stock_linker_ml.joblib`도 함께 로드하므로 배포 artifact에 stock linker 모델을 포함해야 한다.
