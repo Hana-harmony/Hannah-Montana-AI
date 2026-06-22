@@ -900,3 +900,8 @@
 - 최신 `feature` 기반 `feat/news-summary-training-expansion` 브랜치에서 추가 학습을 시작했다.
 - 목표는 실제 뉴스·공시 전문 데이터 확대, query stock 관련성 필터, What/Why/Impact 요약 품질 gate를 함께 보강해 검색 provider 노이즈와 모델 요약 품질을 분리 평가하는 것이다.
 - 사람이 검수하지 않은 전문 약한 라벨은 계속 supervised loss에서 제외하고, 관련 종목이 본문에서 확인되는 row만 live query-relevant gate와 학습 승격 후보로 다룬다.
+
+## 2026-06-22 - 서비스급 대량 전문 학습 반복 시작
+- 최신 `feature` 기반 `feat/service-scale-news-training` 브랜치에서 전문 데이터셋 5,000건 이상 1차 확대를 시작했다.
+- 서비스 승격 전 기준은 최신 미학습 live quality audit 1,000건 이상, query-relevant pass rate와 sampled stock match rate 동시 관측, 본문 추출 실패·중복·종목 불일치 제외 사유 리포트화로 둔다.
+- 장기 운영 기준은 종목·업종·이벤트가 균형 잡힌 10,000건 이상 전문 gold/검수 후보와 월별 drift 재학습 루프로 관리한다.
