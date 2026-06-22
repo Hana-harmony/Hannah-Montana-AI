@@ -64,6 +64,7 @@ class AlertAnalyzer:
     )
     _MACRO_CONTEXT_TERMS = ("수출", "업황", "공급망", "환율", "금리", "물가")
     _GENERAL_MARKET_CONTEXT_TERMS = ("시총", "주가 급등", "증시")
+    _STOCK_ATTRIBUTION_CONTEXT_TERMS = ("연구원", "애널리스트", "리서치", "센터장")
 
     def __init__(self) -> None:
         settings = get_settings()
@@ -78,7 +79,8 @@ class AlertAnalyzer:
         }
 
     def analyze(self, request: AlertAnalysisRequest) -> AlertAnalysisResponse:
-        text = f"{request.title} {request.snippet} {request.content}".strip()
+        analysis_content = self.rule_engine.clean_article_text(request.content, request.title)
+        text = f"{request.title} {request.snippet} {analysis_content}".strip()
         primary_stock_match = self._match_primary_stock_from_request_or_internal(
             text,
             request.stock_universe,
@@ -110,7 +112,7 @@ class AlertAnalyzer:
         summary_lines = self.rule_engine.summarize_what_why_impact(
             request.title,
             request.snippet,
-            request.content,
+            analysis_content,
             importance,
             sentiment,
         )
@@ -163,13 +165,16 @@ class AlertAnalyzer:
         text: str,
         request_universe: list[StockCandidate],
     ) -> StockMatchResult:
-        request_match = self._match_primary_stock(
-            text,
-            request_universe,
-            allow_short_terms=True,
-        )
-        if request_match is not None:
-            return StockMatchResult(request_match, 1.0)
+        merged_universe = self._stock_universe_for_request(request_universe)
+        headline_text = " ".join(text.split()[:80])
+        headline_match = self._match_primary_stock(headline_text, merged_universe)
+        if headline_match is not None:
+            confidence = 1.0 if headline_match in request_universe else 0.97
+            return StockMatchResult(headline_match, confidence)
+        exact_match = self._match_primary_stock(text, merged_universe)
+        if exact_match is not None:
+            confidence = 1.0 if exact_match in request_universe else 0.96
+            return StockMatchResult(exact_match, confidence)
         ml_match = self._match_leading_internal_stock_with_ml(text)
         if ml_match is not None:
             return ml_match
@@ -274,15 +279,39 @@ class AlertAnalyzer:
         allow_short_terms: bool = False,
     ) -> int | None:
         candidates = [stock.stock_code, stock.stock_name, stock.stock_name_en, *stock.aliases]
-        positions = [
-            normalized_text.find(normalized_candidate)
-            for candidate in candidates
-            if candidate
-            if (normalized_candidate := normalize_stock_term(candidate))
-            if allow_short_terms or self._is_usable_stock_match_term(normalized_candidate)
-        ]
-        found_positions = [position for position in positions if position >= 0]
+        found_positions: list[int] = []
+        for candidate in candidates:
+            if not candidate:
+                continue
+            normalized_candidate = normalize_stock_term(candidate)
+            if not normalized_candidate:
+                continue
+            if not allow_short_terms and not self._is_usable_stock_match_term(
+                normalized_candidate
+            ):
+                continue
+            start = 0
+            while True:
+                position = normalized_text.find(normalized_candidate, start)
+                if position < 0:
+                    break
+                if not self._is_stock_attribution_context(
+                    normalized_text,
+                    position,
+                    len(normalized_candidate),
+                ):
+                    found_positions.append(position)
+                start = position + len(normalized_candidate)
         return min(found_positions) if found_positions else None
+
+    def _is_stock_attribution_context(
+        self,
+        normalized_text: str,
+        position: int,
+        length: int,
+    ) -> bool:
+        context = normalized_text[position : position + length + 24]
+        return any(term in context for term in self._STOCK_ATTRIBUTION_CONTEXT_TERMS)
 
     def _stock_universe_for_request(
         self,
