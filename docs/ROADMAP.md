@@ -34,10 +34,10 @@
 - stock coverage report로 raw, training, evaluation 종목 커버리지 계측 완료
 - Naver News Search 수집기를 stock universe 기반 쿼리 모드로 확장 완료
 - 후보 큐와 gold가 없는 458개 누락 종목을 5개 shard로 나누는 수집 plan 완료
-- shard 기반 Naver News Search 수집으로 raw 후보 68,710건, raw 매칭 3,613개 종목까지 확장 완료
+- shard 기반 Naver News Search 수집으로 raw 후보 70,287건, raw 매칭 3,613개 종목까지 확장 완료
 - raw 후보에서 종목·라벨 균형 학습 승격 후보 큐 15,720건, 3,506개 종목 생성 완료
 - 종목 후보 큐 중 teacher gate와 release gate를 통과한 687건, 687개 종목을 event-model-only pseudo-label로 제한 승격 완료
-- 실제 뉴스·공시 원문 전문 673건을 저장하고, 사람이 검수하지 않은 전문 약한 라벨은 이벤트·감성·중요도 supervised loss에서 제외 완료
+- 실제 뉴스·공시 원문 전문 1,050건을 저장하고, 사람이 검수하지 않은 전문 약한 라벨은 이벤트·감성·중요도 supervised loss에서 제외 완료
 - stock candidate quota experiment로 이전 release, risk/contract 확장, calibrated current release의 gold gate 통과와 current release best profile 선정을 기록 완료
 - 후보 큐에서 학습 300개 종목, 평가 100개 종목 검수 배치 생성 완료
 - 검수자 메타데이터와 최종 라벨이 있는 `human_review_approved` 또는 `codex_review_approved` row만 학습·평가 gold 파일로 편입하는 승격 파이프라인 완료
@@ -46,4 +46,5 @@
 - Codex 대리 검수로 coverage packet 2,000건을 승인해 학습 1,500종목, 평가 500종목 기준의 audited gold readiness를 pass로 전환했다.
 - 유효 6자리 국내주식 3,920개 전체가 stock review gold train/eval reference coverage에 포함되도록 full-universe Codex reference row 1,920건을 추가했다.
 - service readiness report로 release, live-news monitoring, 전 종목 reference coverage, stock linker, pseudo-label, confidence calibration, confidence observe-only 정책을 최종 gate로 집계 완료
-- 다음 단계는 운영 알림 로그와 실제 사용자 피드백으로 Codex 승인 라벨의 오탐/누락을 점검하고, 필요한 row를 사람 검수 gold로 보강하는 것이다.
+- 다음 단계는 전문 데이터셋을 1,000건 이상으로 확대하고, 관련 종목이 확인된 최신 뉴스만 query-relevant 품질 gate에 포함해 검색 노이즈와 요약 품질을 분리 평가하는 것이다.
+- 운영 알림 로그와 실제 사용자 피드백으로 Codex 승인 라벨의 오탐/누락을 점검하고, 필요한 row를 사람 검수 gold로 보강한다.

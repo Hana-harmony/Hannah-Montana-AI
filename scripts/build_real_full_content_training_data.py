@@ -34,6 +34,12 @@ STOCK_UNIVERSE_PATH = PROJECT_ROOT / "data/reference/korea_stock_universe.csv"
 OPEN_DART_DOCUMENT_URL = "https://opendart.fss.or.kr/api/document.xml"
 NEWS_POLICY = "licensed_naver_original_full_text_v1"
 DART_POLICY = "opendart_public_disclosure_text_v1"
+REUSABLE_FULL_CONTENT_POLICIES = {
+    "internal_rights_safe_disclosure_text_v1",
+    "internal_rights_safe_full_article_v1",
+    NEWS_POLICY,
+    DART_POLICY,
+}
 MIN_CONTENT_CHARS = 180
 MAX_CONTENT_CHARS = 20_000
 MAX_FETCH_BYTES = 1_500_000
@@ -170,6 +176,7 @@ def main() -> None:
     parser.add_argument("--max-news", type=int, default=600)
     parser.add_argument("--max-disclosures", type=int, default=200)
     parser.add_argument("--per-label-limit", type=int, default=70)
+    parser.add_argument("--target-row-count", type=int, default=0)
     parser.add_argument("--sleep-seconds", type=float, default=0.05)
     parser.add_argument("--timeout-seconds", type=float, default=4.0)
     parser.add_argument("--append-existing", action=argparse.BooleanOptionalAction, default=True)
@@ -186,14 +193,22 @@ def main() -> None:
         row["content_hash"]: row
         for row in existing_rows
         if row.get("content_hash")
-        and is_seed_policy(str(row.get("source_license_policy", "")))
+        and is_reusable_full_content_policy(str(row.get("source_license_policy", "")))
         and is_valid_full_content(str(row.get("full_content", "")))
+    }
+    existing_source_urls = {
+        str(row.get("source_url", ""))
+        for row in rows.values()
+        if row.get("source_url")
     }
     status = Counter[str]()
     errors: list[str] = []
 
     accepted_news_labels: Counter[str] = Counter()
     for alert in [alert for alert in raw_alerts if alert.source_type == "NEWS"]:
+        if target_reached(rows, args.target_row_count):
+            status["target_row_count_reached"] += 1
+            break
         if status["news_attempted"] >= args.max_news:
             break
         label = pre_label(alert)
@@ -201,6 +216,9 @@ def main() -> None:
             status["news_unlabeled"] += 1
             continue
         if accepted_news_labels[label] >= args.per_label_limit:
+            continue
+        if alert.original_url in existing_source_urls:
+            status["news_reused_existing_url"] += 1
             continue
         status["news_attempted"] += 1
         full_content = fetch_news_content(alert.original_url)
@@ -218,6 +236,7 @@ def main() -> None:
             status["news_unlabeled"] += 1
             continue
         rows[row["content_hash"]] = row | {"image_urls": full_content.image_urls}
+        existing_source_urls.add(str(row["source_url"]))
         accepted_news_labels[label] += 1
         status["news_added"] += 1
         sleep(args.sleep_seconds)
@@ -229,6 +248,9 @@ def main() -> None:
         for alert in raw_alerts
         if alert.source_type == "DISCLOSURE" and is_training_disclosure_candidate(alert)
     ]:
+        if target_reached(rows, args.target_row_count):
+            status["target_row_count_reached"] += 1
+            break
         if status["disclosure_attempted"] >= args.max_disclosures:
             break
         if not dart_api_key:
@@ -237,6 +259,9 @@ def main() -> None:
         receipt_number = receipt_number_from_url(alert.original_url)
         if not receipt_number:
             status["disclosure_missing_receipt"] += 1
+            continue
+        if alert.original_url in existing_source_urls:
+            status["disclosure_reused_existing_url"] += 1
             continue
         label = pre_label(alert)
         if label is None:
@@ -254,6 +279,7 @@ def main() -> None:
             status["disclosure_unlabeled"] += 1
             continue
         rows[row["content_hash"]] = row
+        existing_source_urls.add(str(row["source_url"]))
         accepted_disclosure_labels[label] += 1
         status["disclosure_added"] += 1
         sleep(args.sleep_seconds)
@@ -396,8 +422,12 @@ def is_valid_full_content(content: str) -> bool:
     return not any(marker in content for marker in provider_error_markers)
 
 
-def is_seed_policy(policy: str) -> bool:
-    return policy.startswith("internal_")
+def target_reached(rows: dict[str, dict[str, Any]], target_row_count: int) -> bool:
+    return target_row_count > 0 and len(rows) >= target_row_count
+
+
+def is_reusable_full_content_policy(policy: str) -> bool:
+    return policy in REUSABLE_FULL_CONTENT_POLICIES
 
 
 def is_training_disclosure_candidate(alert: RawCollectedAlert) -> bool:

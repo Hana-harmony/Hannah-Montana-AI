@@ -2,25 +2,24 @@
   "schema_version": "real-full-content-training-dataset/v1",
   "dataset_path": "data/training/financial_alert_full_content_gold.jsonl",
   "status": "pass",
-  "row_count": 673,
+  "row_count": 1050,
   "source_type_count": {
     "DISCLOSURE": 195,
-    "NEWS": 478
+    "NEWS": 855
   },
   "source_license_policy_count": {
     "internal_rights_safe_disclosure_text_v1": 4,
     "internal_rights_safe_full_article_v1": 10,
-    "licensed_naver_original_full_text_v1": 468,
+    "licensed_naver_original_full_text_v1": 845,
     "opendart_public_disclosure_text_v1": 191
   },
   "minimum_full_text_characters": 180,
   "collection_status": {
-    "disclosure_added": 191,
-    "disclosure_attempted": 200,
-    "disclosure_failed": 9,
-    "news_added": 474,
-    "news_attempted": 600,
-    "news_failed": 126
+    "news_added": 420,
+    "news_attempted": 619,
+    "news_failed": 199,
+    "news_reused_existing_url": 325,
+    "target_row_count_reached": 2
   },
   "errors": []
 }

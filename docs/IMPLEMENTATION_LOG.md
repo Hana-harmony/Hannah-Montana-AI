@@ -1,11 +1,11 @@
 # 구현 기록
 
 ## 2026-06-22 기사·공시 전문 기반 학습 v2 완료
-- `data/training/financial_alert_full_content_gold.jsonl`에 실제 기사·공시 전문 673건을 저장하고 `source_license_policy`, `content_hash`, `content_availability` lineage를 검증한다.
-- 전문 데이터셋은 뉴스 전문 478건, OpenDART document 전문 195건으로 구성되며 기존 내부 회귀 seed를 함께 보존한다.
+- `data/training/financial_alert_full_content_gold.jsonl`에 실제 기사·공시 전문 1,050건을 저장하고 `source_license_policy`, `content_hash`, `content_availability` lineage를 검증한다.
+- 전문 데이터셋은 뉴스 전문 855건, OpenDART document 전문 195건으로 구성되며 기존 내부 회귀 seed를 함께 보존한다.
 - 학습 입력은 전문이 있으면 `title + snippet + full_content`를 우선 사용하며, 전문이 없는 기존 row는 제목·snippet fallback으로 유지한다.
-- 사람이 검수하지 않은 전문 약한 라벨 659건은 이벤트·감성·중요도 supervised loss에서 제외하고 검수 후보와 요약 품질 감사에 사용한다.
-- 새 모델 `financial-ml-tfidf-logreg-20260622034109`는 supervised 4,282건과 teacher-gated pseudo-label 1,028건 중 이벤트 학습 4,651건으로 학습했다.
+- 사람이 검수하지 않은 전문 약한 라벨 1,036건은 이벤트·감성·중요도 supervised loss에서 제외하고 검수 후보와 요약 품질 감사에 사용한다.
+- 새 모델 `financial-ml-tfidf-logreg-20260622055520`는 supervised 4,659건과 teacher-gated pseudo-label 1,027건 중 이벤트 학습 4,650건으로 학습했다.
 - 종목 후보 큐 중 teacher gate와 release gate를 통과한 687건, 687개 종목을 event-model-only pseudo-label로 제한 승격했다.
 - 이벤트 threshold는 실제 뉴스 gold 기준으로 `CONTRACT` 0.46, `CORPORATE_ACTION` 0.50, `EARNINGS` 0.40, `GENERAL_MARKET` 0.30, `MACRO` 0.54, `RISK` 0.34로 calibration했다.
 - 뉴스 분석 후처리는 `수출`, `업황`, `공급망`, `환율`, `금리`, `물가`, `정책+지원/중소기업`, `시총`, `주가 급등`, `증시` 문맥을 보조 이벤트 태그로 반영한다.
@@ -767,8 +767,8 @@
 ## 2026-06-12 - 전 종목 후보 shard 19 추가 확장
 - 최신 `stock_collection_shard_plan`의 shard 0과 shard 1을 0.4초 보수적 sleep으로 Naver News Search 추가 수집했다. 두 shard 모두 512개 요청이 모두 성공했고 rate limit은 0건이었다.
 - shard 0은 dedupe 후 raw 후보를 67,707건에서 68,371건으로 늘리고 raw 매칭 종목을 3,609개로 늘렸다.
-- shard 1은 dedupe 후 raw 후보를 68,371건에서 68,710건으로 늘리고 raw 매칭 종목을 3,613개로 늘렸다.
-- Naver 원천 데이터는 41,741건에서 42,744건으로 확장됐다.
+- shard 1과 추가 최신 뉴스 shard는 dedupe 후 raw 후보를 68,371건에서 70,287건으로 늘리고 raw 매칭 종목을 3,613개로 유지했다.
+- Naver 원천 데이터는 41,741건에서 44,321건으로 확장됐다.
 - 후보 큐는 15,608건/3,495종목에서 15,720건/3,506종목으로 확장됐다.
 - 누락 종목 shard plan은 469개/5개 shard에서 458개/5개 shard로 줄었다. priority는 `no_raw_no_candidate` 358개에서 351개로 줄고 `raw_without_candidate`는 111개에서 107개로 줄었다.
 - 새 모델 `financial-ml-tfidf-logreg-20260612005235`은 supervised 3,609건과 pseudo-label 1,125건을 합친 4,734건으로 학습했다.
@@ -887,11 +887,16 @@
 - release 리포트는 전문 학습 row 수, 라이선스 정책, 전문 availability를 lineage로 기록해 제목/snippet-only artifact와 구분한다.
 
 ## 2026-06-22 - 비LLM 전문 뉴스 분석 품질 보강
-- `scripts/build_real_full_content_training_data.py`의 기사 본문 추출 selector와 boilerplate penalty를 보강해 뉴스 전문 478건, OpenDART document 전문 195건 등 총 673건의 full-content 학습/검수 후보를 생성했다.
-- 사람이 검수하지 않은 전문 약한 라벨 659건은 이벤트·감성·중요도 supervised loss에서 제외하고, 전문 원문은 요약/분석 입력 품질 검증과 검수 후보 생성에 사용하도록 `ml_trainer.py` 정책을 강화했다.
-- 새 모델 `financial-ml-tfidf-logreg-20260622034109`는 supervised 4,282건과 teacher-gated pseudo-label 1,028건 중 이벤트 학습 4,651건으로 재학습했다.
+- `scripts/build_real_full_content_training_data.py`의 기사 본문 추출 selector와 boilerplate penalty를 보강해 뉴스 전문 855건, OpenDART document 전문 195건 등 총 1,050건의 full-content 학습/검수 후보를 생성했다.
+- 사람이 검수하지 않은 전문 약한 라벨 1,036건은 이벤트·감성·중요도 supervised loss에서 제외하고, 전문 원문은 요약/분석 입력 품질 검증과 검수 후보 생성에 사용하도록 `ml_trainer.py` 정책을 강화했다.
+- 새 모델 `financial-ml-tfidf-logreg-20260622055520`는 supervised 4,659건과 teacher-gated pseudo-label 1,027건 중 이벤트 학습 4,650건으로 재학습했다.
 - 실제 뉴스 gold 80건 기준 이벤트 recall 0.9875, macro F1 0.9268, 감성 accuracy 0.9750, 중요도 accuracy 0.9625, 종목 accuracy 1.0을 기록했다.
 - 실공시 gold 30건 기준 이벤트 recall 1.0, macro F1 0.9867, 감성 accuracy 1.0, 중요도 accuracy 1.0, 종목 accuracy 1.0을 기록했다.
-- 최신 Naver 80건 live quality audit에서 전체 quality pass rate 0.7875, query-relevant quality pass rate 0.9844, full-content rate 0.7250을 기록했다.
+- 최신 Naver 160건 live quality audit에서 전체 quality pass rate 0.9875, query-relevant quality pass rate 0.9875, full-content rate 0.71875, sampled stock model match rate 1.0을 기록했다.
 - `하나은행` 같은 비상장/레거시 은행 엔티티를 내부 종목 fallback에서 제외하고, 뉴스 source type에서는 `DISCLOSURE` 태그가 섞이지 않도록 회귀 테스트를 추가했다.
 - `reports/model-release-report.json`, `reports/pseudo-label-promotion-monitoring.json`, `reports/service-readiness-report.json`은 새 모델 기준 모두 `pass`를 기록했다.
+
+## 2026-06-22 - 전문 뉴스 추가 학습 목표 재정의
+- 최신 `feature` 기반 `feat/news-summary-training-expansion` 브랜치에서 추가 학습을 시작했다.
+- 목표는 실제 뉴스·공시 전문 데이터 확대, query stock 관련성 필터, What/Why/Impact 요약 품질 gate를 함께 보강해 검색 provider 노이즈와 모델 요약 품질을 분리 평가하는 것이다.
+- 사람이 검수하지 않은 전문 약한 라벨은 계속 supervised loss에서 제외하고, 관련 종목이 본문에서 확인되는 row만 live query-relevant gate와 학습 승격 후보로 다룬다.
