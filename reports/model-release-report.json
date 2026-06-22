@@ -1,11 +1,11 @@
 {
   "schema_version": "model-release-report/v1",
-  "model_version": "financial-ml-tfidf-logreg-20260622055520",
-  "report_created_at": "2026-06-22T05:55:20.510952+00:00",
+  "model_version": "financial-ml-tfidf-logreg-20260622073857",
+  "report_created_at": "2026-06-22T07:38:57.558713+00:00",
   "overall_status": "pass",
   "artifact": {
     "path": "src/hannah_montana_ai/model_store/financial_nlp_ml.joblib",
-    "trained_at": "2026-06-22T05:55:20.510952+00:00",
+    "trained_at": "2026-06-22T07:38:57.558713+00:00",
     "event_probability_threshold": 0.3,
     "event_label_thresholds": {
       "CONTRACT": 0.46,
@@ -29,16 +29,16 @@
     "committed_data_policy": "raw_and_processed_training_data_are_tracked",
     "full_content_training": {
       "status": "enabled",
-      "full_text_sample_count": 1050,
+      "full_text_sample_count": 4998,
       "full_text_source_type_count": {
-        "DISCLOSURE": 195,
-        "NEWS": 855
+        "DISCLOSURE": 273,
+        "NEWS": 4725
       },
       "source_license_policy_count": {
         "internal_rights_safe_disclosure_text_v1": 4,
         "internal_rights_safe_full_article_v1": 10,
-        "licensed_naver_original_full_text_v1": 845,
-        "opendart_public_disclosure_text_v1": 191
+        "licensed_naver_original_full_text_v1": 4715,
+        "opendart_public_disclosure_text_v1": 269
       },
       "minimum_full_text_characters": 180,
       "policy": "Only rights-safe full text rows with explicit source_license_policy are used for supervised full-content training."
@@ -46,27 +46,27 @@
     "sentiment_importance_training": {
       "policy": "사람이 검수하지 않은 전문 수집 라벨은 감성/중요도 supervised loss에서 제외한다.",
       "training_sample_count": 3623,
-      "excluded_weak_full_content_label_count": 1036,
+      "excluded_weak_full_content_label_count": 4984,
       "excluded_count_by_source_license_policy": {
-        "licensed_naver_original_full_text_v1": 845,
-        "opendart_public_disclosure_text_v1": 191
+        "licensed_naver_original_full_text_v1": 4715,
+        "opendart_public_disclosure_text_v1": 269
       },
       "fallback_used": false
     }
   },
   "training": {
-    "sample_count": 4650,
-    "supervised_sample_count": 4659,
-    "pseudo_labeled_sample_count": 1027,
+    "sample_count": 4649,
+    "supervised_sample_count": 8607,
+    "pseudo_labeled_sample_count": 1026,
     "event_label_distribution": {
-      "EARNINGS": 748,
-      "CONTRACT": 863,
+      "EARNINGS": 750,
+      "CONTRACT": 862,
       "RISK": 1346,
-      "CAPITAL_ACTION": 587,
-      "DISCLOSURE": 1330,
-      "CORPORATE_ACTION": 539,
+      "CAPITAL_ACTION": 594,
+      "DISCLOSURE": 1277,
+      "CORPORATE_ACTION": 538,
       "MACRO": 522,
-      "GENERAL_MARKET": 178
+      "GENERAL_MARKET": 177
     },
     "sentiment_label_distribution": {
       "POSITIVE": 1319,
@@ -82,33 +82,33 @@
   },
   "pseudo_labeling": {
     "status": "promoted_to_student_training",
-    "candidate_count": 70287,
-    "accepted_count": 1027,
-    "weak_label_accepted_count": 340,
+    "candidate_count": 83105,
+    "accepted_count": 1026,
+    "weak_label_accepted_count": 339,
     "stock_candidate_accepted_count": 687,
     "accepted_count_by_primary_label": {
       "CAPITAL_ACTION": 120,
       "CONTRACT": 422,
-      "CORPORATE_ACTION": 62,
+      "CORPORATE_ACTION": 61,
       "EARNINGS": 17,
       "MACRO": 10,
       "RISK": 396
     },
-    "rejected_count": 65069,
+    "rejected_count": 77855,
     "rejected_count_by_reason": {
       "disclosure_noise": 11302,
-      "disclosure_only": 10328,
-      "duplicate_text": 1173,
-      "low_signal": 7087,
+      "disclosure_only": 11449,
+      "duplicate_text": 1287,
+      "low_signal": 8127,
       "too_short": 3
     },
     "rejected_count_by_teacher_reason": {
-      "low_teacher_confidence": 4259,
+      "low_teacher_confidence": 4383,
       "teacher_weak_event_disagreement": 5
     },
     "promotion_method": "supervised_teacher_confidence_filter",
-    "teacher_training_sample_count": 4659,
-    "student_event_training_sample_count": 1027,
+    "teacher_training_sample_count": 8607,
+    "student_event_training_sample_count": 1026,
     "minimum_event_confidence": 0.58,
     "minimum_sentiment_confidence": 0.72,
     "minimum_importance_confidence": 0.68,
@@ -153,31 +153,31 @@
   "quality_gates": {
     "holdout": {
       "dataset": "holdout",
-      "sample_count": 932,
+      "sample_count": 725,
       "status": "pass",
       "metrics": {
         "event_subset_recall": {
-          "actual": 0.8304721030042919,
+          "actual": 0.993103448275862,
           "minimum": 0.8,
-          "margin": 0.030472103004291817,
+          "margin": 0.193103448275862,
           "status": "pass"
         },
         "event_macro_f1": {
-          "actual": 0.8175322127019289,
+          "actual": 0.9944490125520294,
           "minimum": 0.8,
-          "margin": 0.01753221270192884,
+          "margin": 0.1944490125520294,
           "status": "pass"
         },
         "sentiment_accuracy": {
-          "actual": 0.99581589958159,
+          "actual": 0.9944827586206897,
           "minimum": 0.8,
-          "margin": 0.19581589958158996,
+          "margin": 0.19448275862068964,
           "status": "pass"
         },
         "importance_accuracy": {
-          "actual": 0.99581589958159,
+          "actual": 0.9944827586206897,
           "minimum": 0.8,
-          "margin": 0.19581589958158996,
+          "margin": 0.19448275862068964,
           "status": "pass"
         }
       }
@@ -268,9 +268,9 @@
           "status": "pass"
         },
         "event_macro_f1": {
-          "actual": 0.9268338021966714,
+          "actual": 0.9220769444986373,
           "minimum": 0.9,
-          "margin": 0.02683380219667142,
+          "margin": 0.022076944498637285,
           "status": "pass"
         },
         "sentiment_accuracy": {
@@ -296,13 +296,13 @@
   },
   "consistency_checks": {
     "pseudo_count_matches_training": {
-      "expected": 1027,
-      "actual": 1027,
+      "expected": 1026,
+      "actual": 1026,
       "status": "pass"
     },
     "teacher_sample_count_matches_supervised": {
-      "expected": 4659,
-      "actual": 4659,
+      "expected": 8607,
+      "actual": 8607,
       "status": "pass"
     }
   },
@@ -418,9 +418,9 @@
     "stock_review_gold": [
       {
         "label": "MACRO",
-        "precision": 0.4090909090909091,
-        "recall": 0.391304347826087,
-        "f1": 0.4,
+        "precision": 0.38095238095238093,
+        "recall": 0.34782608695652173,
+        "f1": 0.3636363636363636,
         "support": 23
       },
       {
