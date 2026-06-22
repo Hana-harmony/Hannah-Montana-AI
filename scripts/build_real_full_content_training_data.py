@@ -20,8 +20,8 @@ from urllib.error import HTTPError, URLError
 from urllib.parse import parse_qs, urlencode, urljoin, urlparse
 from urllib.request import Request, urlopen
 
-from hannah_montana_ai.training.dataset import JSONL_SHARD_MANIFEST_SCHEMA_VERSION
 from hannah_montana_ai.training.collector import load_local_env, read_raw_alerts
+from hannah_montana_ai.training.dataset import JSONL_SHARD_MANIFEST_SCHEMA_VERSION
 from hannah_montana_ai.training.stock_universe import (
     StockUniverseMatcher,
     attach_stock_metadata,
