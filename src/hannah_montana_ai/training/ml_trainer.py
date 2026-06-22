@@ -1089,12 +1089,15 @@ def _macro_f1(metrics: dict[str, dict[str, float | int]]) -> float:
     return sum(float(metric["f1"]) for metric in metrics.values()) / len(metrics)
 
 
-def _accuracy(expected: list[str], predicted: list[str]) -> float:
+def _accuracy(expected: Sequence[str], predicted: Sequence[str]) -> float:
     hits = sum(1 for left, right in zip(expected, predicted, strict=True) if left == right)
     return _safe_divide(hits, len(expected))
 
 
-def _confusion_matrix(expected: list[str], predicted: list[str]) -> dict[str, dict[str, int]]:
+def _confusion_matrix(
+    expected: Sequence[str],
+    predicted: Sequence[str],
+) -> dict[str, dict[str, int]]:
     matrix: dict[str, dict[str, int]] = {}
     for expected_label, predicted_label in zip(expected, predicted, strict=True):
         matrix.setdefault(expected_label, {})
