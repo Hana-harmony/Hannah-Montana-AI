@@ -51,6 +51,49 @@ def test_clean_article_text_keeps_financial_sentences_in_original_order() -> Non
     assert "영업이익" in cleaned
 
 
+def test_clean_article_text_removes_market_widget_tail() -> None:
+    engine = FinancialRuleEngine()
+    content = (
+        "한화에어로스페이스는 중동 방산 수요 확대에 따라 수주 기회가 늘고 있다. "
+        "유럽 안보 협력 균열과 국방 예산 증액이 주요 배경으로 거론된다. "
+        "투자자는 수주 잔고와 영업이익 기여 시점을 확인해야 한다. "
+        "최신 영상 오늘의 증시일정 뉴로메카 카카오게임즈 동양 등 "
+        "마켓 최신 뉴스 특징주 제주반도체 반도체 수출 호조 속 급등."
+    )
+
+    cleaned = engine.clean_article_text(content, "한화에어로스페이스 방산 수주 확대")
+
+    assert "중동 방산 수요" in cleaned
+    assert "최신 영상" not in cleaned
+    assert "오늘의 증시일정" not in cleaned
+    assert "마켓 최신 뉴스" not in cleaned
+
+
+def test_summary_prefers_title_context_over_unrelated_market_tail() -> None:
+    engine = FinancialRuleEngine()
+    content = (
+        "감마누는 대규모 자금조달을 추진하며 재무구조 개선 기대가 커졌다. "
+        "이번 자금조달은 운영자금 확보와 상장 유지 리스크 완화가 주요 배경이다. "
+        "투자자는 신주 발행 조건과 기존 주주 지분 희석 가능성을 확인해야 한다. "
+        "배터리·우주항공·희토류·수소 등 미래 산업 금융주는 상반기 순익이 늘었다. "
+        "오늘의 증시일정 뉴로메카 카카오게임즈 동양 등 최신 영상."
+    )
+
+    summary = engine.summarize_what_why_impact(
+        "[되살아난 감마누] 대규모 자금조달 성공할까",
+        "",
+        content,
+        "HIGH",
+        "NEUTRAL",
+    )
+
+    joined = " ".join([summary.what, summary.why, summary.impact])
+    assert "감마누" in joined
+    assert "자금조달" in joined
+    assert "상반기 순익" not in joined
+    assert "오늘의 증시일정" not in joined
+
+
 def test_summary_uses_distinct_article_lines_before_fallback() -> None:
     engine = FinancialRuleEngine()
     content = (

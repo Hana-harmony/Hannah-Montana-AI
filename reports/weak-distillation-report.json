@@ -1,48 +1,48 @@
 {
   "source_path": "data/processed/weak_labeled_alerts.jsonl",
   "status": "promoted_to_student_training",
-  "candidate_count": 70287,
-  "accepted_count": 1027,
-  "rejected_count": 65069,
+  "candidate_count": 83105,
+  "accepted_count": 1026,
+  "rejected_count": 77855,
   "accepted_count_by_primary_label": {
     "CAPITAL_ACTION": 120,
     "CONTRACT": 422,
-    "CORPORATE_ACTION": 62,
+    "CORPORATE_ACTION": 61,
     "EARNINGS": 17,
     "MACRO": 10,
     "RISK": 396
   },
   "rejected_count_by_reason": {
     "disclosure_noise": 11302,
-    "disclosure_only": 10328,
-    "duplicate_text": 1173,
-    "low_signal": 7087,
+    "disclosure_only": 11449,
+    "duplicate_text": 1287,
+    "low_signal": 8127,
     "too_short": 3
   },
   "event_label_distribution": {
-    "CAPITAL_ACTION": 1291,
-    "CONTRACT": 935,
-    "CORPORATE_ACTION": 1583,
-    "DISCLOSURE": 2470,
-    "EARNINGS": 2044,
-    "GENERAL_MARKET": 418,
-    "MACRO": 2103,
+    "CAPITAL_ACTION": 1368,
+    "CONTRACT": 936,
+    "CORPORATE_ACTION": 1607,
+    "DISCLOSURE": 2627,
+    "EARNINGS": 2098,
+    "GENERAL_MARKET": 450,
+    "MACRO": 2110,
     "RISK": 900
   },
   "source_type_distribution": {
-    "DISCLOSURE": 247,
-    "NEWS": 4971
+    "DISCLOSURE": 163,
+    "NEWS": 5087
   },
   "sentiment_label_distribution": {
-    "NEGATIVE": 496,
-    "NEUTRAL": 1748,
-    "POSITIVE": 2974
+    "NEGATIVE": 513,
+    "NEUTRAL": 1719,
+    "POSITIVE": 3018
   },
   "importance_label_distribution": {
-    "CRITICAL": 660,
-    "HIGH": 2952,
-    "LOW": 83,
-    "MEDIUM": 1523
+    "CRITICAL": 659,
+    "HIGH": 2974,
+    "LOW": 82,
+    "MEDIUM": 1535
   },
   "label_quotas": {
     "RISK": 140,
@@ -55,9 +55,9 @@
     "GENERAL_MARKET": 0
   },
   "promotion_method": "supervised_teacher_confidence_filter",
-  "teacher_training_sample_count": 4659,
+  "teacher_training_sample_count": 8607,
   "rejected_count_by_teacher_reason": {
-    "low_teacher_confidence": 4259,
+    "low_teacher_confidence": 4383,
     "teacher_weak_event_disagreement": 5
   },
   "pseudo_sample_influence_control": "weak_and_stock_candidate_pseudo_labels_are_event_model_only",

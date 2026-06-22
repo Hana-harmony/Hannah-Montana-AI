@@ -382,7 +382,7 @@ def _quality_findings(
         findings.append("SUMMARY_LINE_DUPLICATED")
     if _contains_boilerplate(joined_lines):
         findings.append("SUMMARY_BOILERPLATE")
-    if _contains_boilerplate(full_content.content if full_content else alert.text):
+    if _contains_boilerplate(_quality_content(alert, full_content)):
         findings.append("CONTENT_BOILERPLATE")
     if any(len(line) < 18 for line in lines):
         findings.append("SUMMARY_LINE_TOO_SHORT")
@@ -442,6 +442,16 @@ def _has_critical_finding(findings: Sequence[str]) -> bool:
 
 def _contains_boilerplate(text: str) -> bool:
     return any(keyword in text for keyword in FinancialRuleEngine.boilerplate_keywords)
+
+
+def _quality_content(
+    alert: RawCollectedAlert,
+    full_content: ArticleContent | None,
+) -> str:
+    engine = FinancialRuleEngine()
+    if full_content:
+        return engine.clean_article_text(full_content.content, alert.title)
+    return engine.clean_article_text(alert.text, alert.title)
 
 
 def _is_fallback_line(text: str) -> bool:
