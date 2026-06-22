@@ -195,6 +195,11 @@ def main() -> None:
         and is_reusable_full_content_policy(str(row.get("source_license_policy", "")))
         and is_valid_full_content(str(row.get("full_content", "")))
     }
+    existing_source_urls = {
+        str(row.get("source_url", ""))
+        for row in rows.values()
+        if row.get("source_url")
+    }
     status = Counter[str]()
     errors: list[str] = []
 
@@ -207,6 +212,9 @@ def main() -> None:
             status["news_unlabeled"] += 1
             continue
         if accepted_news_labels[label] >= args.per_label_limit:
+            continue
+        if alert.original_url in existing_source_urls:
+            status["news_reused_existing_url"] += 1
             continue
         status["news_attempted"] += 1
         full_content = fetch_news_content(alert.original_url)
@@ -224,6 +232,7 @@ def main() -> None:
             status["news_unlabeled"] += 1
             continue
         rows[row["content_hash"]] = row | {"image_urls": full_content.image_urls}
+        existing_source_urls.add(str(row["source_url"]))
         accepted_news_labels[label] += 1
         status["news_added"] += 1
         sleep(args.sleep_seconds)
@@ -244,6 +253,9 @@ def main() -> None:
         if not receipt_number:
             status["disclosure_missing_receipt"] += 1
             continue
+        if alert.original_url in existing_source_urls:
+            status["disclosure_reused_existing_url"] += 1
+            continue
         label = pre_label(alert)
         if label is None:
             status["disclosure_unlabeled"] += 1
@@ -260,6 +272,7 @@ def main() -> None:
             status["disclosure_unlabeled"] += 1
             continue
         rows[row["content_hash"]] = row
+        existing_source_urls.add(str(row["source_url"]))
         accepted_disclosure_labels[label] += 1
         status["disclosure_added"] += 1
         sleep(args.sleep_seconds)
