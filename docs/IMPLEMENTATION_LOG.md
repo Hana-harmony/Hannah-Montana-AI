@@ -895,3 +895,8 @@
 - 최신 Naver 80건 live quality audit에서 전체 quality pass rate 0.7875, query-relevant quality pass rate 0.9844, full-content rate 0.7250을 기록했다.
 - `하나은행` 같은 비상장/레거시 은행 엔티티를 내부 종목 fallback에서 제외하고, 뉴스 source type에서는 `DISCLOSURE` 태그가 섞이지 않도록 회귀 테스트를 추가했다.
 - `reports/model-release-report.json`, `reports/pseudo-label-promotion-monitoring.json`, `reports/service-readiness-report.json`은 새 모델 기준 모두 `pass`를 기록했다.
+
+## 2026-06-22 - 전문 뉴스 추가 학습 목표 재정의
+- 최신 `feature` 기반 `feat/news-summary-training-expansion` 브랜치에서 추가 학습을 시작했다.
+- 목표는 실제 뉴스·공시 전문 데이터 확대, query stock 관련성 필터, What/Why/Impact 요약 품질 gate를 함께 보강해 검색 provider 노이즈와 모델 요약 품질을 분리 평가하는 것이다.
+- 사람이 검수하지 않은 전문 약한 라벨은 계속 supervised loss에서 제외하고, 관련 종목이 본문에서 확인되는 row만 live query-relevant gate와 학습 승격 후보로 다룬다.

@@ -58,6 +58,9 @@
 - 실제 원문 기사·공시 전문 학습 gold 샘플 수: 673건
 - 전문 학습 gold 구성: 뉴스 전문 478건, OpenDART document 전문 195건, 기존 내부 회귀 seed
 - 전문 학습 source license policy: `licensed_naver_original_full_text_v1`, `opendart_public_disclosure_text_v1`, 내부 회귀 seed
+- 전문 확장 학습 정책: 관련 종목이 제목·snippet·전문에서 확인된 기사만 live query-relevant gate와 학습 승격 후보에 포함한다.
+- 요약 품질 정책: What/Why/Impact 3줄은 중복, boilerplate, fallback, 종목 불일치, 낮은 confidence를 별도 quality finding으로 기록하고 release 판단에서 관측한다.
+- 약한 전문 라벨 정책: 사람이 검수하지 않은 전문 수집 라벨은 원문 분석·요약 입력과 검수 후보 생성에는 사용하지만 이벤트·감성·중요도 supervised loss에는 넣지 않는다.
 - gold benchmark 샘플 수: 768건
 - 실공시 gold 샘플 수: 30건
 - 실제 뉴스 gold 샘플 수: 80건
