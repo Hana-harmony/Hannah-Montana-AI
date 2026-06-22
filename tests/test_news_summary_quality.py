@@ -51,6 +51,24 @@ def test_clean_article_text_keeps_financial_sentences_in_original_order() -> Non
     assert "영업이익" in cleaned
 
 
+def test_clean_article_text_removes_market_widget_tail() -> None:
+    engine = FinancialRuleEngine()
+    content = (
+        "한화에어로스페이스는 중동 방산 수요 확대에 따라 수주 기회가 늘고 있다. "
+        "유럽 안보 협력 균열과 국방 예산 증액이 주요 배경으로 거론된다. "
+        "투자자는 수주 잔고와 영업이익 기여 시점을 확인해야 한다. "
+        "최신 영상 오늘의 증시일정 뉴로메카 카카오게임즈 동양 등 "
+        "마켓 최신 뉴스 특징주 제주반도체 반도체 수출 호조 속 급등."
+    )
+
+    cleaned = engine.clean_article_text(content, "한화에어로스페이스 방산 수주 확대")
+
+    assert "중동 방산 수요" in cleaned
+    assert "최신 영상" not in cleaned
+    assert "오늘의 증시일정" not in cleaned
+    assert "마켓 최신 뉴스" not in cleaned
+
+
 def test_summary_uses_distinct_article_lines_before_fallback() -> None:
     engine = FinancialRuleEngine()
     content = (
