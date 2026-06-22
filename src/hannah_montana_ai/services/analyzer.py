@@ -31,6 +31,7 @@ class StockMatchResult:
 
 
 class AlertAnalyzer:
+    _SUMMARY_ONLY_CONFIDENCE_CAP = 0.55
     _DUPLICATE_BRACKET_NOISE_TERMS = frozenset(
         {
             "속보",
@@ -180,6 +181,7 @@ class AlertAnalyzer:
         }
 
     def analyze(self, request: AlertAnalysisRequest) -> AlertAnalysisResponse:
+        has_full_content = bool(request.content.strip())
         analysis_content = self.rule_engine.clean_article_text(request.content, request.title)
         text = f"{request.title} {request.snippet} {analysis_content}".strip()
         primary_stock_match = self._match_primary_stock_from_request_or_internal(
@@ -213,6 +215,14 @@ class AlertAnalyzer:
         event_confidence = self._event_confidence(event_tags, event_probabilities)
         sentiment_confidence = sentiment_probabilities.get(sentiment, 0.0)
         importance_confidence = importance_probabilities.get(importance, 0.0)
+        event_confidence, sentiment_confidence, importance_confidence = (
+            self._cap_summary_only_confidences(
+                has_full_content,
+                event_confidence,
+                sentiment_confidence,
+                importance_confidence,
+            )
+        )
         summary_lines = self.rule_engine.summarize_what_why_impact(
             request.title,
             request.snippet,
@@ -232,7 +242,7 @@ class AlertAnalyzer:
             original_title=request.title,
             summary=summary,
             summary_lines=summary_lines,
-            content_availability="FULL_TEXT" if request.content else "SUMMARY_ONLY",
+            content_availability="FULL_TEXT" if has_full_content else "SUMMARY_ONLY",
             original_content=request.content,
             image_urls=request.image_urls,
             event_tags=event_tags,
@@ -303,6 +313,13 @@ class AlertAnalyzer:
     ) -> StockCandidate | StockUniverseEntry | None:
         request_matches = self._stock_matches(text, request_universe, allow_short_terms=True)
         if prefer_request and request_matches:
+            internal_matches = self._stock_matches(text, self._internal_stock_universe)
+            specific_internal_match = self._more_specific_same_position_match(
+                request_matches[0],
+                internal_matches,
+            )
+            if specific_internal_match is not None:
+                return specific_internal_match
             return request_matches[0][1]
         matches = [
             *request_matches,
@@ -366,6 +383,7 @@ class AlertAnalyzer:
                 allow_short_terms=False,
             ),
         ]
+        matches = self._drop_shadowed_short_stock_matches(matches)
         deduplicated: list[tuple[int, StockCandidate | StockUniverseEntry]] = []
         seen_codes: set[str] = set()
         for position, stock in sorted(matches, key=lambda match: match[0]):
@@ -387,6 +405,8 @@ class AlertAnalyzer:
         seen_codes: set[str] = set()
 
         for stock in stock_universe:
+            if self._is_excluded_stock(stock):
+                continue
             position = self._stock_match_position(
                 normalized_text,
                 stock,
@@ -396,7 +416,14 @@ class AlertAnalyzer:
                 matches.append((position, stock))
                 seen_codes.add(stock.stock_code)
 
-        return sorted(matches, key=lambda match: match[0])
+        return sorted(
+            matches,
+            key=lambda match: (
+                match[0],
+                -self._stock_match_specificity(match[1]),
+                match[1].stock_code,
+            ),
+        )
 
     def _stock_match_position(
         self,
@@ -440,6 +467,79 @@ class AlertAnalyzer:
         context = normalized_text[position : position + length + 24]
         return any(term in context for term in self._STOCK_ATTRIBUTION_CONTEXT_TERMS)
 
+    def _more_specific_same_position_match(
+        self,
+        request_match: tuple[int, StockCandidate | StockUniverseEntry],
+        internal_matches: list[tuple[int, StockCandidate | StockUniverseEntry]],
+    ) -> StockCandidate | StockUniverseEntry | None:
+        for internal_match in internal_matches:
+            if self._is_shadowing_stock_match(request_match, internal_match):
+                return internal_match[1]
+        return None
+
+    def _drop_shadowed_short_stock_matches(
+        self,
+        matches: list[tuple[int, StockCandidate | StockUniverseEntry]],
+    ) -> list[tuple[int, StockCandidate | StockUniverseEntry]]:
+        filtered: list[tuple[int, StockCandidate | StockUniverseEntry]] = []
+        for candidate in matches:
+            if any(
+                self._is_shadowing_stock_match(candidate, other)
+                for other in matches
+                if other is not candidate
+            ):
+                continue
+            filtered.append(candidate)
+        return filtered
+
+    def _is_shadowing_stock_match(
+        self,
+        short_match: tuple[int, StockCandidate | StockUniverseEntry],
+        long_match: tuple[int, StockCandidate | StockUniverseEntry],
+    ) -> bool:
+        short_position, short_stock = short_match
+        long_position, long_stock = long_match
+        if short_position != long_position or short_stock.stock_code == long_stock.stock_code:
+            return False
+        if self._stock_match_specificity(long_stock) <= self._stock_match_specificity(
+            short_stock
+        ):
+            return False
+        return self._stock_terms_contain(long_stock, short_stock)
+
+    def _stock_match_specificity(
+        self,
+        stock: StockCandidate | StockUniverseEntry,
+    ) -> int:
+        terms = [stock.stock_name, stock.stock_name_en, *stock.aliases]
+        return max((len(normalize_stock_term(term)) for term in terms if term), default=0)
+
+    def _stock_terms_contain(
+        self,
+        long_stock: StockCandidate | StockUniverseEntry,
+        short_stock: StockCandidate | StockUniverseEntry,
+    ) -> bool:
+        long_terms = self._normalized_non_code_stock_terms(long_stock)
+        short_terms = self._normalized_non_code_stock_terms(short_stock)
+        return any(
+            short_term and short_term in long_term
+            for short_term in short_terms
+            for long_term in long_terms
+        )
+
+    def _normalized_non_code_stock_terms(
+        self,
+        stock: StockCandidate | StockUniverseEntry,
+    ) -> tuple[str, ...]:
+        return tuple(
+            normalized
+            for term in (stock.stock_name, stock.stock_name_en, *stock.aliases)
+            if (normalized := normalize_stock_term(term))
+        )
+
+    def _is_excluded_stock(self, stock: StockCandidate | StockUniverseEntry) -> bool:
+        return stock.stock_name in self._INTERNAL_STOCK_MATCH_EXCLUDED_NAMES
+
     def _stock_universe_for_request(
         self,
         request_universe: list[StockCandidate],
@@ -473,6 +573,22 @@ class AlertAnalyzer:
         if not event_tags:
             return 0.0
         return max(event_probabilities.get(tag, 0.0) for tag in event_tags)
+
+    def _cap_summary_only_confidences(
+        self,
+        has_full_content: bool,
+        event_confidence: float,
+        sentiment_confidence: float,
+        importance_confidence: float,
+    ) -> tuple[float, float, float]:
+        if has_full_content:
+            return event_confidence, sentiment_confidence, importance_confidence
+        cap = self._SUMMARY_ONLY_CONFIDENCE_CAP
+        return (
+            min(event_confidence, cap),
+            min(sentiment_confidence, cap),
+            min(importance_confidence, cap),
+        )
 
     def _augment_event_tags(
         self,

@@ -58,6 +58,9 @@ class FinancialRuleEngine:
         "네이버라인",
         "URL복사",
         "기사보내기",
+        "파이낸셜뉴스 광고",
+        "광고 구독하기",
+        "구독하기",
         "많이 본 뉴스",
         "핫이슈",
         "부고",
@@ -341,5 +344,6 @@ class FinancialRuleEngine:
         normalized = re.sub(r"\s+", " ", text).strip()
         normalized = re.sub(r"\S+@\S+", "", normalized).strip()
         normalized = re.sub(r"^/?사진=[^ ]+\s*", "", normalized).strip()
+        normalized = re.sub(r"^[가-힣A-Za-z0-9_. -]{2,24}=[가-힣]{2,4}\s*기자\s*", "", normalized).strip()
         normalized = re.sub(r"^[.·ㆍ•▲△▶▷\-\s]+", "", normalized).strip()
         return normalized[:300]

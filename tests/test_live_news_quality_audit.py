@@ -62,6 +62,19 @@ class FakeAnalyzer:
         )
 
 
+class SummaryOnlyConfidentAnalyzer(FakeAnalyzer):
+    def analyze(self, request: AlertAnalysisRequest) -> AlertAnalysisResponse:
+        response = super().analyze(request)
+        return response.model_copy(
+            update={
+                "content_availability": "SUMMARY_ONLY",
+                "event_confidence": 0.55,
+                "sentiment_confidence": 0.55,
+                "importance_confidence": 0.55,
+            }
+        )
+
+
 def test_live_news_quality_audit_scores_full_content_summary() -> None:
     universe = [StockUniverseEntry(stock_code="005930", stock_name="삼성전자")]
 
@@ -123,6 +136,42 @@ def test_live_news_quality_audit_scores_full_content_summary() -> None:
     assert batch.report["quality_pass_rate"] == 1.0
     assert batch.report["full_content_rate"] == 1.0
     assert batch.report["sampled_stock_model_match_rate"] == 1.0
+
+
+def test_live_news_quality_audit_marks_summary_only_confidence_cap() -> None:
+    universe = [StockUniverseEntry(stock_code="005930", stock_name="삼성전자")]
+
+    def fake_collector(**kwargs: object) -> RawCollectionResult:
+        status = ProviderCollectionStatus(provider="naver-news", collected_count=1)
+        return RawCollectionResult(
+            alerts=[
+                RawCollectedAlert(
+                    source_type="NEWS",
+                    title="삼성전자 반도체 실적 개선 기대",
+                    snippet="HBM 공급 확대가 주목된다.",
+                    original_url="https://example.com/news/summary-only",
+                    published_at="Mon, 22 Jun 2026 10:00:00 +0900",
+                    provider="naver-news",
+                )
+            ],
+            status=status,
+        )
+
+    batch = build_live_news_quality_audit_batch(
+        stock_universe=universe,
+        stock_universe_path=Path("data/reference/korea_stock_universe.csv"),
+        output_path=Path("data/evaluation/live_news_quality_audit.jsonl"),
+        stock_sample_size=1,
+        max_news_per_query=1,
+        intents=("실적",),
+        analyzer=SummaryOnlyConfidentAnalyzer(),
+        news_collector=fake_collector,
+        content_fetcher=lambda _: None,
+    )
+
+    row = batch.rows[0]
+    assert "MISSING_FULL_CONTENT" in row["quality_findings"]
+    assert "SUMMARY_ONLY_CONFIDENCE_CAPPED" in row["quality_findings"]
 
 
 class NoisyAnalyzer(FakeAnalyzer):

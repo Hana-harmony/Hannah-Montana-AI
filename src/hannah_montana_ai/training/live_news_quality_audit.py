@@ -376,6 +376,12 @@ def _quality_findings(
 
     if full_content is None:
         findings.append("MISSING_FULL_CONTENT")
+        if max(
+            response.event_confidence,
+            response.sentiment_confidence,
+            response.importance_confidence,
+        ) >= 0.55:
+            findings.append("SUMMARY_ONLY_CONFIDENCE_CAPPED")
     if any(not line for line in lines):
         findings.append("SUMMARY_LINE_EMPTY")
     if len(line_set) < len(lines):
@@ -409,6 +415,7 @@ def _quality_findings(
 def _quality_score(findings: Sequence[str]) -> int:
     penalty = {
         "MISSING_FULL_CONTENT": 8,
+        "SUMMARY_ONLY_CONFIDENCE_CAPPED": 6,
         "SUMMARY_LINE_EMPTY": 35,
         "SUMMARY_LINE_DUPLICATED": 22,
         "SUMMARY_BOILERPLATE": 28,
