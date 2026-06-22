@@ -42,7 +42,7 @@
 - 합성 증강 corpus: `data/training/financial_alert_augmented.jsonl`
 - 뉴스 제목체 증강 corpus: `data/training/financial_alert_news_style_augmented.jsonl`
 - 사람이 검수한 실제 뉴스 학습 gold: `data/training/financial_alert_real_news_gold.jsonl`
-- 권리 안전 기사·공시 전문 학습 gold: `data/training/financial_alert_full_content_gold.jsonl`
+- 실제 원문 기사·공시 전문 학습 gold: `data/training/financial_alert_full_content_gold.jsonl`
 - curated gold benchmark: `data/evaluation/financial_alert_eval.jsonl`
 - 사람이 검수한 실공시 gold: `data/evaluation/financial_alert_real_disclosure_gold.jsonl`
 - 사람이 검수한 실제 뉴스 평가 gold: `data/evaluation/financial_alert_real_news_gold.jsonl`
@@ -55,9 +55,9 @@
 - 합성 증강 샘플 수: 1,656건
 - 뉴스 제목체 증강 샘플 수: 1,872건
 - 실제 뉴스 학습 gold 샘플 수: 63건
-- 권리 안전 기사·공시 전문 학습 gold 샘플 수: 14건
-- 전문 학습 gold 구성: 뉴스 10건, 공시 4건
-- 전문 학습 권리 정책: `internal_rights_safe_full_article_v1` 10건, `internal_rights_safe_disclosure_text_v1` 4건
+- 실제 원문 기사·공시 전문 학습 gold 샘플 수: 운영 export 기준으로 갱신
+- 전문 학습 gold 구성: 뉴스 전문, OpenDART document 전문, 기존 내부 회귀 seed
+- 전문 학습 source license policy: `licensed_naver_original_full_text_v1`, `opendart_public_disclosure_text_v1`, 내부 회귀 seed
 - gold benchmark 샘플 수: 768건
 - 실공시 gold 샘플 수: 30건
 - 실제 뉴스 gold 샘플 수: 80건
@@ -146,7 +146,7 @@
 
 ## 학습 방식
 - `scripts/collect_training_data.py`가 Naver News Search와 OpenDART에서 원문 제목·snippet·링크를 수집한다.
-- full-content v2 학습 파이프라인은 Naver News Search를 발견 단계로만 사용하고, Hana-OmniLens-API가 권리 확인 후 저장한 전문/이미지 metadata, OpenDART 원문, 권리 안전 자체 전문 gold를 모델 입력 feature로 사용한다.
+- full-content v2 학습 파이프라인은 Naver News Search를 발견 단계로 사용하고, Hana-OmniLens-API가 사용 허가된 원문 URL에서 저장한 기사 전문/이미지 metadata와 OpenDART document 전문을 모델 입력 feature로 사용한다.
 - `LabeledAlert`는 `title`, `snippet`, `full_content`, `content_availability`, `source_license_policy`, `content_hash`를 보존하며, 학습·평가 시 전문이 있으면 `title + snippet + full_content`를 우선 사용한다.
 - 기존 제목/snippet v1 artifact는 폐기하지 않고 full-content v2의 fallback, 회귀 비교, teacher 후보로 유지한다.
 - `weak_labeler.py`가 수집 원문에 약지도 라벨을 부여해 학습 후보를 만든다.
@@ -254,7 +254,7 @@
 - 현재 distillation 후보는 supervised teacher가 다시 검증해야 하는 후보 풀이지 최종 정답셋이 아니다.
 - pseudo-label은 teacher confidence와 release gate를 통과한 라벨만 제한 승격한다. `DISCLOSURE`와 `GENERAL_MARKET`은 후보가 있어도 현재 artifact 학습에는 투입하지 않는다.
 - 사람이 검수한 실데이터 gold label set은 현재 실공시 30건, 실제 뉴스 80건이므로 주기적으로 확대해야 한다.
-- 현재 release artifact는 권리 안전 기사·공시 전문 gold 14건을 supervised 입력으로 사용한다. 재배포 불가 본문은 학습 원문으로 저장하지 않고, 권리 확인된 전문·metadata 또는 feature hash와 사람이 검수한 label lineage만 남긴다.
+- 현재 release artifact는 실제 원문 기사·공시 전문 export와 내부 회귀 seed를 supervised 입력으로 사용한다. 저장 허가가 없는 provider를 추가할 경우 학습 원문 저장을 비활성화하고 feature hash와 사람이 검수한 label lineage만 남긴다.
 - 실제 투자 판단을 위한 추천 모델이 아니다.
 
 ## 서비스 readiness gate
