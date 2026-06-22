@@ -7,6 +7,7 @@ import re
 import time
 import zipfile
 from collections import Counter
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import asdict
 from hashlib import sha256
 from html import unescape
@@ -177,6 +178,7 @@ def main() -> None:
     parser.add_argument("--max-disclosures", type=int, default=200)
     parser.add_argument("--per-label-limit", type=int, default=70)
     parser.add_argument("--target-row-count", type=int, default=0)
+    parser.add_argument("--news-worker-count", type=int, default=1)
     parser.add_argument("--sleep-seconds", type=float, default=0.05)
     parser.add_argument("--timeout-seconds", type=float, default=4.0)
     parser.add_argument("--append-existing", action=argparse.BooleanOptionalAction, default=True)
@@ -204,42 +206,18 @@ def main() -> None:
     status = Counter[str]()
     errors: list[str] = []
 
-    accepted_news_labels: Counter[str] = Counter()
-    for alert in [alert for alert in raw_alerts if alert.source_type == "NEWS"]:
-        if target_reached(rows, args.target_row_count):
-            status["target_row_count_reached"] += 1
-            break
-        if status["news_attempted"] >= args.max_news:
-            break
-        label = pre_label(alert)
-        if label is None:
-            status["news_unlabeled"] += 1
-            continue
-        if accepted_news_labels[label] >= args.per_label_limit:
-            continue
-        if alert.original_url in existing_source_urls:
-            status["news_reused_existing_url"] += 1
-            continue
-        status["news_attempted"] += 1
-        full_content = fetch_news_content(alert.original_url)
-        if not full_content:
-            status["news_failed"] += 1
-            continue
-        row = to_labeled_row(
-            alert,
-            full_content.content,
-            full_content.canonical_url,
-            NEWS_POLICY,
-            matcher,
-        )
-        if row is None:
-            status["news_unlabeled"] += 1
-            continue
-        rows[row["content_hash"]] = row | {"image_urls": full_content.image_urls}
-        existing_source_urls.add(str(row["source_url"]))
-        accepted_news_labels[label] += 1
-        status["news_added"] += 1
-        sleep(args.sleep_seconds)
+    collect_news_rows(
+        raw_alerts=raw_alerts,
+        rows=rows,
+        existing_source_urls=existing_source_urls,
+        matcher=matcher,
+        status=status,
+        max_news=args.max_news,
+        per_label_limit=args.per_label_limit,
+        target_row_count=args.target_row_count,
+        sleep_seconds=args.sleep_seconds,
+        worker_count=args.news_worker_count,
+    )
 
     dart_api_key = os.environ.get("OPEN_DART_API_KEY", "")
     accepted_disclosure_labels: Counter[str] = Counter()
@@ -323,6 +301,156 @@ def fetch_news_content(url: str) -> FullContent | None:
         canonical_url=canonical_url(html, safe_url),
         image_urls=image_urls(html, safe_url),
     )
+
+
+def collect_news_rows(
+    *,
+    raw_alerts: list[RawCollectedAlert],
+    rows: dict[str, dict[str, Any]],
+    existing_source_urls: set[str],
+    matcher: StockUniverseMatcher,
+    status: Counter[str],
+    max_news: int,
+    per_label_limit: int,
+    target_row_count: int,
+    sleep_seconds: float,
+    worker_count: int,
+) -> None:
+    if worker_count <= 1:
+        collect_news_rows_sequential(
+            raw_alerts=raw_alerts,
+            rows=rows,
+            existing_source_urls=existing_source_urls,
+            matcher=matcher,
+            status=status,
+            max_news=max_news,
+            per_label_limit=per_label_limit,
+            target_row_count=target_row_count,
+            sleep_seconds=sleep_seconds,
+        )
+        return
+
+    candidates = select_news_candidates(
+        raw_alerts=raw_alerts,
+        existing_source_urls=existing_source_urls,
+        status=status,
+        max_news=max_news,
+        per_label_limit=per_label_limit,
+    )
+    if not candidates:
+        return
+
+    accepted_news_labels: Counter[str] = Counter()
+    max_workers = min(max(worker_count, 1), 16)
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        future_map = {
+            executor.submit(fetch_news_content, alert.original_url): (alert, label)
+            for alert, label in candidates
+        }
+        for future in as_completed(future_map):
+            alert, label = future_map[future]
+            if target_reached(rows, target_row_count):
+                status["target_row_count_reached"] += 1
+                break
+            try:
+                full_content = future.result()
+            except (HTTPError, OSError, TimeoutError, URLError, UnicodeError):
+                full_content = None
+            if not full_content:
+                status["news_failed"] += 1
+                continue
+            if accepted_news_labels[label] >= per_label_limit:
+                status["news_label_limit_after_fetch"] += 1
+                continue
+            row = to_labeled_row(
+                alert,
+                full_content.content,
+                full_content.canonical_url,
+                NEWS_POLICY,
+                matcher,
+            )
+            if row is None:
+                status["news_unlabeled"] += 1
+                continue
+            rows[row["content_hash"]] = row | {"image_urls": full_content.image_urls}
+            existing_source_urls.add(str(row["source_url"]))
+            accepted_news_labels[label] += 1
+            status["news_added"] += 1
+            sleep(sleep_seconds)
+
+
+def collect_news_rows_sequential(
+    *,
+    raw_alerts: list[RawCollectedAlert],
+    rows: dict[str, dict[str, Any]],
+    existing_source_urls: set[str],
+    matcher: StockUniverseMatcher,
+    status: Counter[str],
+    max_news: int,
+    per_label_limit: int,
+    target_row_count: int,
+    sleep_seconds: float,
+) -> None:
+    accepted_news_labels: Counter[str] = Counter()
+    for alert, label in select_news_candidates(
+        raw_alerts=raw_alerts,
+        existing_source_urls=existing_source_urls,
+        status=status,
+        max_news=max_news,
+        per_label_limit=per_label_limit,
+    ):
+        if target_reached(rows, target_row_count):
+            status["target_row_count_reached"] += 1
+            break
+        if accepted_news_labels[label] >= per_label_limit:
+            continue
+        full_content = fetch_news_content(alert.original_url)
+        if not full_content:
+            status["news_failed"] += 1
+            continue
+        row = to_labeled_row(
+            alert,
+            full_content.content,
+            full_content.canonical_url,
+            NEWS_POLICY,
+            matcher,
+        )
+        if row is None:
+            status["news_unlabeled"] += 1
+            continue
+        rows[row["content_hash"]] = row | {"image_urls": full_content.image_urls}
+        existing_source_urls.add(str(row["source_url"]))
+        accepted_news_labels[label] += 1
+        status["news_added"] += 1
+        sleep(sleep_seconds)
+
+
+def select_news_candidates(
+    *,
+    raw_alerts: list[RawCollectedAlert],
+    existing_source_urls: set[str],
+    status: Counter[str],
+    max_news: int,
+    per_label_limit: int,
+) -> list[tuple[RawCollectedAlert, str]]:
+    candidates: list[tuple[RawCollectedAlert, str]] = []
+    candidate_labels: Counter[str] = Counter()
+    for alert in [alert for alert in raw_alerts if alert.source_type == "NEWS"]:
+        if len(candidates) >= max_news:
+            break
+        label = pre_label(alert)
+        if label is None:
+            status["news_unlabeled"] += 1
+            continue
+        if candidate_labels[label] >= max(per_label_limit * 4, per_label_limit):
+            continue
+        if alert.original_url in existing_source_urls:
+            status["news_reused_existing_url"] += 1
+            continue
+        candidates.append((alert, label))
+        candidate_labels[label] += 1
+        status["news_attempted"] += 1
+    return candidates
 
 
 def fetch_dart_document(api_key: str, receipt_number: str) -> str:
