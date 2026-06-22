@@ -112,9 +112,13 @@ def _request_from_sample(sample: LabeledAlert) -> AlertAnalysisRequest:
     return AlertAnalysisRequest.model_validate(
         {
             "source_type": sample.source_type,
-            "title": sample.text,
-            "snippet": "",
-            "original_url": "https://example.com/evaluation",
+            "title": sample.title or sample.text,
+            "snippet": sample.snippet,
+            "content": sample.full_content,
+            "content_availability": sample.content_availability,
+            "content_hash": sample.content_hash,
+            "source_license_policy": sample.source_license_policy,
+            "original_url": sample.source_url or "https://example.com/evaluation",
             "stock_universe": [stock.model_dump() for stock in stock_universe],
         }
     )

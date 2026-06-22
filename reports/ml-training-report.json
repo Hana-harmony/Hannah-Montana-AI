@@ -1,135 +1,136 @@
 {
-  "version": "financial-ml-tfidf-logreg-20260619095828",
-  "trained_at": "2026-06-19T09:58:28.773431+00:00",
-  "sample_count": 4734,
-  "supervised_sample_count": 3609,
-  "pseudo_labeled_sample_count": 1125,
+  "version": "financial-ml-tfidf-logreg-20260621225355",
+  "trained_at": "2026-06-21T22:53:55.111853+00:00",
+  "sample_count": 4651,
+  "supervised_sample_count": 3623,
+  "pseudo_labeled_sample_count": 1028,
   "training_sources": [
     "data/training/financial_alert_corpus.jsonl",
     "data/training/financial_alert_augmented.jsonl",
     "data/training/financial_alert_news_style_augmented.jsonl",
     "data/training/financial_alert_real_news_gold.jsonl",
+    "data/training/financial_alert_full_content_gold.jsonl",
     "data/training/financial_alert_stock_review_gold.jsonl"
   ],
   "event_label_distribution": {
-    "EARNINGS": 764,
-    "CONTRACT": 884,
-    "RISK": 1380,
-    "CAPITAL_ACTION": 576,
-    "DISCLOSURE": 1312,
-    "CORPORATE_ACTION": 536,
-    "MACRO": 535,
-    "GENERAL_MARKET": 186
+    "EARNINGS": 748,
+    "CONTRACT": 863,
+    "RISK": 1346,
+    "CAPITAL_ACTION": 587,
+    "DISCLOSURE": 1330,
+    "CORPORATE_ACTION": 540,
+    "MACRO": 522,
+    "GENERAL_MARKET": 178
   },
   "sentiment_label_distribution": {
-    "POSITIVE": 1313,
-    "NEGATIVE": 1231,
-    "NEUTRAL": 1065
+    "POSITIVE": 1319,
+    "NEGATIVE": 1235,
+    "NEUTRAL": 1069
   },
   "importance_label_distribution": {
-    "HIGH": 1578,
-    "CRITICAL": 364,
+    "HIGH": 1588,
+    "CRITICAL": 366,
     "LOW": 263,
-    "MEDIUM": 1404
+    "MEDIUM": 1406
   },
   "validation": {
-    "sample_count": 722,
-    "train_sample_count": 2887,
-    "event_subset_recall": 0.9889196675900277,
-    "event_macro_f1": 0.9880665660133557,
-    "sentiment_accuracy": 0.9889196675900277,
-    "importance_accuracy": 0.9930747922437673,
+    "sample_count": 725,
+    "train_sample_count": 2898,
+    "event_subset_recall": 0.993103448275862,
+    "event_macro_f1": 0.9944524934765631,
+    "sentiment_accuracy": 0.9917241379310345,
+    "importance_accuracy": 0.9944827586206897,
     "event_label_metrics": {
       "CAPITAL_ACTION": {
+        "precision": 1.0,
+        "recall": 0.9772727272727273,
+        "f1": 0.9885057471264368,
+        "support": 88
+      },
+      "CONTRACT": {
         "precision": 1.0,
         "recall": 0.9883720930232558,
         "f1": 0.9941520467836257,
         "support": 86
       },
-      "CONTRACT": {
-        "precision": 1.0,
-        "recall": 0.9882352941176471,
-        "f1": 0.9940828402366864,
-        "support": 85
-      },
       "CORPORATE_ACTION": {
         "precision": 1.0,
         "recall": 1.0,
         "f1": 1.0,
-        "support": 92
+        "support": 91
       },
       "DISCLOSURE": {
         "precision": 1.0,
         "recall": 1.0,
         "f1": 1.0,
-        "support": 165
+        "support": 161
       },
       "EARNINGS": {
-        "precision": 0.9794520547945206,
-        "recall": 0.9862068965517241,
-        "f1": 0.9828178694158075,
+        "precision": 0.9863945578231292,
+        "recall": 1.0,
+        "f1": 0.9931506849315068,
         "support": 145
       },
       "GENERAL_MARKET": {
-        "precision": 0.96875,
-        "recall": 0.9393939393939394,
-        "f1": 0.9538461538461539,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
         "support": 33
       },
       "MACRO": {
-        "precision": 0.98,
-        "recall": 0.98989898989899,
-        "f1": 0.9849246231155778,
-        "support": 99
+        "precision": 0.9801980198019802,
+        "recall": 0.99,
+        "f1": 0.9850746268656716,
+        "support": 100
       },
       "RISK": {
         "precision": 1.0,
-        "recall": 0.9894736842105263,
-        "f1": 0.9947089947089947,
-        "support": 190
+        "recall": 0.9895287958115183,
+        "f1": 0.9947368421052631,
+        "support": 191
       }
     },
     "sentiment_confusion_matrix": {
       "NEGATIVE": {
-        "NEGATIVE": 246,
+        "NEGATIVE": 251,
         "NEUTRAL": 1,
-        "POSITIVE": 2
+        "POSITIVE": 1
       },
       "NEUTRAL": {
         "NEGATIVE": 1,
-        "NEUTRAL": 210,
-        "POSITIVE": 1
+        "NEUTRAL": 206,
+        "POSITIVE": 2
       },
       "POSITIVE": {
-        "NEUTRAL": 3,
-        "POSITIVE": 258
+        "NEUTRAL": 1,
+        "POSITIVE": 262
       }
     },
     "importance_confusion_matrix": {
       "CRITICAL": {
-        "CRITICAL": 76
+        "CRITICAL": 71
       },
       "HIGH": {
         "CRITICAL": 1,
-        "HIGH": 315,
-        "MEDIUM": 3
+        "HIGH": 322,
+        "MEDIUM": 1
       },
       "LOW": {
-        "LOW": 59
+        "LOW": 57
       },
       "MEDIUM": {
-        "HIGH": 1,
-        "MEDIUM": 267
+        "HIGH": 2,
+        "MEDIUM": 271
       }
     }
   },
   "event_probability_threshold": 0.3,
   "event_label_thresholds": {
-    "CONTRACT": 0.42,
+    "CONTRACT": 0.46,
     "CORPORATE_ACTION": 0.18,
-    "EARNINGS": 0.36,
-    "GENERAL_MARKET": 0.32,
-    "MACRO": 0.24,
+    "EARNINGS": 0.4,
+    "GENERAL_MARKET": 0.22,
+    "MACRO": 0.3,
     "RISK": 0.5
   },
   "supervised_exclusion_report": {
@@ -145,15 +146,15 @@
     "source_path": "data/processed/weak_labeled_alerts.jsonl",
     "status": "promoted_to_student_training",
     "candidate_count": 68710,
-    "accepted_count": 1125,
+    "accepted_count": 1028,
     "rejected_count": 63506,
     "accepted_count_by_primary_label": {
       "CAPITAL_ACTION": 120,
-      "CONTRACT": 446,
-      "CORPORATE_ACTION": 68,
-      "EARNINGS": 35,
-      "MACRO": 22,
-      "RISK": 434
+      "CONTRACT": 422,
+      "CORPORATE_ACTION": 63,
+      "EARNINGS": 17,
+      "MACRO": 10,
+      "RISK": 396
     },
     "rejected_count_by_reason": {
       "disclosure_noise": 11302,
@@ -198,10 +199,10 @@
       "GENERAL_MARKET": 0
     },
     "promotion_method": "supervised_teacher_confidence_filter",
-    "teacher_training_sample_count": 3609,
+    "teacher_training_sample_count": 3623,
     "rejected_count_by_teacher_reason": {
-      "low_teacher_confidence": 3996,
-      "teacher_weak_event_disagreement": 11
+      "low_teacher_confidence": 4241,
+      "teacher_weak_event_disagreement": 7
     },
     "pseudo_sample_influence_control": "weak_and_stock_candidate_pseudo_labels_are_event_model_only",
     "event_probability_threshold": 0.42,
@@ -212,23 +213,23 @@
       "status": "promoted_to_event_student_training",
       "source_path": "data/curation/stock_training_candidate_queue.jsonl",
       "candidate_count": 15720,
-      "accepted_count": 781,
-      "accepted_stock_count": 781,
+      "accepted_count": 687,
+      "accepted_stock_count": 687,
       "accepted_count_by_primary_label": {
-        "RISK": 294,
-        "CONTRACT": 266,
+        "RISK": 256,
+        "CONTRACT": 242,
         "CAPITAL_ACTION": 120,
-        "CORPORATE_ACTION": 44,
-        "EARNINGS": 35,
-        "MACRO": 22,
+        "CORPORATE_ACTION": 42,
+        "EARNINGS": 17,
+        "MACRO": 10,
         "DISCLOSURE": 0,
         "GENERAL_MARKET": 0
       },
       "rejected_count_by_reason": {
-        "low_teacher_confidence": 7221,
-        "per_stock_quota_filled": 4023,
-        "teacher_candidate_event_disagreement": 131,
-        "teacher_zero_quota_label": 24,
+        "low_teacher_confidence": 7873,
+        "per_stock_quota_filled": 3534,
+        "teacher_candidate_event_disagreement": 144,
+        "teacher_zero_quota_label": 27,
         "zero_quota_label": 2833
       },
       "label_quotas": {
@@ -245,5 +246,19 @@
       "promotion_method": "supervised_teacher_gate_on_stock_balanced_queue",
       "pseudo_sample_influence_control": "event_model_only"
     }
+  },
+  "full_content_training": {
+    "status": "enabled",
+    "full_text_sample_count": 14,
+    "full_text_source_type_count": {
+      "DISCLOSURE": 4,
+      "NEWS": 10
+    },
+    "source_license_policy_count": {
+      "internal_rights_safe_disclosure_text_v1": 4,
+      "internal_rights_safe_full_article_v1": 10
+    },
+    "minimum_full_text_characters": 194,
+    "policy": "Only rights-safe full text rows with explicit source_license_policy are used for supervised full-content training."
   }
 }
