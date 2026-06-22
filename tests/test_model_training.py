@@ -154,7 +154,7 @@ def test_full_content_training_dataset_is_rights_safe_and_traceable() -> None:
     assert "internal_rights_safe_full_article_v1" in report["source_license_policy_count"]
     assert "internal_rights_safe_disclosure_text_v1" in report["source_license_policy_count"]
     assert all(sample.content_availability == "FULL_TEXT" for sample in samples)
-    assert all(sample.full_content in sample.model_text for sample in samples)
+    assert all(sample.full_content.strip() in sample.model_text for sample in samples)
     assert all(sample.content_hash for sample in samples)
 
 
