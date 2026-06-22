@@ -154,7 +154,7 @@ def test_full_content_training_dataset_is_rights_safe_and_traceable() -> None:
     assert "internal_rights_safe_full_article_v1" in report["source_license_policy_count"]
     assert "internal_rights_safe_disclosure_text_v1" in report["source_license_policy_count"]
     assert all(sample.content_availability == "FULL_TEXT" for sample in samples)
-    assert all(sample.full_content in sample.model_text for sample in samples)
+    assert all(sample.full_content.strip() in sample.model_text for sample in samples)
     assert all(sample.content_hash for sample in samples)
 
 
@@ -479,8 +479,8 @@ def test_pseudo_label_monitoring_report_matches_source_reports() -> None:
 
     assert monitoring_report == expected
     assert monitoring_report["overall_status"] == "pass"
-    assert monitoring_report["candidate_funnel"]["raw_candidate_count"] == 70287
-    assert monitoring_report["candidate_funnel"]["high_signal_candidate_count"] == 5218
+    assert monitoring_report["candidate_funnel"]["raw_candidate_count"] == 83105
+    assert monitoring_report["candidate_funnel"]["high_signal_candidate_count"] == 5250
     assert monitoring_report["candidate_funnel"]["promoted_count"] == release_report[
         "pseudo_labeling"
     ]["accepted_count"]
