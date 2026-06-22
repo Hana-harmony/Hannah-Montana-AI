@@ -283,3 +283,14 @@ def test_python_full_content_extractor_prefers_article_container() -> None:
     assert "TC본더 수요 증가" in text
     assert "전체 메뉴" not in text
     assert "이용약관" not in text
+
+
+def test_full_content_builder_reuses_existing_licensed_rows() -> None:
+    module = _load_full_content_script()
+
+    assert module.is_reusable_full_content_policy(
+        "licensed_naver_original_full_text_v1"
+    )
+    assert module.is_reusable_full_content_policy("opendart_public_disclosure_text_v1")
+    assert module.is_reusable_full_content_policy("internal_rights_safe_full_article_v1")
+    assert not module.is_reusable_full_content_policy("NAVER_SEARCH_SNIPPET_ONLY")

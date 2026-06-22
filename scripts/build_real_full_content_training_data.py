@@ -34,6 +34,12 @@ STOCK_UNIVERSE_PATH = PROJECT_ROOT / "data/reference/korea_stock_universe.csv"
 OPEN_DART_DOCUMENT_URL = "https://opendart.fss.or.kr/api/document.xml"
 NEWS_POLICY = "licensed_naver_original_full_text_v1"
 DART_POLICY = "opendart_public_disclosure_text_v1"
+REUSABLE_FULL_CONTENT_POLICIES = {
+    "internal_rights_safe_disclosure_text_v1",
+    "internal_rights_safe_full_article_v1",
+    NEWS_POLICY,
+    DART_POLICY,
+}
 MIN_CONTENT_CHARS = 180
 MAX_CONTENT_CHARS = 20_000
 MAX_FETCH_BYTES = 1_500_000
@@ -186,7 +192,7 @@ def main() -> None:
         row["content_hash"]: row
         for row in existing_rows
         if row.get("content_hash")
-        and is_seed_policy(str(row.get("source_license_policy", "")))
+        and is_reusable_full_content_policy(str(row.get("source_license_policy", "")))
         and is_valid_full_content(str(row.get("full_content", "")))
     }
     status = Counter[str]()
@@ -396,8 +402,8 @@ def is_valid_full_content(content: str) -> bool:
     return not any(marker in content for marker in provider_error_markers)
 
 
-def is_seed_policy(policy: str) -> bool:
-    return policy.startswith("internal_")
+def is_reusable_full_content_policy(policy: str) -> bool:
+    return policy in REUSABLE_FULL_CONTENT_POLICIES
 
 
 def is_training_disclosure_candidate(alert: RawCollectedAlert) -> bool:
