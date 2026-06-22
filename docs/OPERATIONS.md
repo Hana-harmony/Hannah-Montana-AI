@@ -93,10 +93,10 @@ uv run python scripts/collect_training_data.py \
 - 유효 6자리 국내주식 전체 reference coverage는 `scripts/build_full_universe_codex_stock_review_gold.py`로 보강한다. 이 스크립트는 stock review gold train/eval 합집합에 없는 종목만 `codex_review_approved` reference row로 추가하고 `reports/full-universe-codex-coverage-report.json`에 누락 수를 기록한다.
 - 외부 API 키, access token, 로컬 실행 비밀값은 학습 데이터에 포함하지 않는다.
 - weak-label 후보는 teacher confidence gate와 라벨별 quota를 통과한 경우에만 pseudo-label로 승격한다.
-- 현재 artifact는 68,710건 수집 후보 중 weak-label 341건과 종목 후보 큐 687건을 이벤트 모델 학습에 반영했다.
+- 현재 artifact는 70,287건 수집 후보 중 weak-label 340건과 종목 후보 큐 687건을 이벤트 모델 학습에 반영했다.
 - 종목 후보 큐 승격분은 per-stock quota 1건으로 제한해 687건이 687개 종목에 분산되도록 한다.
-- 실제 원문 전문 학습 데이터는 `scripts/build_real_full_content_training_data.py`로 생성하며, 현재 뉴스 전문 478건과 OpenDART document 전문 195건을 포함한 673건이다.
-- 이벤트·감성·중요도 모델은 실제 뉴스 gold 회귀를 막기 위해 사람이 검수하지 않은 실제 전문 약한 라벨 659건을 supervised loss에서 제외한다.
+- 실제 원문 전문 학습 데이터는 `scripts/build_real_full_content_training_data.py`로 생성하며, 현재 뉴스 전문 855건과 OpenDART document 전문 195건을 포함한 1,050건이다.
+- 이벤트·감성·중요도 모델은 실제 뉴스 gold 회귀를 막기 위해 사람이 검수하지 않은 실제 전문 약한 라벨 1,036건을 supervised loss에서 제외한다.
 - 실시간 최신 뉴스 품질 감사는 `scripts/build_live_news_quality_audit.py`로 실행하며, 라벨 없는 최신 Naver 표본에서 query-relevant pass rate와 본문 추출 품질을 관측한다.
 
 ## 모델 release report
@@ -117,8 +117,19 @@ uv run python scripts/build_stock_candidate_quota_experiment.py
 uv run python scripts/build_model_release_report.py
 uv run python scripts/build_pseudo_label_monitoring_report.py
 uv run python scripts/build_service_readiness_report.py
-uv run python scripts/build_live_news_quality_audit.py --stock-sample-size 30 --max-news-per-query 1 --sample-limit 80
+uv run python scripts/build_live_news_quality_audit.py \
+  --stock-sample-size 60 \
+  --max-news-per-query 2 \
+  --sample-limit 160 \
+  --require-query-stock-match
 ```
+
+## 전문 분석·요약 추가 학습 원칙
+- 실제 뉴스 전문 추가 학습은 최소 1,000건 이상을 목표로 하되, 관련 종목이 제목·snippet·전문 중 하나에서 확인되지 않는 row는 live 품질 gate와 학습 승격 후보에서 제외한다.
+- 기사 원문은 요약 품질 개선과 검수 후보 생성에 사용하고, 이벤트·감성·중요도 정답 라벨은 `human_review_approved`, `codex_review_approved`, teacher confidence gate를 통과한 pseudo label만 학습에 반영한다.
+- live audit은 전체 pass rate와 query-relevant pass rate를 분리해 기록한다. 운영 판단은 검색 provider 노이즈가 제거된 query-relevant pass rate를 우선 보되, 전체 pass rate는 수집기 검색 품질 개선 지표로 추적한다.
+- What/Why/Impact 요약은 LLM 없이 rule engine과 금융 ML 결과로 생성한다. 요약 3줄이 중복, boilerplate 포함, fallback 문구, 18자 미만, 종목 불일치, 낮은 confidence를 보이면 quality finding으로 기록한다.
+- 새 모델 artifact는 `reports/model-release-report.json`, `reports/service-readiness-report.json`, `reports/live-news-quality-audit-report.json`이 모두 pass 기준을 만족할 때만 승격한다.
 
 - `reports/model-release-report.json`은 모델 버전, 학습 샘플 수, pseudo-label 승격 내역, holdout·benchmark·실공시·실뉴스 quality gate를 한 파일로 묶는다.
 - `reports/model-confidence-calibration.json`은 평가셋별 이벤트 확률 calibration, 감성·중요도 top confidence calibration, 고신뢰 오답을 기록한다.
@@ -128,7 +139,7 @@ uv run python scripts/build_live_news_quality_audit.py --stock-sample-size 30 --
 
 ## Pseudo-label gate 모니터링
 - `reports/pseudo-label-promotion-monitoring.json`은 raw 후보, 고신호 후보, teacher 탈락, quota 보류, 최종 승격 수를 funnel 형태로 기록한다.
-- 현재 68,710건 raw 후보 중 5,204건이 고신호 후보이고, teacher gate에서 4,248건이 탈락하며 weak-label 341건과 종목 후보 687건만 student 이벤트 모델 학습에 승격된다.
+- 현재 70,287건 raw 후보 중 5,218건이 고신호 후보이고, teacher gate에서 4,264건이 탈락하며 weak-label 340건과 종목 후보 687건만 student 이벤트 모델 학습에 승격된다.
 - `RISK`, `CONTRACT`, `CORPORATE_ACTION`, `EARNINGS`, `MACRO`는 현재 active label이며 quota 여유가 남아 추가 후보 품질을 모니터링한다.
 - `CAPITAL_ACTION`은 현재 quota를 채웠고, `DISCLOSURE`는 실제 뉴스 gold gate 실험 전까지 학습 투입을 보류한다.
 - `GENERAL_MARKET`은 고신호 후보 풀이 작아 현재 확장 대상이 아니다.

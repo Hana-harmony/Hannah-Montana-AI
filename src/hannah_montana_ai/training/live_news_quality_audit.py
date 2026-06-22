@@ -30,6 +30,7 @@ from hannah_montana_ai.training.weak_labeler import RawCollectedAlert
 
 LIVE_NEWS_QUALITY_AUDIT_ROW_SCHEMA_VERSION = "live-news-quality-audit-row/v1"
 LIVE_NEWS_QUALITY_AUDIT_REPORT_SCHEMA_VERSION = "live-news-quality-audit-report/v1"
+STOCK_ATTRIBUTION_CONTEXT_TERMS = ("연구원", "애널리스트", "리서치", "센터장")
 
 
 class AnalyzerLike(Protocol):
@@ -72,6 +73,7 @@ def build_live_news_quality_audit_batch(
     analyzer: AnalyzerLike | None = None,
     news_collector: NewsCollector = collect_naver_news,
     content_fetcher: ArticleContentFetcher | None = None,
+    require_query_stock_match: bool = False,
     generated_at: datetime | None = None,
 ) -> LiveNewsQualityAuditBatch:
     timestamp = (generated_at or datetime.now(UTC)).isoformat()
@@ -85,6 +87,7 @@ def build_live_news_quality_audit_batch(
     rows: list[dict[str, Any]] = []
     statuses: list[ProviderCollectionStatus] = []
     seen_hashes: set[str] = set()
+    filtered_query_stock_absent_count = 0
 
     for live_query in queries:
         result = news_collector(
@@ -99,6 +102,13 @@ def build_live_news_quality_audit_batch(
                 continue
             seen_hashes.add(alert.content_hash)
             full_content = content_fetcher(alert.original_url) if content_fetcher else None
+            if require_query_stock_match and not _stock_text_matched(
+                alert,
+                live_query.sampled_stock_name,
+                full_content=full_content,
+            ):
+                filtered_query_stock_absent_count += 1
+                continue
             rows.append(
                 _build_quality_row(
                     alert=alert,
@@ -121,6 +131,7 @@ def build_live_news_quality_audit_batch(
                         {query.sampled_stock_code for query in queries}
                     ),
                     query_count=len(queries),
+                    filtered_query_stock_absent_count=filtered_query_stock_absent_count,
                 )
 
     return _build_batch(
@@ -133,6 +144,7 @@ def build_live_news_quality_audit_batch(
         requested_stock_sample_size=stock_sample_size,
         selected_stock_count=len({query.sampled_stock_code for query in queries}),
         query_count=len(queries),
+        filtered_query_stock_absent_count=filtered_query_stock_absent_count,
     )
 
 
@@ -155,6 +167,7 @@ def _build_batch(
     requested_stock_sample_size: int,
     selected_stock_count: int,
     query_count: int,
+    filtered_query_stock_absent_count: int,
 ) -> LiveNewsQualityAuditBatch:
     return LiveNewsQualityAuditBatch(
         rows=rows,
@@ -168,6 +181,7 @@ def _build_batch(
             requested_stock_sample_size=requested_stock_sample_size,
             selected_stock_count=selected_stock_count,
             query_count=query_count,
+            filtered_query_stock_absent_count=filtered_query_stock_absent_count,
         ),
     )
 
@@ -183,6 +197,7 @@ def build_live_news_quality_audit_report(
     requested_stock_sample_size: int,
     selected_stock_count: int,
     query_count: int,
+    filtered_query_stock_absent_count: int = 0,
 ) -> dict[str, Any]:
     finding_counts = Counter[str](
         finding for row in rows for finding in row["quality_findings"]
@@ -217,6 +232,7 @@ def build_live_news_quality_audit_report(
         "requested_stock_sample_size": requested_stock_sample_size,
         "selected_stock_count": selected_stock_count,
         "query_count": query_count,
+        "filtered_query_stock_absent_count": filtered_query_stock_absent_count,
         "emitted_row_count": emitted_count,
         "quality_pass_count": passed_count,
         "quality_pass_rate": round(passed_count / emitted_count, 6) if emitted_count else 0.0,
@@ -280,7 +296,11 @@ def _build_quality_row(
     response = analyzer.analyze(request)
     sampled_stock_primary_matched = response.stock_code == live_query.sampled_stock_code
     sampled_stock_related_matched = live_query.sampled_stock_code in response.related_stocks
-    sampled_stock_text_matched = _stock_text_matched(alert, live_query.sampled_stock_name)
+    sampled_stock_text_matched = _stock_text_matched(
+        alert,
+        live_query.sampled_stock_name,
+        full_content=full_content,
+    )
     findings = _quality_findings(
         alert=alert,
         response=response,
@@ -414,6 +434,7 @@ def _has_critical_finding(findings: Sequence[str]) -> bool:
             "SUMMARY_BOILERPLATE",
             "PREDICTED_STOCK_NULL",
             "QUERY_STOCK_ABSENT",
+            "SAMPLED_STOCK_NOT_MATCHED",
         }
         for finding in findings
     )
@@ -428,9 +449,28 @@ def _is_fallback_line(text: str) -> bool:
     return normalized.startswith("중요도 ") or "최신 시장·기업 이벤트입니다" in normalized
 
 
-def _stock_text_matched(alert: RawCollectedAlert, stock_name: str) -> bool:
+def _stock_text_matched(
+    alert: RawCollectedAlert,
+    stock_name: str,
+    *,
+    full_content: ArticleContent | None = None,
+) -> bool:
     normalized_name = normalize_stock_term(stock_name)
-    return bool(normalized_name and normalized_name in normalize_stock_term(alert.text))
+    if not normalized_name:
+        return False
+    text = alert.text
+    if full_content:
+        text = f"{text} {full_content.content}"
+    normalized_text = normalize_stock_term(text)
+    start = 0
+    while True:
+        position = normalized_text.find(normalized_name, start)
+        if position < 0:
+            return False
+        context = normalized_text[position : position + len(normalized_name) + 24]
+        if not any(term in context for term in STOCK_ATTRIBUTION_CONTEXT_TERMS):
+            return True
+        start = position + len(normalized_name)
 
 
 def _provider_status_totals(statuses: Sequence[ProviderCollectionStatus]) -> dict[str, Any]:
