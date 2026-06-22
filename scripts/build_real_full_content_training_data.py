@@ -12,6 +12,7 @@ from dataclasses import asdict
 from hashlib import sha256
 from html import unescape
 from html.parser import HTMLParser
+from http.client import IncompleteRead
 from io import BytesIO
 from pathlib import Path
 from typing import Any
@@ -179,6 +180,7 @@ def main() -> None:
     parser.add_argument("--per-label-limit", type=int, default=70)
     parser.add_argument("--target-row-count", type=int, default=0)
     parser.add_argument("--news-worker-count", type=int, default=1)
+    parser.add_argument("--news-batch-size", type=int, default=0)
     parser.add_argument("--sleep-seconds", type=float, default=0.05)
     parser.add_argument("--timeout-seconds", type=float, default=4.0)
     parser.add_argument("--append-existing", action=argparse.BooleanOptionalAction, default=True)
@@ -217,6 +219,7 @@ def main() -> None:
         target_row_count=args.target_row_count,
         sleep_seconds=args.sleep_seconds,
         worker_count=args.news_worker_count,
+        batch_size=args.news_batch_size,
     )
 
     dart_api_key = os.environ.get("OPEN_DART_API_KEY", "")
@@ -291,7 +294,7 @@ def fetch_news_content(url: str) -> FullContent | None:
         return None
     try:
         html = fetch_bytes(safe_url).decode("utf-8", errors="replace")
-    except (HTTPError, OSError, TimeoutError, URLError, UnicodeError):
+    except (HTTPError, IncompleteRead, OSError, TimeoutError, URLError, UnicodeError):
         return None
     text = extract_article_text(html)
     if len(text) < MIN_CONTENT_CHARS:
@@ -315,6 +318,7 @@ def collect_news_rows(
     target_row_count: int,
     sleep_seconds: float,
     worker_count: int,
+    batch_size: int,
 ) -> None:
     if worker_count <= 1:
         collect_news_rows_sequential(
@@ -342,41 +346,50 @@ def collect_news_rows(
 
     accepted_news_labels: Counter[str] = Counter()
     max_workers = min(max(worker_count, 1), 16)
-    with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        future_map = {
-            executor.submit(fetch_news_content, alert.original_url): (alert, label)
-            for alert, label in candidates
-        }
-        for future in as_completed(future_map):
-            alert, label = future_map[future]
-            if target_reached(rows, target_row_count):
-                status["target_row_count_reached"] += 1
-                break
-            try:
+    actual_batch_size = max(batch_size, max_workers * 16)
+    for batch in chunked(candidates, actual_batch_size):
+        if target_reached(rows, target_row_count):
+            status["target_row_count_reached"] += 1
+            break
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            future_map = {
+                executor.submit(fetch_news_content, alert.original_url): (alert, label)
+                for alert, label in batch
+            }
+            for future in as_completed(future_map):
+                alert, label = future_map[future]
+                if target_reached(rows, target_row_count):
+                    status["target_row_count_reached"] += 1
+                    break
                 full_content = future.result()
-            except (HTTPError, OSError, TimeoutError, URLError, UnicodeError):
-                full_content = None
-            if not full_content:
-                status["news_failed"] += 1
-                continue
-            if accepted_news_labels[label] >= per_label_limit:
-                status["news_label_limit_after_fetch"] += 1
-                continue
-            row = to_labeled_row(
-                alert,
-                full_content.content,
-                full_content.canonical_url,
-                NEWS_POLICY,
-                matcher,
-            )
-            if row is None:
-                status["news_unlabeled"] += 1
-                continue
-            rows[row["content_hash"]] = row | {"image_urls": full_content.image_urls}
-            existing_source_urls.add(str(row["source_url"]))
-            accepted_news_labels[label] += 1
-            status["news_added"] += 1
-            sleep(sleep_seconds)
+                if not full_content:
+                    status["news_failed"] += 1
+                    continue
+                if accepted_news_labels[label] >= per_label_limit:
+                    status["news_label_limit_after_fetch"] += 1
+                    continue
+                row = to_labeled_row(
+                    alert,
+                    full_content.content,
+                    full_content.canonical_url,
+                    NEWS_POLICY,
+                    matcher,
+                )
+                if row is None:
+                    status["news_unlabeled"] += 1
+                    continue
+                rows[row["content_hash"]] = row | {"image_urls": full_content.image_urls}
+                existing_source_urls.add(str(row["source_url"]))
+                accepted_news_labels[label] += 1
+                status["news_added"] += 1
+                sleep(sleep_seconds)
+
+
+def chunked(
+    values: list[tuple[RawCollectedAlert, str]],
+    size: int,
+) -> list[list[tuple[RawCollectedAlert, str]]]:
+    return [values[index : index + size] for index in range(0, len(values), size)]
 
 
 def collect_news_rows_sequential(
