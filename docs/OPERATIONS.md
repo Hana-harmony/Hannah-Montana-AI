@@ -44,9 +44,10 @@ docker run --rm --network hana-internal hannah-montana-ai
 uv run python scripts/sync_us_stock_universe.py
 uv run python scripts/sync_global_peer_fundamentals.py
 uv run python scripts/train_global_peer_model.py
+uv run python scripts/build_global_peer_full_coverage_report.py
 uv run pytest tests/test_global_peer_matcher.py tests/test_global_peer_api.py -q
 ```
-- 실제 AI 품질 smoke 결과는 `reports/global-peer-ai-smoke-report.json`과 `docs/GLOBAL_PEER_AI_SMOKE.md`에 저장한다. API 계약 테스트와 별도로 대표 종목 primary peer가 직관적인지 확인한다.
+- 실제 AI 품질 smoke 결과는 `reports/global-peer-ai-smoke-report.json`과 `docs/GLOBAL_PEER_AI_SMOKE.md`에 저장한다. 전종목 coverage 결과는 `reports/global-peer-full-coverage-report.json`에 저장하며, API 계약 테스트와 별도로 전체 한국 master 3,967개가 추론 가능한지 확인한다.
 
 ## 추론 audit log
 - 분석 API는 요청마다 `hannah_montana_ai.audit.analysis` logger에 JSON audit log를 남긴다.

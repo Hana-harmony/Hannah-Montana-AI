@@ -17,6 +17,7 @@ from hannah_montana_ai.services.model import (
     ModelArtifactNotFoundError,
 )
 from hannah_montana_ai.training.global_peer_trainer import (
+    GENERIC_LISTED_SECTOR,
     GLOBAL_PEER_SCHEMA_VERSION,
     KOREA_ANCHORS,
     build_korea_profile,
@@ -117,7 +118,10 @@ class GlobalPeerMatcher:
                 profile["profile_text"] = normalize_profile_text(
                     f"{profile['profile_text']} {enrichment} {' '.join(tags)}"
                 )
-                if str(profile.get("sector") or "Unclassified") == "Unclassified":
+                if str(profile.get("sector") or "Unclassified") in {
+                    "Unclassified",
+                    GENERIC_LISTED_SECTOR,
+                }:
                     profile["business_tags"] = tags
                     profile["sector"] = infer_sector(tags)
                     profile["industry"] = infer_industry(tags)
@@ -172,6 +176,10 @@ class GlobalPeerMatcher:
                 stock_profile,
                 self._eligible_us_profiles[index],
             )
+            combined[index] *= self._industry_penalty(
+                stock_profile,
+                self._eligible_us_profiles[index],
+            )
             combined[index] *= self._same_company_penalty(
                 stock_profile,
                 self._eligible_us_profiles[index],
@@ -185,10 +193,25 @@ class GlobalPeerMatcher:
     ) -> float:
         stock_sector = str(stock_profile.get("sector") or "Unclassified")
         peer_sector = str(peer_profile.get("sector") or "Unclassified")
-        if stock_sector != "Unclassified" and peer_sector != "Unclassified":
+        generic_sectors = {"Unclassified", GENERIC_LISTED_SECTOR}
+        if stock_sector not in generic_sectors and peer_sector not in generic_sectors:
             return 1.0 if stock_sector == peer_sector else 0.45
-        if stock_sector != "Unclassified" and peer_sector == "Unclassified":
+        if stock_sector not in generic_sectors and peer_sector in generic_sectors:
             return 0.75
+        return 1.0
+
+    @staticmethod
+    def _industry_penalty(
+        stock_profile: dict[str, object],
+        peer_profile: dict[str, object],
+    ) -> float:
+        generic_industries = {"Unclassified", "Listed Operating Company"}
+        stock_industry = str(stock_profile.get("industry") or "Unclassified")
+        peer_industry = str(peer_profile.get("industry") or "Unclassified")
+        if stock_industry not in generic_industries and peer_industry not in generic_industries:
+            return 1.0 if stock_industry == peer_industry else 0.65
+        if stock_industry not in generic_industries and peer_industry in generic_industries:
+            return 0.85
         return 1.0
 
     @staticmethod
@@ -399,7 +422,7 @@ class GlobalPeerMatcher:
     def _confidence_level(score: float) -> ConfidenceLevel:
         if score >= 0.72:
             return "HIGH"
-        if score >= 0.45:
+        if score >= 0.40:
             return "MEDIUM"
         return "LOW"
 

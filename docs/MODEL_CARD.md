@@ -40,8 +40,9 @@
 - anchor 평가: 알테오젠 `196170`은 `HALO` Halozyme Therapeutics top1 매칭을 release gate로 고정한다. 최신 report의 anchor top1 accuracy는 1.0이다.
 - 출력: `"Alteogen Is The 'Halozyme Therapeutics' of South Korea — A Global Biotech Platform Leader"` 같은 팝업 headline, business summary, peer rationale, 섹터, 산업, 사업모델, 규모 버킷, 매출/영업이익/순이익, 재무 데이터 출처, 매칭 근거 배열, confidence, model version.
 - 설명 가능성: `matched_factors`는 섹터, 산업, 사업모델, 규모, 재무 유사도, 모델 유사도 기준으로 생성한다. 검증된 anchor는 기술·수익모델 같은 세부 근거를 함께 제공한다.
-- AI smoke 테스트: `reports/global-peer-ai-smoke-report.json`과 `docs/GLOBAL_PEER_AI_SMOKE.md`에 15개 대표 한국 종목의 실제 primary peer 결과를 남긴다. 최신 smoke에서는 SK hynix→Micron, NAVER→Alphabet, Hyundai Motor→GM, LG Electronics→Whirlpool, SK Telecom→Verizon, Alteogen→Halozyme을 확인했다.
-- 산출물: `src/hannah_montana_ai/model_store/global_peer_ml.joblib`, `reports/global-peer-training-report.json`, `reports/global-peer-fundamentals-sync-report.json`, `data/reference/us_stock_universe.csv`, `data/reference/global_peer_fundamentals.csv`
+- AI smoke 테스트: `reports/global-peer-ai-smoke-report.json`과 `docs/GLOBAL_PEER_AI_SMOKE.md`에 15개 대표 한국 종목의 실제 primary peer 결과를 남긴다. 최신 smoke에서는 Samsung Electronics→Micron, SK hynix→Micron, NAVER→Alphabet, Hyundai Motor→GM, LG Electronics→Whirlpool, SK Telecom→Verizon, Alteogen→Halozyme을 확인했다.
+- 전종목 coverage 테스트: `reports/global-peer-full-coverage-report.json`은 한국 master 3,967개 전부를 실제 matcher에 넣어 추론 성공률, 동일회사 중복, matched factor 누락, LOW confidence, generic sector 비율을 검증한다. 최신 quality gate는 3,967/3,967개 성공으로 `pass`다.
+- 산출물: `src/hannah_montana_ai/model_store/global_peer_ml.joblib`, `reports/global-peer-training-report.json`, `reports/global-peer-fundamentals-sync-report.json`, `reports/global-peer-full-coverage-report.json`, `data/reference/us_stock_universe.csv`, `data/reference/global_peer_fundamentals.csv`
 - 재학습: `uv run python scripts/sync_us_stock_universe.py`로 미국 universe를 갱신하고, `uv run python scripts/sync_global_peer_fundamentals.py`로 한국·미국 재무/규모 dataset을 갱신한 뒤, `uv run python scripts/train_global_peer_model.py`로 artifact와 report를 재생성한다.
 
 ## 입력

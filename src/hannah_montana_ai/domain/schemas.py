@@ -36,7 +36,7 @@ class StockCandidate(BaseModel):
 
 
 class GlobalPeerMatchRequest(BaseModel):
-    stock_code: str = Field(pattern=r"^\d{6}$")
+    stock_code: str = Field(pattern=r"^[0-9A-Z]{6}$")
     stock_name: str = Field(min_length=1, max_length=80)
     stock_name_en: str = Field(default="", max_length=120)
     market: MarketType = "KOSPI"

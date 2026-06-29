@@ -1,7 +1,7 @@
 {
   "schema_version": "global-peer-ai-smoke/v1",
-  "generated_at": "2026-06-29T20:15:44.384567+00:00",
-  "model_version": "global-peer-tfidf-20260629201516",
+  "generated_at": "2026-06-29T20:53:35.295540+00:00",
+  "model_version": "global-peer-tfidf-20260629205106",
   "sample_count": 15,
   "rows": [
     {
@@ -10,7 +10,7 @@
       "stock_name_en": "Samsung Electronics",
       "primary_peer_ticker": "MU",
       "primary_peer_name": "Micron Technology",
-      "similarity_score": 0.4674,
+      "similarity_score": 0.4587,
       "financial_similarity_score": 0.9998,
       "sector": "Information Technology",
       "industry": "Semiconductors",
@@ -23,48 +23,48 @@
         "Business model: source=Semiconductor and electronics manufacturing, peer=Memory semiconductor manufacturing.",
         "Scale: both are mapped to MEGA_CAP.",
         "Financial similarity: market cap, revenue, and profitability score 0.9998.",
-        "Model similarity: blended peer score 0.4674."
+        "Model similarity: blended peer score 0.4587."
       ],
       "top5": [
         {
           "ticker": "MU",
           "company_name": "Micron Technology",
-          "score": 0.4674,
+          "score": 0.4587,
           "sector": "Information Technology",
           "industry": "Semiconductors",
           "scale_bucket": "MEGA_CAP"
         },
         {
-          "ticker": "META",
-          "company_name": "Meta Platforms, . Class A",
-          "score": 0.4606,
+          "ticker": "FEIM",
+          "company_name": "Frequency Electronics",
+          "score": 0.4435,
           "sector": "Information Technology",
-          "industry": "Software",
-          "scale_bucket": "MEGA_CAP"
+          "industry": "Semiconductors",
+          "scale_bucket": "SMALL_CAP"
+        },
+        {
+          "ticker": "KE",
+          "company_name": "Kimball Electronics",
+          "score": 0.4421,
+          "sector": "Information Technology",
+          "industry": "Semiconductors",
+          "scale_bucket": "SMALL_CAP"
+        },
+        {
+          "ticker": "BHE",
+          "company_name": "Benchmark Electronics",
+          "score": 0.4405,
+          "sector": "Information Technology",
+          "industry": "Semiconductors",
+          "scale_bucket": "MID_CAP"
         },
         {
           "ticker": "TSM",
           "company_name": "Taiwan Semiconductor Manufacturing",
-          "score": 0.426,
+          "score": 0.418,
           "sector": "Information Technology",
           "industry": "Semiconductors",
           "scale_bucket": "MEGA_CAP"
-        },
-        {
-          "ticker": "TSEM",
-          "company_name": "Tower Semiconductor",
-          "score": 0.4215,
-          "sector": "Information Technology",
-          "industry": "Semiconductors",
-          "scale_bucket": "LARGE_CAP"
-        },
-        {
-          "ticker": "ON",
-          "company_name": "ON Semiconductor",
-          "score": 0.4206,
-          "sector": "Information Technology",
-          "industry": "Semiconductors",
-          "scale_bucket": "LARGE_CAP"
         }
       ]
     },
@@ -74,7 +74,7 @@
       "stock_name_en": "SK hynix",
       "primary_peer_ticker": "MU",
       "primary_peer_name": "Micron Technology",
-      "similarity_score": 0.7989,
+      "similarity_score": 0.7947,
       "financial_similarity_score": 0.9998,
       "sector": "Information Technology",
       "industry": "Semiconductors",
@@ -87,13 +87,13 @@
         "Business model: both are mapped to Memory semiconductor manufacturing.",
         "Scale: both are mapped to MEGA_CAP.",
         "Financial similarity: market cap, revenue, and profitability score 0.9998.",
-        "Model similarity: blended peer score 0.7989."
+        "Model similarity: blended peer score 0.7947."
       ],
       "top5": [
         {
           "ticker": "MU",
           "company_name": "Micron Technology",
-          "score": 0.7989,
+          "score": 0.7947,
           "sector": "Information Technology",
           "industry": "Semiconductors",
           "scale_bucket": "MEGA_CAP"
@@ -101,15 +101,23 @@
         {
           "ticker": "NXPI",
           "company_name": "NXP Semiconductors N.V",
-          "score": 0.43,
+          "score": 0.4144,
           "sector": "Information Technology",
           "industry": "Semiconductors",
           "scale_bucket": "LARGE_CAP"
         },
         {
-          "ticker": "TSEM",
-          "company_name": "Tower Semiconductor",
-          "score": 0.4225,
+          "ticker": "STM",
+          "company_name": "STMicroelectronics N.V",
+          "score": 0.4134,
+          "sector": "Information Technology",
+          "industry": "Semiconductors",
+          "scale_bucket": "LARGE_CAP"
+        },
+        {
+          "ticker": "ARW",
+          "company_name": "Arrow Electronics",
+          "score": 0.4086,
           "sector": "Information Technology",
           "industry": "Semiconductors",
           "scale_bucket": "LARGE_CAP"
@@ -117,18 +125,10 @@
         {
           "ticker": "ON",
           "company_name": "ON Semiconductor",
-          "score": 0.4215,
+          "score": 0.4048,
           "sector": "Information Technology",
           "industry": "Semiconductors",
           "scale_bucket": "LARGE_CAP"
-        },
-        {
-          "ticker": "META",
-          "company_name": "Meta Platforms, . Class A",
-          "score": 0.4212,
-          "sector": "Information Technology",
-          "industry": "Software",
-          "scale_bucket": "MEGA_CAP"
         }
       ]
     },
@@ -138,7 +138,7 @@
       "stock_name_en": "NAVER",
       "primary_peer_ticker": "GOOGL",
       "primary_peer_name": "Alphabet . Class A",
-      "similarity_score": 0.7316,
+      "similarity_score": 0.7052,
       "financial_similarity_score": 0.9999,
       "sector": "Information Technology",
       "industry": "Internet Platforms",
@@ -151,13 +151,13 @@
         "Business model: both are mapped to Platform software, search advertising, and commerce.",
         "Scale: source=LARGE_CAP, peer=MEGA_CAP.",
         "Financial similarity: market cap, revenue, and profitability score 0.9999.",
-        "Model similarity: blended peer score 0.7316."
+        "Model similarity: blended peer score 0.7052."
       ],
       "top5": [
         {
           "ticker": "GOOGL",
           "company_name": "Alphabet . Class A",
-          "score": 0.7316,
+          "score": 0.7052,
           "sector": "Information Technology",
           "industry": "Internet Platforms",
           "scale_bucket": "MEGA_CAP"
@@ -165,34 +165,34 @@
         {
           "ticker": "GOOG",
           "company_name": "Alphabet . Class C Capital Stock",
-          "score": 0.7215,
+          "score": 0.6948,
           "sector": "Information Technology",
           "industry": "Internet Platforms",
           "scale_bucket": "MEGA_CAP"
         },
         {
-          "ticker": "GWRE",
-          "company_name": "Guidewire Software",
-          "score": 0.4767,
+          "ticker": "A",
+          "company_name": "Agilent Technologies",
+          "score": 0.295,
           "sector": "Information Technology",
           "industry": "Software",
           "scale_bucket": "LARGE_CAP"
         },
         {
-          "ticker": "CHKP",
-          "company_name": "Check Point Software Technologies",
-          "score": 0.4713,
+          "ticker": "CRS",
+          "company_name": "Carpenter Technology",
+          "score": 0.2871,
           "sector": "Information Technology",
           "industry": "Software",
           "scale_bucket": "LARGE_CAP"
         },
         {
-          "ticker": "PAYC",
-          "company_name": "Paycom Software",
-          "score": 0.4617,
+          "ticker": "KEYS",
+          "company_name": "Keysight Technologies",
+          "score": 0.2865,
           "sector": "Information Technology",
           "industry": "Software",
-          "scale_bucket": "MID_CAP"
+          "scale_bucket": "LARGE_CAP"
         }
       ]
     },
@@ -202,7 +202,7 @@
       "stock_name_en": "Hyundai Motor",
       "primary_peer_ticker": "GM",
       "primary_peer_name": "General Motors",
-      "similarity_score": 0.6727,
+      "similarity_score": 0.6632,
       "financial_similarity_score": 0.9998,
       "sector": "Consumer Discretionary",
       "industry": "Automobiles",
@@ -215,13 +215,13 @@
         "Business model: both are mapped to Operating company.",
         "Scale: both are mapped to LARGE_CAP.",
         "Financial similarity: market cap, revenue, and profitability score 0.9998.",
-        "Model similarity: blended peer score 0.6727."
+        "Model similarity: blended peer score 0.6632."
       ],
       "top5": [
         {
           "ticker": "GM",
           "company_name": "General Motors",
-          "score": 0.6727,
+          "score": 0.6632,
           "sector": "Consumer Discretionary",
           "industry": "Automobiles",
           "scale_bucket": "LARGE_CAP"
@@ -229,7 +229,7 @@
         {
           "ticker": "TM",
           "company_name": "Toyota Motor",
-          "score": 0.6277,
+          "score": 0.6176,
           "sector": "Consumer Discretionary",
           "industry": "Automobiles",
           "scale_bucket": "MEGA_CAP"
@@ -237,7 +237,7 @@
         {
           "ticker": "AZO",
           "company_name": "AutoZone",
-          "score": 0.5912,
+          "score": 0.5785,
           "sector": "Consumer Discretionary",
           "industry": "Automobiles",
           "scale_bucket": "LARGE_CAP"
@@ -245,15 +245,15 @@
         {
           "ticker": "ORLY",
           "company_name": "O'Reilly Automotive",
-          "score": 0.5901,
+          "score": 0.577,
           "sector": "Consumer Discretionary",
           "industry": "Automobiles",
           "scale_bucket": "LARGE_CAP"
         },
         {
-          "ticker": "PAG",
-          "company_name": "Penske Automotive Group",
-          "score": 0.5824,
+          "ticker": "F",
+          "company_name": "Ford Motor",
+          "score": 0.5725,
           "sector": "Consumer Discretionary",
           "industry": "Automobiles",
           "scale_bucket": "LARGE_CAP"
@@ -266,7 +266,7 @@
       "stock_name_en": "LG Energy Solution",
       "primary_peer_ticker": "TSLA",
       "primary_peer_name": "Tesla",
-      "similarity_score": 0.6953,
+      "similarity_score": 0.6891,
       "financial_similarity_score": 0.9993,
       "sector": "Industrials",
       "industry": "Battery and Energy Storage",
@@ -279,13 +279,13 @@
         "Business model: both are mapped to Battery manufacturing and energy storage supply chain.",
         "Scale: source=LARGE_CAP, peer=MEGA_CAP.",
         "Financial similarity: market cap, revenue, and profitability score 0.9993.",
-        "Model similarity: blended peer score 0.6953."
+        "Model similarity: blended peer score 0.6891."
       ],
       "top5": [
         {
           "ticker": "TSLA",
           "company_name": "Tesla",
-          "score": 0.6953,
+          "score": 0.6891,
           "sector": "Industrials",
           "industry": "Battery and Energy Storage",
           "scale_bucket": "MEGA_CAP"
@@ -293,7 +293,7 @@
         {
           "ticker": "TDG",
           "company_name": "Transdigm Group Incorporated",
-          "score": 0.6504,
+          "score": 0.6439,
           "sector": "Industrials",
           "industry": "Battery and Energy Storage",
           "scale_bucket": "LARGE_CAP"
@@ -301,7 +301,7 @@
         {
           "ticker": "HLX",
           "company_name": "Helix Energy Solutions Group",
-          "score": 0.6167,
+          "score": 0.6108,
           "sector": "Industrials",
           "industry": "Battery and Energy Storage",
           "scale_bucket": "SMALL_CAP"
@@ -309,7 +309,7 @@
         {
           "ticker": "ELBM",
           "company_name": "Electra Battery Materials",
-          "score": 0.5582,
+          "score": 0.5272,
           "sector": "Industrials",
           "industry": "Battery and Energy Storage",
           "scale_bucket": "MICRO_CAP"
@@ -317,7 +317,7 @@
         {
           "ticker": "AESI",
           "company_name": "Atlas Energy Solutions",
-          "score": 0.4978,
+          "score": 0.4916,
           "sector": "Industrials",
           "industry": "Battery and Energy Storage",
           "scale_bucket": "MID_CAP"
@@ -330,7 +330,7 @@
       "stock_name_en": "Samsung Biologics",
       "primary_peer_ticker": "TMO",
       "primary_peer_name": "Thermo Fisher Scientific",
-      "similarity_score": 0.6031,
+      "similarity_score": 0.6054,
       "financial_similarity_score": 0.9998,
       "sector": "Health Care",
       "industry": "Biotechnology",
@@ -343,13 +343,13 @@
         "Business model: source=Biologics contract development and manufacturing, peer=Biologics contract development and life-science services.",
         "Scale: both are mapped to LARGE_CAP.",
         "Financial similarity: market cap, revenue, and profitability score 0.9998.",
-        "Model similarity: blended peer score 0.6031."
+        "Model similarity: blended peer score 0.6054."
       ],
       "top5": [
         {
           "ticker": "TMO",
           "company_name": "Thermo Fisher Scientific",
-          "score": 0.6031,
+          "score": 0.6054,
           "sector": "Health Care",
           "industry": "Biotechnology",
           "scale_bucket": "LARGE_CAP"
@@ -357,7 +357,7 @@
         {
           "ticker": "BIIB",
           "company_name": "Biogen",
-          "score": 0.4526,
+          "score": 0.4513,
           "sector": "Health Care",
           "industry": "Biotechnology",
           "scale_bucket": "LARGE_CAP"
@@ -365,23 +365,23 @@
         {
           "ticker": "UTHR",
           "company_name": "United Therapeutics",
-          "score": 0.4174,
+          "score": 0.4157,
           "sector": "Health Care",
           "industry": "Biotechnology",
           "scale_bucket": "LARGE_CAP"
         },
         {
-          "ticker": "RPRX",
-          "company_name": "Royalty Pharma",
-          "score": 0.4138,
+          "ticker": "OHI",
+          "company_name": "Omega Healthcare Investors",
+          "score": 0.4034,
           "sector": "Health Care",
           "industry": "Biotechnology",
           "scale_bucket": "LARGE_CAP"
         },
         {
-          "ticker": "KRYS",
-          "company_name": "Krystal Biotech",
-          "score": 0.4098,
+          "ticker": "TEVA",
+          "company_name": "Teva Pharmaceutical Industries",
+          "score": 0.3994,
           "sector": "Health Care",
           "industry": "Biotechnology",
           "scale_bucket": "LARGE_CAP"
@@ -394,7 +394,7 @@
       "stock_name_en": "Celltrion",
       "primary_peer_ticker": "BIIB",
       "primary_peer_name": "Biogen",
-      "similarity_score": 0.5104,
+      "similarity_score": 0.5078,
       "financial_similarity_score": 0.9999,
       "sector": "Health Care",
       "industry": "Biotechnology",
@@ -407,13 +407,13 @@
         "Business model: source=Biologics and biosimilar development, peer=Biologics and specialty drug development.",
         "Scale: both are mapped to LARGE_CAP.",
         "Financial similarity: market cap, revenue, and profitability score 0.9999.",
-        "Model similarity: blended peer score 0.5104."
+        "Model similarity: blended peer score 0.5078."
       ],
       "top5": [
         {
           "ticker": "BIIB",
           "company_name": "Biogen",
-          "score": 0.5104,
+          "score": 0.5078,
           "sector": "Health Care",
           "industry": "Biotechnology",
           "scale_bucket": "LARGE_CAP"
@@ -421,7 +421,7 @@
         {
           "ticker": "WST",
           "company_name": "West Pharmaceutical Services",
-          "score": 0.4342,
+          "score": 0.4329,
           "sector": "Health Care",
           "industry": "Biotechnology",
           "scale_bucket": "LARGE_CAP"
@@ -429,7 +429,7 @@
         {
           "ticker": "BMRN",
           "company_name": "BioMarin Pharmaceutical",
-          "score": 0.4279,
+          "score": 0.425,
           "sector": "Health Care",
           "industry": "Biotechnology",
           "scale_bucket": "LARGE_CAP"
@@ -437,7 +437,7 @@
         {
           "ticker": "NBIX",
           "company_name": "Neurocrine Biosciences",
-          "score": 0.4215,
+          "score": 0.4184,
           "sector": "Health Care",
           "industry": "Biotechnology",
           "scale_bucket": "LARGE_CAP"
@@ -445,7 +445,7 @@
         {
           "ticker": "REGN",
           "company_name": "Regeneron Pharmaceuticals",
-          "score": 0.4173,
+          "score": 0.4142,
           "sector": "Health Care",
           "industry": "Biotechnology",
           "scale_bucket": "LARGE_CAP"
@@ -456,62 +456,62 @@
       "stock_code": "105560",
       "stock_name": "KB금융",
       "stock_name_en": "KB Financial Group",
-      "primary_peer_ticker": "AFG",
-      "primary_peer_name": "American Financial Group",
-      "similarity_score": 0.5329,
-      "financial_similarity_score": 0.9264,
+      "primary_peer_ticker": "C",
+      "primary_peer_name": "Citigroup",
+      "similarity_score": 0.4886,
+      "financial_similarity_score": 0.8355,
       "sector": "Financials",
-      "industry": "Financial Services",
-      "business_model": "Spread, fee, and capital-market services",
-      "scale_bucket": "LARGE_CAP",
+      "industry": "Banks",
+      "business_model": "Banking, spread income, fees, and capital-market services",
+      "scale_bucket": "MEGA_CAP",
       "financial_data_source": "SEC_COMPANYFACTS+NASDAQ_SUMMARY_MARKET_CAP",
       "matched_factors": [
         "Sector: both are mapped to Financials.",
-        "Industry: both are mapped to Financial Services.",
-        "Business model: both are mapped to Spread, fee, and capital-market services.",
-        "Scale: both are mapped to LARGE_CAP.",
-        "Financial similarity: market cap, revenue, and profitability score 0.9264.",
-        "Model similarity: blended peer score 0.5329."
+        "Industry: both are mapped to Banks.",
+        "Business model: both are mapped to Banking, spread income, fees, and capital-market services.",
+        "Scale: source=LARGE_CAP, peer=MEGA_CAP.",
+        "Financial similarity: market cap, revenue, and profitability score 0.8355.",
+        "Model similarity: blended peer score 0.4886."
       ],
       "top5": [
         {
-          "ticker": "AFG",
-          "company_name": "American Financial Group",
-          "score": 0.5329,
+          "ticker": "C",
+          "company_name": "Citigroup",
+          "score": 0.4886,
           "sector": "Financials",
-          "industry": "Financial Services",
+          "industry": "Banks",
+          "scale_bucket": "MEGA_CAP"
+        },
+        {
+          "ticker": "MTB",
+          "company_name": "M&T Bank",
+          "score": 0.4862,
+          "sector": "Financials",
+          "industry": "Banks",
           "scale_bucket": "LARGE_CAP"
         },
         {
-          "ticker": "SHG",
-          "company_name": "Shinhan Financial Group",
-          "score": 0.5326,
+          "ticker": "BOTJ",
+          "company_name": "Bank of the James Financial Group",
+          "score": 0.4846,
           "sector": "Financials",
-          "industry": "Financial Services",
-          "scale_bucket": "LARGE_CAP"
+          "industry": "Banks",
+          "scale_bucket": "MICRO_CAP"
         },
         {
-          "ticker": "RF",
-          "company_name": "Regions Financial",
-          "score": 0.5302,
+          "ticker": "FITB",
+          "company_name": "Fifth Third Bancorp",
+          "score": 0.4766,
           "sector": "Financials",
-          "industry": "Financial Services",
-          "scale_bucket": "LARGE_CAP"
-        },
-        {
-          "ticker": "CFG",
-          "company_name": "Citizens Financial Group",
-          "score": 0.5066,
-          "sector": "Financials",
-          "industry": "Financial Services",
+          "industry": "Banks",
           "scale_bucket": "LARGE_CAP"
         },
         {
           "ticker": "BAC",
           "company_name": "Bank of America",
-          "score": 0.4355,
+          "score": 0.428,
           "sector": "Financials",
-          "industry": "Financial Services",
+          "industry": "Banks",
           "scale_bucket": "MEGA_CAP"
         }
       ]
@@ -520,62 +520,62 @@
       "stock_code": "055550",
       "stock_name": "신한지주",
       "stock_name_en": "Shinhan Financial Group",
-      "primary_peer_ticker": "AFG",
-      "primary_peer_name": "American Financial Group",
-      "similarity_score": 0.5326,
-      "financial_similarity_score": 0.9264,
+      "primary_peer_ticker": "MTB",
+      "primary_peer_name": "M&T Bank",
+      "similarity_score": 0.4837,
+      "financial_similarity_score": 0.8455,
       "sector": "Financials",
-      "industry": "Financial Services",
-      "business_model": "Spread, fee, and capital-market services",
+      "industry": "Banks",
+      "business_model": "Banking, spread income, fees, and capital-market services",
       "scale_bucket": "LARGE_CAP",
       "financial_data_source": "SEC_COMPANYFACTS+NASDAQ_SUMMARY_MARKET_CAP",
       "matched_factors": [
         "Sector: both are mapped to Financials.",
-        "Industry: both are mapped to Financial Services.",
-        "Business model: both are mapped to Spread, fee, and capital-market services.",
+        "Industry: both are mapped to Banks.",
+        "Business model: both are mapped to Banking, spread income, fees, and capital-market services.",
         "Scale: both are mapped to LARGE_CAP.",
-        "Financial similarity: market cap, revenue, and profitability score 0.9264.",
-        "Model similarity: blended peer score 0.5326."
+        "Financial similarity: market cap, revenue, and profitability score 0.8455.",
+        "Model similarity: blended peer score 0.4837."
       ],
       "top5": [
         {
-          "ticker": "AFG",
-          "company_name": "American Financial Group",
-          "score": 0.5326,
+          "ticker": "MTB",
+          "company_name": "M&T Bank",
+          "score": 0.4837,
           "sector": "Financials",
-          "industry": "Financial Services",
+          "industry": "Banks",
           "scale_bucket": "LARGE_CAP"
         },
         {
-          "ticker": "RF",
-          "company_name": "Regions Financial",
-          "score": 0.5303,
+          "ticker": "BOTJ",
+          "company_name": "Bank of the James Financial Group",
+          "score": 0.4833,
           "sector": "Financials",
-          "industry": "Financial Services",
-          "scale_bucket": "LARGE_CAP"
+          "industry": "Banks",
+          "scale_bucket": "MICRO_CAP"
         },
         {
-          "ticker": "CFG",
-          "company_name": "Citizens Financial Group",
-          "score": 0.5063,
+          "ticker": "C",
+          "company_name": "Citigroup",
+          "score": 0.4798,
           "sector": "Financials",
-          "industry": "Financial Services",
-          "scale_bucket": "LARGE_CAP"
+          "industry": "Banks",
+          "scale_bucket": "MEGA_CAP"
         },
         {
-          "ticker": "TFC",
-          "company_name": "Truist Financial",
-          "score": 0.5032,
+          "ticker": "FITB",
+          "company_name": "Fifth Third Bancorp",
+          "score": 0.4745,
           "sector": "Financials",
-          "industry": "Financial Services",
+          "industry": "Banks",
           "scale_bucket": "LARGE_CAP"
         },
         {
           "ticker": "JPM",
           "company_name": "JP Morgan Chase &",
-          "score": 0.451,
+          "score": 0.4402,
           "sector": "Financials",
-          "industry": "Financial Services",
+          "industry": "Banks",
           "scale_bucket": "MEGA_CAP"
         }
       ]
@@ -584,63 +584,63 @@
       "stock_code": "086790",
       "stock_name": "하나금융지주",
       "stock_name_en": "Hana Financial Group",
-      "primary_peer_ticker": "AFG",
-      "primary_peer_name": "American Financial Group",
-      "similarity_score": 0.5678,
-      "financial_similarity_score": 0.9977,
+      "primary_peer_ticker": "C",
+      "primary_peer_name": "Citigroup",
+      "similarity_score": 0.5665,
+      "financial_similarity_score": 0.9313,
       "sector": "Financials",
-      "industry": "Financial Services",
-      "business_model": "Spread, fee, and capital-market services",
-      "scale_bucket": "LARGE_CAP",
+      "industry": "Banks",
+      "business_model": "Banking, spread income, fees, and capital-market services",
+      "scale_bucket": "MEGA_CAP",
       "financial_data_source": "SEC_COMPANYFACTS+NASDAQ_SUMMARY_MARKET_CAP",
       "matched_factors": [
         "Sector: both are mapped to Financials.",
-        "Industry: both are mapped to Financial Services.",
-        "Business model: both are mapped to Spread, fee, and capital-market services.",
-        "Scale: both are mapped to LARGE_CAP.",
-        "Financial similarity: market cap, revenue, and profitability score 0.9977.",
-        "Model similarity: blended peer score 0.5678."
+        "Industry: both are mapped to Banks.",
+        "Business model: both are mapped to Banking, spread income, fees, and capital-market services.",
+        "Scale: source=LARGE_CAP, peer=MEGA_CAP.",
+        "Financial similarity: market cap, revenue, and profitability score 0.9313.",
+        "Model similarity: blended peer score 0.5665."
       ],
       "top5": [
         {
-          "ticker": "AFG",
-          "company_name": "American Financial Group",
-          "score": 0.5678,
-          "sector": "Financials",
-          "industry": "Financial Services",
-          "scale_bucket": "LARGE_CAP"
-        },
-        {
           "ticker": "C",
           "company_name": "Citigroup",
-          "score": 0.566,
+          "score": 0.5665,
           "sector": "Financials",
-          "industry": "Financial Services",
+          "industry": "Banks",
           "scale_bucket": "MEGA_CAP"
         },
         {
-          "ticker": "WBS",
-          "company_name": "Webster Financial",
-          "score": 0.5466,
+          "ticker": "MTB",
+          "company_name": "M&T Bank",
+          "score": 0.5278,
           "sector": "Financials",
-          "industry": "Financial Services",
+          "industry": "Banks",
           "scale_bucket": "LARGE_CAP"
         },
         {
-          "ticker": "CFG",
-          "company_name": "Citizens Financial Group",
-          "score": 0.5444,
+          "ticker": "USB",
+          "company_name": "U.S. Bancorp",
+          "score": 0.5165,
           "sector": "Financials",
-          "industry": "Financial Services",
+          "industry": "Banks",
           "scale_bucket": "LARGE_CAP"
         },
         {
-          "ticker": "PFG",
-          "company_name": "Principal Financial Group",
-          "score": 0.5352,
+          "ticker": "BWFG",
+          "company_name": "Bankwell Financial Group",
+          "score": 0.5059,
           "sector": "Financials",
-          "industry": "Financial Services",
-          "scale_bucket": "LARGE_CAP"
+          "industry": "Banks",
+          "scale_bucket": "SMALL_CAP"
+        },
+        {
+          "ticker": "PEBO",
+          "company_name": "Peoples Bancorp",
+          "score": 0.4931,
+          "sector": "Financials",
+          "industry": "Banks",
+          "scale_bucket": "SMALL_CAP"
         }
       ]
     },
@@ -650,7 +650,7 @@
       "stock_name_en": "LG Chem",
       "primary_peer_ticker": "DOW",
       "primary_peer_name": "Dow",
-      "similarity_score": 0.7554,
+      "similarity_score": 0.7527,
       "financial_similarity_score": 0.9432,
       "sector": "Materials",
       "industry": "Specialty Chemicals",
@@ -663,13 +663,13 @@
         "Business model: both are mapped to Chemical and advanced materials manufacturing.",
         "Scale: both are mapped to LARGE_CAP.",
         "Financial similarity: market cap, revenue, and profitability score 0.9432.",
-        "Model similarity: blended peer score 0.7554."
+        "Model similarity: blended peer score 0.7527."
       ],
       "top5": [
         {
           "ticker": "DOW",
           "company_name": "Dow",
-          "score": 0.7554,
+          "score": 0.7527,
           "sector": "Materials",
           "industry": "Specialty Chemicals",
           "scale_bucket": "LARGE_CAP"
@@ -677,34 +677,34 @@
         {
           "ticker": "EMN",
           "company_name": "Eastman Chemical",
-          "score": 0.4323,
+          "score": 0.4321,
           "sector": "Materials",
           "industry": "Specialty Chemicals",
           "scale_bucket": "MID_CAP"
         },
         {
-          "ticker": "MTUS",
-          "company_name": "Metallus . Common Shares",
-          "score": 0.3689,
+          "ticker": "RYAM",
+          "company_name": "Rayonier Advanced Materials",
+          "score": 0.2817,
           "sector": "Materials",
           "industry": "Metals and Materials",
           "scale_bucket": "SMALL_CAP"
         },
         {
-          "ticker": "STLD",
-          "company_name": "Steel Dynamics",
-          "score": 0.3642,
+          "ticker": "IP",
+          "company_name": "International Paper",
+          "score": 0.2606,
           "sector": "Materials",
           "industry": "Metals and Materials",
           "scale_bucket": "LARGE_CAP"
         },
         {
-          "ticker": "RYAM",
-          "company_name": "Rayonier Advanced Materials",
-          "score": 0.3208,
-          "sector": "Unclassified",
-          "industry": "Unclassified",
-          "scale_bucket": "SMALL_CAP"
+          "ticker": "DLTR",
+          "company_name": "Dollar Tree",
+          "score": 0.2539,
+          "sector": "General Listed Equity",
+          "industry": "Listed Operating Company",
+          "scale_bucket": "LARGE_CAP"
         }
       ]
     },
@@ -712,36 +712,28 @@
       "stock_code": "006400",
       "stock_name": "삼성SDI",
       "stock_name_en": "Samsung SDI",
-      "primary_peer_ticker": "ABAT",
-      "primary_peer_name": "American Battery Technology",
-      "similarity_score": 0.6305,
-      "financial_similarity_score": 0.9954,
+      "primary_peer_ticker": "QS",
+      "primary_peer_name": "QuantumScape",
+      "similarity_score": 0.6154,
+      "financial_similarity_score": 0.9264,
       "sector": "Industrials",
       "industry": "Battery and Energy Storage",
       "business_model": "Battery manufacturing and energy storage supply chain",
-      "scale_bucket": "SMALL_CAP",
+      "scale_bucket": "MID_CAP",
       "financial_data_source": "SEC_COMPANYFACTS+NASDAQ_SUMMARY_MARKET_CAP",
       "matched_factors": [
         "Sector: both are mapped to Industrials.",
         "Industry: both are mapped to Battery and Energy Storage.",
         "Business model: both are mapped to Battery manufacturing and energy storage supply chain.",
-        "Scale: source=LARGE_CAP, peer=SMALL_CAP.",
-        "Financial similarity: market cap, revenue, and profitability score 0.9954.",
-        "Model similarity: blended peer score 0.6305."
+        "Scale: source=LARGE_CAP, peer=MID_CAP.",
+        "Financial similarity: market cap, revenue, and profitability score 0.9264.",
+        "Model similarity: blended peer score 0.6154."
       ],
       "top5": [
         {
-          "ticker": "ABAT",
-          "company_name": "American Battery Technology",
-          "score": 0.6305,
-          "sector": "Industrials",
-          "industry": "Battery and Energy Storage",
-          "scale_bucket": "SMALL_CAP"
-        },
-        {
           "ticker": "QS",
           "company_name": "QuantumScape",
-          "score": 0.617,
+          "score": 0.6154,
           "sector": "Industrials",
           "industry": "Battery and Energy Storage",
           "scale_bucket": "MID_CAP"
@@ -749,7 +741,7 @@
         {
           "ticker": "AESI",
           "company_name": "Atlas Energy Solutions",
-          "score": 0.6112,
+          "score": 0.6081,
           "sector": "Industrials",
           "industry": "Battery and Energy Storage",
           "scale_bucket": "MID_CAP"
@@ -757,7 +749,7 @@
         {
           "ticker": "ELBM",
           "company_name": "Electra Battery Materials",
-          "score": 0.5584,
+          "score": 0.5323,
           "sector": "Industrials",
           "industry": "Battery and Energy Storage",
           "scale_bucket": "MICRO_CAP"
@@ -765,10 +757,18 @@
         {
           "ticker": "TDG",
           "company_name": "Transdigm Group Incorporated",
-          "score": 0.5167,
+          "score": 0.5136,
           "sector": "Industrials",
           "industry": "Battery and Energy Storage",
           "scale_bucket": "LARGE_CAP"
+        },
+        {
+          "ticker": "ABAT",
+          "company_name": "American Battery Technology",
+          "score": 0.5041,
+          "sector": "Industrials",
+          "industry": "Battery and Energy Storage",
+          "scale_bucket": "SMALL_CAP"
         }
       ]
     },
@@ -778,7 +778,7 @@
       "stock_name_en": "LG Electronics",
       "primary_peer_ticker": "WHR",
       "primary_peer_name": "Whirlpool",
-      "similarity_score": 0.705,
+      "similarity_score": 0.6941,
       "financial_similarity_score": 0.9999,
       "sector": "Consumer Discretionary",
       "industry": "Consumer Electronics and Appliances",
@@ -791,13 +791,13 @@
         "Business model: both are mapped to Consumer electronics and appliance manufacturing.",
         "Scale: source=LARGE_CAP, peer=MID_CAP.",
         "Financial similarity: market cap, revenue, and profitability score 0.9999.",
-        "Model similarity: blended peer score 0.7050."
+        "Model similarity: blended peer score 0.6941."
       ],
       "top5": [
         {
           "ticker": "WHR",
           "company_name": "Whirlpool",
-          "score": 0.705,
+          "score": 0.6941,
           "sector": "Consumer Discretionary",
           "industry": "Consumer Electronics and Appliances",
           "scale_bucket": "MID_CAP"
@@ -805,7 +805,7 @@
         {
           "ticker": "SONY",
           "company_name": "Sony Group",
-          "score": 0.5667,
+          "score": 0.5586,
           "sector": "Consumer Discretionary",
           "industry": "Consumer Electronics and Appliances",
           "scale_bucket": "LARGE_CAP"
@@ -813,7 +813,7 @@
         {
           "ticker": "AZO",
           "company_name": "AutoZone",
-          "score": 0.4083,
+          "score": 0.2613,
           "sector": "Consumer Discretionary",
           "industry": "Automobiles",
           "scale_bucket": "LARGE_CAP"
@@ -821,7 +821,7 @@
         {
           "ticker": "MSI",
           "company_name": "Motorola Solutions",
-          "score": 0.4037,
+          "score": 0.2584,
           "sector": "Consumer Discretionary",
           "industry": "Automobiles",
           "scale_bucket": "LARGE_CAP"
@@ -829,7 +829,7 @@
         {
           "ticker": "ORLY",
           "company_name": "O'Reilly Automotive",
-          "score": 0.4008,
+          "score": 0.2569,
           "sector": "Consumer Discretionary",
           "industry": "Automobiles",
           "scale_bucket": "LARGE_CAP"
@@ -842,7 +842,7 @@
       "stock_name_en": "SK Telecom",
       "primary_peer_ticker": "VZ",
       "primary_peer_name": "Verizon Communications",
-      "similarity_score": 0.7674,
+      "similarity_score": 0.7458,
       "financial_similarity_score": 0.9996,
       "sector": "Communication Services",
       "industry": "Telecommunications",
@@ -855,13 +855,13 @@
         "Business model: both are mapped to Telecom network subscription services.",
         "Scale: both are mapped to LARGE_CAP.",
         "Financial similarity: market cap, revenue, and profitability score 0.9996.",
-        "Model similarity: blended peer score 0.7674."
+        "Model similarity: blended peer score 0.7458."
       ],
       "top5": [
         {
           "ticker": "VZ",
           "company_name": "Verizon Communications",
-          "score": 0.7674,
+          "score": 0.7458,
           "sector": "Communication Services",
           "industry": "Telecommunications",
           "scale_bucket": "LARGE_CAP"
@@ -869,7 +869,7 @@
         {
           "ticker": "CHTR",
           "company_name": "Charter Communications, . Class A",
-          "score": 0.5008,
+          "score": 0.609,
           "sector": "Communication Services",
           "industry": "Telecommunications",
           "scale_bucket": "LARGE_CAP"
@@ -877,7 +877,7 @@
         {
           "ticker": "ZM",
           "company_name": "Zoom Communications, . Class A",
-          "score": 0.4914,
+          "score": 0.6025,
           "sector": "Communication Services",
           "industry": "Telecommunications",
           "scale_bucket": "LARGE_CAP"
@@ -885,18 +885,18 @@
         {
           "ticker": "SBAC",
           "company_name": "SBA Communications Class A",
-          "score": 0.4814,
+          "score": 0.5921,
           "sector": "Communication Services",
           "industry": "Telecommunications",
           "scale_bucket": "LARGE_CAP"
         },
         {
-          "ticker": "CHT",
-          "company_name": "Chunghwa Telecom",
-          "score": 0.4484,
+          "ticker": "IRDM",
+          "company_name": "Iridium Communications",
+          "score": 0.5509,
           "sector": "Communication Services",
           "industry": "Telecommunications",
-          "scale_bucket": "LARGE_CAP"
+          "scale_bucket": "MID_CAP"
         }
       ]
     },
@@ -906,7 +906,7 @@
       "stock_name_en": "Alteogen",
       "primary_peer_ticker": "HALO",
       "primary_peer_name": "Halozyme Therapeutics",
-      "similarity_score": 0.7181,
+      "similarity_score": 0.7133,
       "financial_similarity_score": 0.9991,
       "sector": "Health Care",
       "industry": "Biotechnology",
@@ -925,23 +925,15 @@
         {
           "ticker": "HALO",
           "company_name": "Halozyme Therapeutics",
-          "score": 0.7181,
+          "score": 0.7133,
           "sector": "Health Care",
           "industry": "Biotechnology",
           "scale_bucket": "MID_CAP"
         },
         {
-          "ticker": "RPRX",
-          "company_name": "Royalty Pharma",
-          "score": 0.4396,
-          "sector": "Health Care",
-          "industry": "Biotechnology",
-          "scale_bucket": "LARGE_CAP"
-        },
-        {
           "ticker": "KRYS",
           "company_name": "Krystal Biotech",
-          "score": 0.4124,
+          "score": 0.409,
           "sector": "Health Care",
           "industry": "Biotechnology",
           "scale_bucket": "LARGE_CAP"
@@ -949,7 +941,15 @@
         {
           "ticker": "UTHR",
           "company_name": "United Therapeutics",
-          "score": 0.4025,
+          "score": 0.4001,
+          "sector": "Health Care",
+          "industry": "Biotechnology",
+          "scale_bucket": "LARGE_CAP"
+        },
+        {
+          "ticker": "OHI",
+          "company_name": "Omega Healthcare Investors",
+          "score": 0.3896,
           "sector": "Health Care",
           "industry": "Biotechnology",
           "scale_bucket": "LARGE_CAP"
@@ -957,7 +957,7 @@
         {
           "ticker": "ARWR",
           "company_name": "Arrowhead Pharmaceuticals",
-          "score": 0.3889,
+          "score": 0.3863,
           "sector": "Health Care",
           "industry": "Biotechnology",
           "scale_bucket": "LARGE_CAP"
@@ -966,7 +966,7 @@
     }
   ],
   "known_follow_up": [
-    "Battery companies use the best available US-listed public proxy because CATL and Panasonic are outside the current US-only peer universe.",
-    "Large conglomerates with multiple business lines still need deeper segment revenue weights for production-grade explainability."
+    "미국 상장 보통주 중심 universe라 CATL, Panasonic, Lonza 같은 비미국 비상장/해외거래소 peer는 아직 후보에 없다.",
+    "복합 대기업은 사업부별 매출 비중 feature가 없어서 segment-level peer보다 company-level proxy에 가깝다."
   ]
 }

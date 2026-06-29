@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 from hannah_montana_ai.domain.schemas import GlobalPeerMatchRequest
@@ -47,6 +48,7 @@ def test_global_peer_model_matches_alteogen_to_halozyme() -> None:
 def test_global_peer_model_quality_smoke_matches_core_korean_stocks() -> None:
     matcher = GlobalPeerMatcher(Path("src/hannah_montana_ai/model_store/global_peer_ml.joblib"))
     cases = [
+        ("005930", "삼성전자", "Samsung Electronics", "KOSPI", "MU"),
         ("000660", "SK하이닉스", "SK hynix", "KOSPI", "MU"),
         ("035420", "NAVER", "NAVER", "KOSPI", "GOOGL"),
         ("017670", "SK텔레콤", "SK Telecom", "KOSPI", "VZ"),
@@ -69,3 +71,25 @@ def test_global_peer_model_quality_smoke_matches_core_korean_stocks() -> None:
         assert response.primary_peer.sector != "Unclassified"
         assert response.primary_peer.industry != "Unclassified"
         assert response.primary_peer.matched_factors
+
+
+def test_global_peer_request_accepts_krx_alphanumeric_stock_codes() -> None:
+    request = GlobalPeerMatchRequest(
+        stock_code="0001A0",
+        stock_name="덕양에너젠",
+        market="KOSPI",
+    )
+
+    assert request.stock_code == "0001A0"
+
+
+def test_global_peer_full_coverage_report_passes_all_stock_gate() -> None:
+    report = json.loads(Path("reports/global-peer-full-coverage-report.json").read_text())
+
+    assert report["schema_version"] == "global-peer-full-coverage/v1"
+    assert report["attempted_count"] >= 3_000
+    assert report["attempted_count"] == report["success_count"]
+    assert report["failure_count"] == 0
+    assert report["quality_gate"]["status"] == "pass"
+    assert report["same_company_noise_count"] == 0
+    assert report["matched_factor_missing_count"] == 0

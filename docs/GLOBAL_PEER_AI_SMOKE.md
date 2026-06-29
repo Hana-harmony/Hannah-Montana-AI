@@ -6,8 +6,10 @@
 
 ## 최신 실행
 - 리포트: `reports/global-peer-ai-smoke-report.json`
-- 모델 버전: `global-peer-tfidf-20260629201516`
+- 모델 버전: `global-peer-tfidf-20260629205106`
 - 샘플 수: 15개 한국 대형/대표 종목
+- 전종목 coverage 리포트: `reports/global-peer-full-coverage-report.json`
+- 전종목 coverage 결과: 3,967/3,967개 추론 성공, failure 0개, 동일회사 중복 0개, 근거 누락 0개, LOW confidence 29.5437%, generic sector 69.3219%, quality gate `pass`
 
 | 한국 종목 | AI primary peer | 핵심 근거 |
 | --- | --- | --- |
@@ -18,21 +20,22 @@
 | LG Energy Solution | Tesla | EV 배터리/에너지 저장 proxy, 대형 배터리 생태계 |
 | Samsung Biologics | Thermo Fisher Scientific | 바이오 CDMO/생명과학 제조 서비스 |
 | Celltrion | Biogen | 바이오의약품/바이오시밀러 |
-| KB Financial Group | American Financial Group | 금융지주/금융서비스 |
-| Shinhan Financial Group | American Financial Group | 금융지주/금융서비스 |
-| Hana Financial Group | American Financial Group | 금융지주/금융서비스 |
+| KB Financial Group | Citigroup | 은행/금융지주, 대형 금융서비스 |
+| Shinhan Financial Group | M&T Bank | 은행/금융지주, 대형 금융서비스 |
+| Hana Financial Group | Citigroup | 은행/금융지주, 대형 금융서비스 |
 | LG Chem | Dow | 화학/첨단소재 |
-| Samsung SDI | American Battery Technology | 배터리/에너지 저장 |
+| Samsung SDI | QuantumScape | 배터리/에너지 저장 |
 | LG Electronics | Whirlpool | 가전/소비자 전자 |
 | SK Telecom | Verizon Communications | 통신 네트워크/무선 가입 서비스 |
 | Alteogen | Halozyme Therapeutics | 약물전달 플랫폼/로열티 라이선싱 |
 
 ## 품질 기준
-- `tests/test_global_peer_matcher.py`의 core smoke regression은 SK hynix, NAVER, SK Telecom, LG Electronics, LG Energy Solution의 primary peer를 고정해 품질 퇴행을 막는다.
+- `tests/test_global_peer_matcher.py`의 core smoke regression은 Samsung Electronics, SK hynix, NAVER, SK Telecom, LG Electronics, LG Energy Solution의 primary peer를 고정해 품질 퇴행을 막는다.
+- 전종목 coverage regression은 `reports/global-peer-full-coverage-report.json`의 quality gate가 `pass`인지 확인한다.
 - 알테오젠은 Halozyme top1 anchor를 별도 release gate로 유지한다.
 - 각 응답은 `matched_factors`에 섹터, 산업, 사업모델, 규모, 재무 유사도, 모델 유사도를 포함한다.
 
 ## 남은 한계
-- 현재 peer universe는 미국 상장 종목 중심이라 CATL, Panasonic, Lonza처럼 더 직관적인 비미국 peer는 후보에 없다.
+- 현재 peer universe는 미국 상장 보통주 중심이라 CATL, Panasonic, Lonza처럼 더 직관적인 비미국/비상장/해외거래소 peer는 후보에 없다.
 - 배터리 및 복합 대기업은 사업부별 매출 비중 feature가 없어서 segment-level peer보다 company-level proxy에 가깝다.
 - 금융지주는 은행/보험/증권 segment 비중을 더 넣으면 peer 설명력이 개선될 수 있다.

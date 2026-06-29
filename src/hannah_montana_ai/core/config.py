@@ -13,6 +13,9 @@ class Settings(BaseModel):
     us_stock_universe_path: Path = Path("data/reference/us_stock_universe.csv")
     global_peer_fundamentals_path: Path = Path("data/reference/global_peer_fundamentals.csv")
     global_peer_training_report_path: Path = Path("reports/global-peer-training-report.json")
+    global_peer_full_coverage_report_path: Path = Path(
+        "reports/global-peer-full-coverage-report.json"
+    )
     foreign_ownership_quantity_model_path: Path = Path(
         "src/hannah_montana_ai/model_store/foreign_ownership_quantity_ml.joblib"
     )
