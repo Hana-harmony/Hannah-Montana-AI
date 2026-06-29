@@ -1,0 +1,3 @@
+market,identifier,fiscal_year,market_cap_usd,revenue_usd,operating_income_usd,net_income_usd,currency,source
+KR,196170,2025,,155418421.64904,76968055.50984,104524546.9896,USD,OPEN_DART_FNLTT_SINGLE_ACCOUNT_ALL_CFS
+US,HALO,2025,,1396611000,469006000,316889000,USD,SEC_COMPANYFACTS

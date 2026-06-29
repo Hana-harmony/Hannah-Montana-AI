@@ -1,0 +1,11 @@
+{
+  "schema_version": "global-peer-fundamentals-sync/v1",
+  "fiscal_year": 2025,
+  "output_path": "data/reference/global_peer_fundamentals.csv",
+  "row_count": 2,
+  "korea_row_count": 1,
+  "us_row_count": 1,
+  "failure_count": 0,
+  "failures_sample": [],
+  "credential_policy": "credentials are loaded from gitignored local env only"
+}

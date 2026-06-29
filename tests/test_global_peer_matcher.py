@@ -30,8 +30,13 @@ def test_global_peer_model_matches_alteogen_to_halozyme() -> None:
     assert response.primary_peer.industry == "Biotechnology"
     assert response.primary_peer.business_model == "Biotech platform licensing"
     assert response.primary_peer.scale_bucket == "MID_CAP"
+    assert response.primary_peer.revenue_usd is not None
+    assert response.primary_peer.operating_income_usd is not None
+    assert response.primary_peer.financial_data_source == "SEC_COMPANYFACTS"
+    assert response.primary_peer.financial_similarity_score is not None
     assert any("Sector" in factor for factor in response.primary_peer.matched_factors)
     assert any("Scale" in factor for factor in response.primary_peer.matched_factors)
+    assert any("Financial similarity" in factor for factor in response.primary_peer.matched_factors)
     assert response.confidence_level in {"MEDIUM", "HIGH"}
     assert "Alteogen Is The 'Halozyme Therapeutics'" in response.headline
     assert "drug-delivery technology" in response.summary

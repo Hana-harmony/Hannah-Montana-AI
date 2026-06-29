@@ -36,11 +36,12 @@ docker run --rm --network hana-internal hannah-montana-ai
 ## 글로벌 피어 종목 매칭
 - `POST /api/v1/market/global-peers/match`는 OmniLens가 넘긴 한국 종목 metadata를 입력으로 받아 미국 상장 peer 후보를 반환한다.
 - 응답은 외국인 투자자용 영어 headline, summary, primary peer, 후보 peer 목록, confidence, model version을 포함한다.
-- 각 peer는 `sector`, `industry`, `business_model`, `scale_bucket`, `matched_factors`, `rationale`을 포함해 왜 해당 글로벌 peer로 매칭됐는지 설명한다.
+- 각 peer는 `sector`, `industry`, `business_model`, `scale_bucket`, `market_cap_usd`, `revenue_usd`, `operating_income_usd`, `net_income_usd`, `financial_data_source`, `financial_similarity_score`, `matched_factors`, `rationale`을 포함해 왜 해당 글로벌 peer로 매칭됐는지 설명한다.
 - 현재 운영 artifact는 한국 종목 3,967개와 미국 symbol 12,916개를 학습한 `src/hannah_montana_ai/model_store/global_peer_ml.joblib`다.
-- 미국 universe 갱신은 NASDAQ Trader symbol directory를 사용한다.
+- 미국 universe 갱신은 NASDAQ Trader symbol directory를 사용한다. 재무/규모 dataset은 OpenDART, KRX Open API, SEC companyfacts를 사용한다.
 ```bash
 uv run python scripts/sync_us_stock_universe.py
+uv run python scripts/sync_global_peer_fundamentals.py
 uv run python scripts/train_global_peer_model.py
 uv run pytest tests/test_global_peer_matcher.py tests/test_global_peer_api.py -q
 ```

@@ -57,6 +57,13 @@ class GlobalPeerMatch(BaseModel):
     industry: str = Field(default="Unclassified", max_length=120)
     business_model: str = Field(default="Operating company", max_length=160)
     scale_bucket: str = Field(default="UNKNOWN", max_length=40)
+    fiscal_year: int | None = None
+    market_cap_usd: float | None = Field(default=None, ge=0.0)
+    revenue_usd: float | None = None
+    operating_income_usd: float | None = None
+    net_income_usd: float | None = None
+    financial_data_source: str = Field(default="", max_length=120)
+    financial_similarity_score: float | None = Field(default=None, ge=0.0, le=1.0)
     matched_factors: list[str] = Field(default_factory=list, max_length=12)
     rationale: str = Field(min_length=1, max_length=800)
 

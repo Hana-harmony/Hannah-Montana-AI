@@ -7,6 +7,7 @@ def main() -> None:
     result = train_global_peer_model(
         korea_stock_universe_path=settings.stock_universe_path,
         us_stock_universe_path=settings.us_stock_universe_path,
+        fundamentals_path=settings.global_peer_fundamentals_path,
         model_path=settings.global_peer_model_path,
         report_path=settings.global_peer_training_report_path,
     )

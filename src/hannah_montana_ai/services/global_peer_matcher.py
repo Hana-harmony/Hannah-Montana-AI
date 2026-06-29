@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Any, Literal, cast
 
 import joblib
+import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 
 from hannah_montana_ai.domain.schemas import (
@@ -19,6 +20,7 @@ from hannah_montana_ai.training.global_peer_trainer import (
     GLOBAL_PEER_SCHEMA_VERSION,
     KOREA_ANCHORS,
     build_korea_profile,
+    has_financial_signal,
 )
 from hannah_montana_ai.training.stock_universe import StockUniverseEntry
 
@@ -39,13 +41,16 @@ class GlobalPeerMatcher:
         self.version = str(payload["version"])
         self._vectorizer = payload["vectorizer"]
         self._eligible_us_matrix = payload["eligible_us_matrix"]
+        self._eligible_us_financial_matrix = payload.get("eligible_us_financial_matrix")
         self._eligible_us_profiles = list(payload["eligible_us_profiles"])
         self._korea_profiles = dict(payload["korea_profiles"])
 
     def match(self, request: GlobalPeerMatchRequest) -> GlobalPeerMatchResponse:
         stock_profile = self._stock_profile(request)
         query_vector = self._vectorizer.transform([str(stock_profile["profile_text"])])
-        similarities = cosine_similarity(query_vector, self._eligible_us_matrix)[0]
+        text_similarities = cosine_similarity(query_vector, self._eligible_us_matrix)[0]
+        financial_similarities = self._financial_similarities(stock_profile)
+        similarities = self._combined_similarities(text_similarities, financial_similarities)
         ranked_indices = similarities.argsort()[::-1]
 
         preferred_ticker = KOREA_ANCHORS.get(request.stock_code)
@@ -60,6 +65,7 @@ class GlobalPeerMatcher:
                 rank=rank,
                 profile=self._eligible_us_profiles[index],
                 score=float(similarities[index]),
+                financial_score=financial_similarities[index],
                 request=request,
                 stock_profile=stock_profile,
             )
@@ -80,7 +86,7 @@ class GlobalPeerMatcher:
             confidence_score=round(confidence_score, 4),
             confidence_level=self._confidence_level(confidence_score),
             model_version=self.version,
-            source="HANNAH_GLOBAL_PEER_TFIDF",
+            source="HANNAH_GLOBAL_PEER_TFIDF+FUNDAMENTALS",
         )
 
     def _stock_profile(self, request: GlobalPeerMatchRequest) -> dict[str, object]:
@@ -98,6 +104,34 @@ class GlobalPeerMatcher:
         if request.description:
             profile["profile_text"] = f"{profile['profile_text']} {request.description}".strip()
         return profile
+
+    def _financial_similarities(self, stock_profile: dict[str, object]) -> np.ndarray:
+        matrix = self._eligible_us_financial_matrix
+        if matrix is None:
+            return np.zeros(len(self._eligible_us_profiles), dtype=float)
+        query_raw = stock_profile.get("financial_feature_vector", [])
+        if not isinstance(query_raw, list) or not query_raw:
+            return np.zeros(len(self._eligible_us_profiles), dtype=float)
+        query = np.array([float(value) for value in query_raw], dtype=float)
+        if not has_financial_signal(query.tolist()):
+            return np.zeros(len(self._eligible_us_profiles), dtype=float)
+        candidate_matrix = np.array(matrix, dtype=float)
+        raw_scores = cosine_similarity(query.reshape(1, -1), candidate_matrix)[0]
+        return np.array([max(0.0, min(1.0, (float(score) + 1.0) / 2.0)) for score in raw_scores])
+
+    def _combined_similarities(
+        self,
+        text_similarities: np.ndarray,
+        financial_similarities: np.ndarray,
+    ) -> np.ndarray:
+        if not financial_similarities.any():
+            return text_similarities
+        combined = text_similarities.copy()
+        for index, financial_score in enumerate(financial_similarities):
+            candidate_vector = self._eligible_us_profiles[index].get("financial_feature_vector", [])
+            if isinstance(candidate_vector, list) and has_financial_signal(candidate_vector):
+                combined[index] = (0.70 * text_similarities[index]) + (0.30 * financial_score)
+        return combined
 
     def _selected_indices(
         self,
@@ -124,6 +158,7 @@ class GlobalPeerMatcher:
         rank: int,
         profile: dict[str, object],
         score: float,
+        financial_score: float,
         request: GlobalPeerMatchRequest,
         stock_profile: dict[str, object],
     ) -> GlobalPeerMatch:
@@ -139,6 +174,7 @@ class GlobalPeerMatcher:
             stock_profile=stock_profile,
             peer_profile=profile,
             score=score,
+            financial_score=financial_score,
         )
         rationale = (
             f"Both companies map to the global {primary_tag} peer group based on "
@@ -161,6 +197,13 @@ class GlobalPeerMatcher:
             industry=industry,
             business_model=business_model,
             scale_bucket=scale_bucket,
+            fiscal_year=self._optional_int(profile.get("fiscal_year")),
+            market_cap_usd=self._optional_float(profile.get("market_cap_usd")),
+            revenue_usd=self._optional_float(profile.get("revenue_usd")),
+            operating_income_usd=self._optional_float(profile.get("operating_income_usd")),
+            net_income_usd=self._optional_float(profile.get("net_income_usd")),
+            financial_data_source=str(profile.get("financial_data_source") or ""),
+            financial_similarity_score=round(financial_score, 4) if financial_score > 0 else None,
             matched_factors=matched_factors,
             rationale=rationale,
         )
@@ -171,6 +214,7 @@ class GlobalPeerMatcher:
         stock_profile: dict[str, object],
         peer_profile: dict[str, object],
         score: float,
+        financial_score: float,
     ) -> list[str]:
         if request.stock_code == "196170" and peer_profile.get("identifier") == "HALO":
             return [
@@ -187,6 +231,10 @@ class GlobalPeerMatcher:
                 (
                     "Scale: both are treated as mid-cap biotech platform peers in the "
                     "curated anchor set."
+                ),
+                (
+                    "Financial similarity: market cap, revenue, and profitability "
+                    f"score {financial_score:.4f}."
                 ),
             ]
 
@@ -219,8 +267,29 @@ class GlobalPeerMatcher:
         else:
             factors.append(f"Scale: source={stock_scale}, peer={peer_scale}.")
 
-        factors.append(f"Model similarity: TF-IDF cross-market profile score {score:.4f}.")
+        if financial_score > 0:
+            factors.append(
+                "Financial similarity: market cap, revenue, and profitability "
+                f"score {financial_score:.4f}."
+            )
+        factors.append(f"Model similarity: blended peer score {score:.4f}.")
         return factors
+
+    @staticmethod
+    def _optional_float(value: object) -> float | None:
+        if value is None or value == "":
+            return None
+        if isinstance(value, int | float | str):
+            return float(value)
+        raise TypeError("optional float field must be numeric")
+
+    @staticmethod
+    def _optional_int(value: object) -> int | None:
+        if value is None or value == "":
+            return None
+        if isinstance(value, int | float | str):
+            return int(value)
+        raise TypeError("optional int field must be numeric")
 
     def _headline(self, request: GlobalPeerMatchRequest, primary_peer: GlobalPeerMatch) -> str:
         anchor = KOREA_ANCHORS.get(request.stock_code)
