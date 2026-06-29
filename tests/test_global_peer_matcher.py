@@ -42,3 +42,30 @@ def test_global_peer_model_matches_alteogen_to_halozyme() -> None:
     assert "Alteogen Is The 'Halozyme Therapeutics'" in response.headline
     assert "drug-delivery technology" in response.summary
     assert response.model_version.startswith("global-peer-tfidf-")
+
+
+def test_global_peer_model_quality_smoke_matches_core_korean_stocks() -> None:
+    matcher = GlobalPeerMatcher(Path("src/hannah_montana_ai/model_store/global_peer_ml.joblib"))
+    cases = [
+        ("000660", "SK하이닉스", "SK hynix", "KOSPI", "MU"),
+        ("035420", "NAVER", "NAVER", "KOSPI", "GOOGL"),
+        ("017670", "SK텔레콤", "SK Telecom", "KOSPI", "VZ"),
+        ("066570", "LG전자", "LG Electronics", "KOSPI", "WHR"),
+        ("373220", "LG에너지솔루션", "LG Energy Solution", "KOSPI", "TSLA"),
+    ]
+
+    for stock_code, stock_name, stock_name_en, market, expected_ticker in cases:
+        response = matcher.match(
+            GlobalPeerMatchRequest(
+                stock_code=stock_code,
+                stock_name=stock_name,
+                stock_name_en=stock_name_en,
+                market=market,
+            )
+        )
+
+        assert response.primary_peer.ticker == expected_ticker
+        assert response.primary_peer.ticker not in {stock_name_en, stock_name}
+        assert response.primary_peer.sector != "Unclassified"
+        assert response.primary_peer.industry != "Unclassified"
+        assert response.primary_peer.matched_factors

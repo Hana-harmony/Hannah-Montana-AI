@@ -21,6 +21,11 @@ from hannah_montana_ai.training.global_peer_trainer import (
     KOREA_ANCHORS,
     build_korea_profile,
     has_financial_signal,
+    infer_business_model,
+    infer_business_tags,
+    infer_industry,
+    infer_sector,
+    normalize_profile_text,
 )
 from hannah_montana_ai.training.stock_universe import StockUniverseEntry
 
@@ -50,7 +55,11 @@ class GlobalPeerMatcher:
         query_vector = self._vectorizer.transform([str(stock_profile["profile_text"])])
         text_similarities = cosine_similarity(query_vector, self._eligible_us_matrix)[0]
         financial_similarities = self._financial_similarities(stock_profile)
-        similarities = self._combined_similarities(text_similarities, financial_similarities)
+        similarities = self._combined_similarities(
+            stock_profile,
+            text_similarities,
+            financial_similarities,
+        )
         ranked_indices = similarities.argsort()[::-1]
 
         preferred_ticker = KOREA_ANCHORS.get(request.stock_code)
@@ -91,8 +100,31 @@ class GlobalPeerMatcher:
 
     def _stock_profile(self, request: GlobalPeerMatchRequest) -> dict[str, object]:
         existing = self._korea_profiles.get(request.stock_code)
-        if existing is not None and not request.description:
-            return cast(dict[str, object], existing)
+        if existing is not None:
+            profile = cast(dict[str, object], existing).copy()
+            enrichment = " ".join(
+                value
+                for value in [
+                    request.stock_name,
+                    request.stock_name_en,
+                    " ".join(request.aliases),
+                    request.description,
+                ]
+                if value
+            )
+            if enrichment:
+                tags = infer_business_tags(request.stock_name, request.stock_name_en)
+                profile["profile_text"] = normalize_profile_text(
+                    f"{profile['profile_text']} {enrichment} {' '.join(tags)}"
+                )
+                if str(profile.get("sector") or "Unclassified") == "Unclassified":
+                    profile["business_tags"] = tags
+                    profile["sector"] = infer_sector(tags)
+                    profile["industry"] = infer_industry(tags)
+                    profile["business_model"] = infer_business_model(tags)
+            profile["request_stock_name"] = request.stock_name
+            profile["request_stock_name_en"] = request.stock_name_en
+            return profile
         entry = StockUniverseEntry(
             stock_code=request.stock_code,
             stock_name=request.stock_name,
@@ -103,6 +135,8 @@ class GlobalPeerMatcher:
         profile = build_korea_profile(entry).to_dict()
         if request.description:
             profile["profile_text"] = f"{profile['profile_text']} {request.description}".strip()
+        profile["request_stock_name"] = request.stock_name
+        profile["request_stock_name_en"] = request.stock_name_en
         return profile
 
     def _financial_similarities(self, stock_profile: dict[str, object]) -> np.ndarray:
@@ -121,17 +155,63 @@ class GlobalPeerMatcher:
 
     def _combined_similarities(
         self,
+        stock_profile: dict[str, object],
         text_similarities: np.ndarray,
         financial_similarities: np.ndarray,
     ) -> np.ndarray:
-        if not financial_similarities.any():
-            return text_similarities
         combined = text_similarities.copy()
         for index, financial_score in enumerate(financial_similarities):
             candidate_vector = self._eligible_us_profiles[index].get("financial_feature_vector", [])
-            if isinstance(candidate_vector, list) and has_financial_signal(candidate_vector):
+            if (
+                financial_similarities.any()
+                and isinstance(candidate_vector, list)
+                and has_financial_signal(candidate_vector)
+            ):
                 combined[index] = (0.70 * text_similarities[index]) + (0.30 * financial_score)
+            combined[index] *= self._sector_penalty(
+                stock_profile,
+                self._eligible_us_profiles[index],
+            )
+            combined[index] *= self._same_company_penalty(
+                stock_profile,
+                self._eligible_us_profiles[index],
+            )
         return combined
+
+    @staticmethod
+    def _sector_penalty(
+        stock_profile: dict[str, object],
+        peer_profile: dict[str, object],
+    ) -> float:
+        stock_sector = str(stock_profile.get("sector") or "Unclassified")
+        peer_sector = str(peer_profile.get("sector") or "Unclassified")
+        if stock_sector != "Unclassified" and peer_sector != "Unclassified":
+            return 1.0 if stock_sector == peer_sector else 0.45
+        if stock_sector != "Unclassified" and peer_sector == "Unclassified":
+            return 0.75
+        return 1.0
+
+    @staticmethod
+    def _same_company_penalty(
+        stock_profile: dict[str, object],
+        peer_profile: dict[str, object],
+    ) -> float:
+        source_names = [
+            str(stock_profile.get("display_name") or ""),
+            str(stock_profile.get("request_stock_name") or ""),
+            str(stock_profile.get("request_stock_name_en") or ""),
+        ]
+        peer_name = str(peer_profile.get("display_name") or "")
+        normalized_peer = normalize_profile_text(peer_name)
+        for source_name in source_names:
+            normalized_source = normalize_profile_text(source_name)
+            if len(normalized_source) >= 4 and (
+                normalized_source == normalized_peer
+                or normalized_source in normalized_peer
+                or normalized_peer in normalized_source
+            ):
+                return 0.01
+        return 1.0
 
     def _selected_indices(
         self,

@@ -124,6 +124,138 @@ class PeerAnchor:
 
 
 KOREA_ANCHORS: dict[str, PeerAnchor] = {
+    "000660": PeerAnchor(
+        profile_text=(
+            "SK hynix memory semiconductor DRAM NAND HBM chips data center AI memory "
+            "global memory manufacturer Micron Technology peer"
+        ),
+        business_tags=("semiconductors", "memory chips"),
+        sector="Information Technology",
+        industry="Semiconductors",
+        business_model="Memory semiconductor manufacturing",
+        scale_bucket="MEGA_CAP",
+        preferred_peer_ticker="MU",
+    ),
+    "005930": PeerAnchor(
+        profile_text=(
+            "Samsung Electronics semiconductor memory foundry consumer electronics mobile "
+            "display appliances global technology manufacturer"
+        ),
+        business_tags=("semiconductors", "consumer electronics"),
+        sector="Information Technology",
+        industry="Semiconductors",
+        business_model="Semiconductor and electronics manufacturing",
+        scale_bucket="MEGA_CAP",
+        preferred_peer_ticker="TSM",
+    ),
+    "006400": PeerAnchor(
+        profile_text=(
+            "Samsung SDI lithium ion battery EV battery cells energy storage electronic "
+            "materials rechargeable battery manufacturer"
+        ),
+        business_tags=("battery",),
+        sector="Industrials",
+        industry="Battery and Energy Storage",
+        business_model="Battery manufacturing and energy storage supply chain",
+        scale_bucket="LARGE_CAP",
+        preferred_peer_ticker="QS",
+    ),
+    "017670": PeerAnchor(
+        profile_text=(
+            "SK Telecom wireless carrier mobile network broadband telecom operator "
+            "5G communications services"
+        ),
+        business_tags=("telecommunications",),
+        sector="Communication Services",
+        industry="Telecommunications",
+        business_model="Telecom network subscription services",
+        scale_bucket="LARGE_CAP",
+        preferred_peer_ticker="VZ",
+    ),
+    "035420": PeerAnchor(
+        profile_text=(
+            "NAVER internet search portal online advertising commerce cloud content "
+            "software platform Alphabet Google peer"
+        ),
+        business_tags=("software platform", "internet search", "online advertising"),
+        sector="Information Technology",
+        industry="Internet Platforms",
+        business_model="Platform software, search advertising, and commerce",
+        scale_bucket="LARGE_CAP",
+        preferred_peer_ticker="GOOGL",
+    ),
+    "051910": PeerAnchor(
+        profile_text=(
+            "LG Chem specialty chemicals petrochemicals advanced materials battery "
+            "materials chemical manufacturer"
+        ),
+        business_tags=("chemicals",),
+        sector="Materials",
+        industry="Specialty Chemicals",
+        business_model="Chemical and advanced materials manufacturing",
+        scale_bucket="LARGE_CAP",
+        preferred_peer_ticker="DOW",
+    ),
+    "055550": PeerAnchor(
+        profile_text=(
+            "Shinhan Financial Group bank financial holding consumer banking credit cards "
+            "wealth management capital markets"
+        ),
+        business_tags=("financials",),
+        sector="Financials",
+        industry="Financial Services",
+        business_model="Spread, fee, and capital-market services",
+        scale_bucket="LARGE_CAP",
+        preferred_peer_ticker="JPM",
+    ),
+    "066570": PeerAnchor(
+        profile_text=(
+            "LG Electronics consumer electronics home appliances TV display HVAC devices "
+            "global electronics brand Sony Whirlpool peer"
+        ),
+        business_tags=("consumer electronics", "home appliances"),
+        sector="Consumer Discretionary",
+        industry="Consumer Electronics and Appliances",
+        business_model="Consumer electronics and appliance manufacturing",
+        scale_bucket="LARGE_CAP",
+        preferred_peer_ticker="SONY",
+    ),
+    "068270": PeerAnchor(
+        profile_text=(
+            "Celltrion biosimilar monoclonal antibody biologics pharmaceutical developer "
+            "biotech manufacturing global biosimilar company"
+        ),
+        business_tags=("biotech", "biosimilar"),
+        sector="Health Care",
+        industry="Biotechnology",
+        business_model="Biologics and biosimilar development",
+        scale_bucket="LARGE_CAP",
+        preferred_peer_ticker="BIIB",
+    ),
+    "086790": PeerAnchor(
+        profile_text=(
+            "Hana Financial Group bank financial holding commercial banking wealth "
+            "management securities capital markets"
+        ),
+        business_tags=("financials",),
+        sector="Financials",
+        industry="Financial Services",
+        business_model="Spread, fee, and capital-market services",
+        scale_bucket="LARGE_CAP",
+        preferred_peer_ticker="C",
+    ),
+    "105560": PeerAnchor(
+        profile_text=(
+            "KB Financial Group bank financial holding commercial banking insurance "
+            "credit card wealth management"
+        ),
+        business_tags=("financials",),
+        sector="Financials",
+        industry="Financial Services",
+        business_model="Spread, fee, and capital-market services",
+        scale_bucket="LARGE_CAP",
+        preferred_peer_ticker="BAC",
+    ),
     "196170": PeerAnchor(
         profile_text=(
             "Alteogen biotech platform hyaluronidase drug delivery technology "
@@ -152,9 +284,90 @@ KOREA_ANCHORS: dict[str, PeerAnchor] = {
             "to global Big Pharma, securing long-term milestone and royalty fees."
         ),
     ),
+    "207940": PeerAnchor(
+        profile_text=(
+            "Samsung Biologics biologics CDMO contract development manufacturing "
+            "large scale biopharmaceutical manufacturing Thermo Fisher peer"
+        ),
+        business_tags=("biotech", "biologics cdmo"),
+        sector="Health Care",
+        industry="Biotechnology",
+        business_model="Biologics contract development and manufacturing",
+        scale_bucket="LARGE_CAP",
+        preferred_peer_ticker="TMO",
+    ),
+    "373220": PeerAnchor(
+        profile_text=(
+            "LG Energy Solution lithium ion EV battery cells energy storage battery "
+            "manufacturer electric vehicle supply chain Tesla battery ecosystem"
+        ),
+        business_tags=("battery",),
+        sector="Industrials",
+        industry="Battery and Energy Storage",
+        business_model="Battery manufacturing and energy storage supply chain",
+        scale_bucket="LARGE_CAP",
+        preferred_peer_ticker="TSLA",
+    ),
 }
 
 US_ANCHORS: dict[str, PeerAnchor] = {
+    "BAC": PeerAnchor(
+        profile_text="Bank of America large diversified bank consumer banking wealth management",
+        business_tags=("financials",),
+        sector="Financials",
+        industry="Financial Services",
+        business_model="Spread, fee, and capital-market services",
+        scale_bucket="MEGA_CAP",
+        positioning_title="Diversified Banking Group",
+    ),
+    "BIIB": PeerAnchor(
+        profile_text="Biogen biologics biotechnology neurology pharmaceutical therapy developer",
+        business_tags=("biotech", "biologics"),
+        sector="Health Care",
+        industry="Biotechnology",
+        business_model="Biologics and specialty drug development",
+        scale_bucket="LARGE_CAP",
+        positioning_title="Biotechnology Company",
+    ),
+    "C": PeerAnchor(
+        profile_text="Citigroup global bank financial holding commercial banking capital markets",
+        business_tags=("financials",),
+        sector="Financials",
+        industry="Financial Services",
+        business_model="Spread, fee, and capital-market services",
+        scale_bucket="MEGA_CAP",
+        positioning_title="Global Banking Group",
+    ),
+    "DOW": PeerAnchor(
+        profile_text=(
+            "Dow specialty chemicals petrochemicals advanced materials chemical "
+            "manufacturer"
+        ),
+        business_tags=("chemicals",),
+        sector="Materials",
+        industry="Specialty Chemicals",
+        business_model="Chemical and advanced materials manufacturing",
+        scale_bucket="LARGE_CAP",
+        positioning_title="Specialty Chemicals Manufacturer",
+    ),
+    "GOOG": PeerAnchor(
+        profile_text="Alphabet Google internet search advertising cloud software platform commerce",
+        business_tags=("software platform", "internet search", "online advertising"),
+        sector="Information Technology",
+        industry="Internet Platforms",
+        business_model="Platform software, search advertising, and commerce",
+        scale_bucket="MEGA_CAP",
+        positioning_title="Global Internet Platform",
+    ),
+    "GOOGL": PeerAnchor(
+        profile_text="Alphabet Google internet search advertising cloud software platform commerce",
+        business_tags=("software platform", "internet search", "online advertising"),
+        sector="Information Technology",
+        industry="Internet Platforms",
+        business_model="Platform software, search advertising, and commerce",
+        scale_bucket="MEGA_CAP",
+        positioning_title="Global Internet Platform",
+    ),
     "HALO": PeerAnchor(
         profile_text=(
             "Halozyme Therapeutics biotech platform hyaluronidase drug delivery "
@@ -171,6 +384,90 @@ US_ANCHORS: dict[str, PeerAnchor] = {
         net_income_usd=399_000_000,
         fiscal_year=2025,
         positioning_title="Biotech Platform",
+    ),
+    "JPM": PeerAnchor(
+        profile_text=(
+            "JPMorgan Chase large diversified bank consumer banking asset "
+            "management capital markets"
+        ),
+        business_tags=("financials",),
+        sector="Financials",
+        industry="Financial Services",
+        business_model="Spread, fee, and capital-market services",
+        scale_bucket="MEGA_CAP",
+        positioning_title="Diversified Banking Group",
+    ),
+    "MU": PeerAnchor(
+        profile_text=(
+            "Micron Technology memory semiconductor DRAM NAND HBM chips data "
+            "center AI memory"
+        ),
+        business_tags=("semiconductors", "memory chips"),
+        sector="Information Technology",
+        industry="Semiconductors",
+        business_model="Memory semiconductor manufacturing",
+        scale_bucket="MEGA_CAP",
+        positioning_title="Memory Semiconductor Manufacturer",
+    ),
+    "QS": PeerAnchor(
+        profile_text=(
+            "QuantumScape solid state lithium metal EV battery cells energy "
+            "storage battery technology"
+        ),
+        business_tags=("battery",),
+        sector="Industrials",
+        industry="Battery and Energy Storage",
+        business_model="Battery manufacturing and energy storage supply chain",
+        scale_bucket="MID_CAP",
+        positioning_title="Battery Technology Company",
+    ),
+    "SONY": PeerAnchor(
+        profile_text=(
+            "Sony consumer electronics image sensors entertainment devices TV "
+            "audio global electronics brand"
+        ),
+        business_tags=("consumer electronics",),
+        sector="Consumer Discretionary",
+        industry="Consumer Electronics and Appliances",
+        business_model="Consumer electronics and entertainment hardware",
+        scale_bucket="LARGE_CAP",
+        positioning_title="Consumer Electronics Group",
+    ),
+    "TMO": PeerAnchor(
+        profile_text=(
+            "Thermo Fisher Scientific life sciences biologics services CDMO "
+            "bioproduction instruments"
+        ),
+        business_tags=("biotech", "biologics cdmo"),
+        sector="Health Care",
+        industry="Biotechnology",
+        business_model="Biologics contract development and life-science services",
+        scale_bucket="LARGE_CAP",
+        positioning_title="Life Science Services Platform",
+    ),
+    "TSLA": PeerAnchor(
+        profile_text=(
+            "Tesla electric vehicle battery cells energy storage lithium ion "
+            "manufacturing battery ecosystem"
+        ),
+        business_tags=("battery", "automotive"),
+        sector="Industrials",
+        industry="Battery and Energy Storage",
+        business_model="Battery manufacturing and energy storage supply chain",
+        scale_bucket="MEGA_CAP",
+        positioning_title="EV Battery Ecosystem",
+    ),
+    "VZ": PeerAnchor(
+        profile_text=(
+            "Verizon wireless carrier mobile network broadband telecom operator "
+            "5G communications services"
+        ),
+        business_tags=("telecommunications",),
+        sector="Communication Services",
+        industry="Telecommunications",
+        business_model="Telecom network subscription services",
+        scale_bucket="LARGE_CAP",
+        positioning_title="Telecommunications Operator",
     ),
 }
 
@@ -743,23 +1040,76 @@ def build_us_profile(
 def infer_business_tags(stock_name: str, stock_name_en: str) -> list[str]:
     text = f"{stock_name} {stock_name_en}".lower()
     rules = [
-        (("bio", "therapeutics", "pharma", "제약", "바이오", "알테오젠"), "biotech"),
+        (
+            (
+                "bio",
+                "biologics",
+                "therapeutics",
+                "pharma",
+                "celltrion",
+                "셀트리온",
+                "삼성바이오",
+                "제약",
+                "바이오",
+                "알테오젠",
+            ),
+            "biotech",
+        ),
         (("drug delivery", "hyaluronidase", "subcutaneous"), "drug delivery"),
-        (("semiconductor", "electronics", "chip", "반도체", "전자"), "semiconductors"),
-        (("bank", "financial", "finance", "금융", "은행", "증권"), "financials"),
+        (
+            (
+                "semiconductor",
+                "memory",
+                "dram",
+                "hbm",
+                "chip",
+                "hynix",
+                "하이닉스",
+                "반도체",
+            ),
+            "semiconductors",
+        ),
+        (
+            (
+                "consumer electronics",
+                "home appliance",
+                "appliance",
+                "lg electronics",
+                "sony",
+                "whirlpool",
+                "가전",
+                "엘지전자",
+            ),
+            "consumer electronics",
+        ),
+        (("bank", "financial", "finance", "금융", "은행", "증권", "지주"), "financials"),
         (("motor", "auto", "vehicle", "자동차", "모터스"), "automotive"),
+        (("battery", "energy solution", "sdi", "배터리", "에너지솔루션", "전지"), "battery"),
         (("energy", "electric", "power", "전력", "에너지"), "energy"),
         (("steel", "metal", "스틸", "철강"), "materials"),
         (("game", "gaming", "게임"), "gaming"),
         (
-            ("platform", "internet", "software", "cloud", "플랫폼", "소프트웨어"),
+            (
+                "platform",
+                "internet",
+                "software",
+                "cloud",
+                "search",
+                "portal",
+                "naver",
+                "kakao",
+                "플랫폼",
+                "소프트웨어",
+                "네이버",
+                "카카오",
+            ),
             "software platform",
         ),
         (("retail", "commerce", "store", "유통"), "retail"),
         (("air", "aerospace", "항공"), "aerospace"),
         (("ship", "marine", "조선"), "shipbuilding"),
         (("chemical", "케미", "화학"), "chemicals"),
-        (("telecom", "communications", "통신"), "telecommunications"),
+        (("telecom", "communications", "텔레콤", "통신"), "telecommunications"),
     ]
     tags = [tag for keywords, tag in rules if any(keyword in text for keyword in keywords)]
     return list(dict.fromkeys(tags or ["general listed company"]))
@@ -770,8 +1120,12 @@ def infer_sector(tags: Sequence[str]) -> str:
         "biotech": "Health Care",
         "drug delivery": "Health Care",
         "semiconductors": "Information Technology",
+        "memory chips": "Information Technology",
+        "consumer electronics": "Consumer Discretionary",
+        "home appliances": "Consumer Discretionary",
         "financials": "Financials",
         "automotive": "Consumer Discretionary",
+        "battery": "Industrials",
         "energy": "Energy",
         "materials": "Materials",
         "gaming": "Communication Services",
@@ -790,8 +1144,12 @@ def infer_industry(tags: Sequence[str]) -> str:
         "biotech": "Biotechnology",
         "drug delivery": "Drug Delivery Technology",
         "semiconductors": "Semiconductors",
+        "memory chips": "Semiconductors",
+        "consumer electronics": "Consumer Electronics and Appliances",
+        "home appliances": "Consumer Electronics and Appliances",
         "financials": "Financial Services",
         "automotive": "Automobiles",
+        "battery": "Battery and Energy Storage",
         "energy": "Energy Infrastructure",
         "materials": "Metals and Materials",
         "gaming": "Interactive Entertainment",
@@ -812,6 +1170,12 @@ def infer_business_model(tags: Sequence[str]) -> str:
         return "Platform software and recurring services"
     if "financials" in tags:
         return "Spread, fee, and capital-market services"
+    if "memory chips" in tags:
+        return "Memory semiconductor manufacturing"
+    if "consumer electronics" in tags or "home appliances" in tags:
+        return "Consumer electronics and appliance manufacturing"
+    if "battery" in tags:
+        return "Battery manufacturing and energy storage supply chain"
     if "semiconductors" in tags:
         return "Semiconductor manufacturing or supply chain"
     if "retail" in tags:

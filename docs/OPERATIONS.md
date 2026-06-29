@@ -46,6 +46,7 @@ uv run python scripts/sync_global_peer_fundamentals.py
 uv run python scripts/train_global_peer_model.py
 uv run pytest tests/test_global_peer_matcher.py tests/test_global_peer_api.py -q
 ```
+- 실제 AI 품질 smoke 결과는 `reports/global-peer-ai-smoke-report.json`과 `docs/GLOBAL_PEER_AI_SMOKE.md`에 저장한다. API 계약 테스트와 별도로 대표 종목 primary peer가 직관적인지 확인한다.
 
 ## 추론 audit log
 - 분석 API는 요청마다 `hannah_montana_ai.audit.analysis` logger에 JSON audit log를 남긴다.

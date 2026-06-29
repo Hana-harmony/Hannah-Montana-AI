@@ -1,7 +1,7 @@
 {
   "schema_version": "global-peer-matcher/v1",
-  "version": "global-peer-tfidf-20260629195637",
-  "trained_at": "2026-06-29T19:56:37.065967+00:00",
+  "version": "global-peer-tfidf-20260629201516",
+  "trained_at": "2026-06-29T20:15:16.466483+00:00",
   "korea_stock_universe_path": "data/reference/korea_stock_universe.csv",
   "us_stock_universe_path": "data/reference/us_stock_universe.csv",
   "fundamentals_path": "data/reference/global_peer_fundamentals.csv",
@@ -19,32 +19,132 @@
   "eligible_us_peer_count": 5662,
   "tag_distribution": {
     "aerospace": 75,
-    "automotive": 85,
-    "biotech": 698,
+    "automotive": 86,
+    "battery": 19,
+    "biologics": 1,
+    "biologics cdmo": 2,
+    "biosimilar": 1,
+    "biotech": 701,
     "biotech platform": 2,
-    "chemicals": 36,
+    "chemicals": 37,
+    "consumer electronics": 5,
     "drug delivery": 2,
-    "energy": 415,
-    "financials": 451,
+    "energy": 414,
+    "financials": 462,
     "gaming": 23,
-    "general listed company": 14741,
+    "general listed company": 14709,
+    "home appliances": 1,
+    "internet search": 3,
     "materials": 84,
+    "memory chips": 2,
+    "online advertising": 3,
     "retail": 26,
     "royalty licensing": 2,
-    "semiconductors": 107,
+    "semiconductors": 66,
     "shipbuilding": 67,
-    "software platform": 65,
-    "telecommunications": 35
+    "software platform": 100,
+    "telecommunications": 45
   },
   "anchor_evaluation": {
-    "sample_count": 1,
-    "top1_accuracy": 1.0,
+    "sample_count": 14,
+    "top1_accuracy": 0.7857142857142857,
     "rows": [
+      {
+        "stock_code": "000660",
+        "expected_peer_ticker": "MU",
+        "predicted_peer_ticker": "MU",
+        "score": 0.601843,
+        "hit": true
+      },
+      {
+        "stock_code": "005930",
+        "expected_peer_ticker": "TSM",
+        "predicted_peer_ticker": "WHR",
+        "score": 0.236859,
+        "hit": false
+      },
+      {
+        "stock_code": "006400",
+        "expected_peer_ticker": "QS",
+        "predicted_peer_ticker": "QS",
+        "score": 0.338284,
+        "hit": true
+      },
+      {
+        "stock_code": "017670",
+        "expected_peer_ticker": "VZ",
+        "predicted_peer_ticker": "VZ",
+        "score": 0.621085,
+        "hit": true
+      },
+      {
+        "stock_code": "035420",
+        "expected_peer_ticker": "GOOGL",
+        "predicted_peer_ticker": "GOOGL",
+        "score": 0.417127,
+        "hit": true
+      },
+      {
+        "stock_code": "051910",
+        "expected_peer_ticker": "DOW",
+        "predicted_peer_ticker": "DOW",
+        "score": 0.548713,
+        "hit": true
+      },
+      {
+        "stock_code": "055550",
+        "expected_peer_ticker": "JPM",
+        "predicted_peer_ticker": "C",
+        "score": 0.232511,
+        "hit": false
+      },
+      {
+        "stock_code": "066570",
+        "expected_peer_ticker": "SONY",
+        "predicted_peer_ticker": "SONY",
+        "score": 0.386597,
+        "hit": true
+      },
+      {
+        "stock_code": "068270",
+        "expected_peer_ticker": "BIIB",
+        "predicted_peer_ticker": "BIIB",
+        "score": 0.160949,
+        "hit": true
+      },
+      {
+        "stock_code": "086790",
+        "expected_peer_ticker": "C",
+        "predicted_peer_ticker": "C",
+        "score": 0.358717,
+        "hit": true
+      },
+      {
+        "stock_code": "105560",
+        "expected_peer_ticker": "BAC",
+        "predicted_peer_ticker": "C",
+        "score": 0.287711,
+        "hit": false
+      },
       {
         "stock_code": "196170",
         "expected_peer_ticker": "HALO",
         "predicted_peer_ticker": "HALO",
-        "score": 0.490415,
+        "score": 0.489023,
+        "hit": true
+      },
+      {
+        "stock_code": "207940",
+        "expected_peer_ticker": "TMO",
+        "predicted_peer_ticker": "TMO",
+        "score": 0.351508,
+        "hit": true
+      },
+      {
+        "stock_code": "373220",
+        "expected_peer_ticker": "TSLA",
+        "predicted_peer_ticker": "TSLA",
+        "score": 0.487672,
         "hit": true
       }
     ]
@@ -55,7 +155,7 @@
     "minimum_us_universe_count": 5000,
     "actual_us_universe_count": 12916,
     "minimum_anchor_top1_accuracy": 1.0,
-    "actual_anchor_top1_accuracy": 1.0,
-    "status": "pass"
+    "actual_anchor_top1_accuracy": 0.7857142857142857,
+    "status": "fail"
   }
 }
