@@ -27,7 +27,7 @@ from hannah_montana_ai.training.stock_universe import (
     load_stock_universe,
 )
 
-GLOBAL_PEER_SCHEMA_VERSION = "global-peer-hybrid-ranker/v2"
+GLOBAL_PEER_SCHEMA_VERSION = "global-peer-hybrid-ranker/v3"
 GLOBAL_PEER_MODEL_VERSION_PREFIX = "global-peer-hybrid-ranker"
 GENERIC_LISTED_SECTOR = "General Listed Equity"
 GENERIC_LISTED_INDUSTRY = "Listed Operating Company"
@@ -64,6 +64,8 @@ PAIRWISE_FEATURE_NAMES = (
     "same_scale_bucket",
     "specific_sector_mismatch",
     "specific_industry_mismatch",
+    "peer_market_cap_log",
+    "peer_revenue_log",
     "market_cap_log_gap",
     "revenue_log_gap",
     "operating_margin_gap",
@@ -94,6 +96,28 @@ class GlobalPeerFundamentals:
 
     def to_dict(self) -> dict[str, object]:
         return asdict(self)
+
+
+@dataclass(frozen=True)
+class KoreaIndustryProfile:
+    stock_code: str
+    stock_name: str
+    industry_code: str
+    peer_stock_codes: tuple[str, ...]
+    peer_stock_names: tuple[str, ...]
+    business_tags: tuple[str, ...]
+    sector: str
+    industry: str
+    business_model: str
+    source: str
+
+    def to_dict(self) -> dict[str, object]:
+        return {
+            **asdict(self),
+            "peer_stock_codes": list(self.peer_stock_codes),
+            "peer_stock_names": list(self.peer_stock_names),
+            "business_tags": list(self.business_tags),
+        }
 
 
 @dataclass(frozen=True)
@@ -601,6 +625,45 @@ def fetch_naver_korea_market_cap_usd(
     return None
 
 
+def fetch_naver_korea_industry_profile(stock: StockUniverseEntry) -> KoreaIndustryProfile | None:
+    payload = _download_naver_json(NAVER_STOCK_INTEGRATION_URL.format(stock_code=stock.stock_code))
+    if str(payload.get("stockEndType") or "") != "stock":
+        return None
+    industry_code = str(payload.get("industryCode") or "").strip()
+    compare_rows = payload.get("industryCompareInfo", [])
+    peer_codes: list[str] = []
+    peer_names: list[str] = []
+    if isinstance(compare_rows, list):
+        for item in compare_rows:
+            if not isinstance(item, dict):
+                continue
+            peer_code = str(item.get("itemCode") or "").strip()
+            peer_name = str(item.get("stockName") or "").strip()
+            if peer_code and peer_code != stock.stock_code:
+                peer_codes.append(peer_code)
+            if peer_name and peer_name != stock.stock_name:
+                peer_names.append(peer_name)
+    names = list(dict.fromkeys([stock.stock_name, stock.stock_name_en, *peer_names]))
+    tags = tuple(infer_business_tags(" ".join(names), " ".join(names)))
+    sector = infer_sector(tags)
+    industry = infer_industry(tags)
+    business_model = infer_business_model(tags)
+    if not industry_code and not peer_names and sector == GENERIC_LISTED_SECTOR:
+        return None
+    return KoreaIndustryProfile(
+        stock_code=stock.stock_code,
+        stock_name=stock.stock_name,
+        industry_code=industry_code,
+        peer_stock_codes=tuple(dict.fromkeys(peer_codes)),
+        peer_stock_names=tuple(dict.fromkeys(peer_names)),
+        business_tags=tags,
+        sector=sector,
+        industry=industry,
+        business_model=business_model,
+        source="NAVER_STOCK_INDUSTRY_COMPARE",
+    )
+
+
 def fetch_open_dart_annual_fundamentals(
     api_key: str,
     stock_code: str,
@@ -715,6 +778,69 @@ def load_global_peer_fundamentals(path: Path) -> dict[tuple[str, str], GlobalPee
     return fundamentals
 
 
+def load_korea_industry_profiles(path: Path) -> dict[str, KoreaIndustryProfile]:
+    if not path.exists():
+        return {}
+    profiles: dict[str, KoreaIndustryProfile] = {}
+    with path.open(newline="", encoding="utf-8") as file:
+        for row in csv.DictReader(file):
+            stock_code = row["stock_code"].strip()
+            if not stock_code:
+                continue
+            profiles[stock_code] = KoreaIndustryProfile(
+                stock_code=stock_code,
+                stock_name=row.get("stock_name", "").strip(),
+                industry_code=row.get("industry_code", "").strip(),
+                peer_stock_codes=_split_pipe(row.get("peer_stock_codes", "")),
+                peer_stock_names=_split_pipe(row.get("peer_stock_names", "")),
+                business_tags=_split_pipe(row.get("business_tags", "")),
+                sector=row.get("sector", "").strip() or GENERIC_LISTED_SECTOR,
+                industry=row.get("industry", "").strip() or GENERIC_LISTED_INDUSTRY,
+                business_model=row.get("business_model", "").strip() or "Operating company",
+                source=row.get("source", "").strip(),
+            )
+    return profiles
+
+
+def write_korea_industry_profiles(
+    path: Path,
+    rows: Sequence[KoreaIndustryProfile],
+) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", newline="", encoding="utf-8") as file:
+        writer = csv.DictWriter(
+            file,
+            fieldnames=[
+                "stock_code",
+                "stock_name",
+                "industry_code",
+                "peer_stock_codes",
+                "peer_stock_names",
+                "business_tags",
+                "sector",
+                "industry",
+                "business_model",
+                "source",
+            ],
+        )
+        writer.writeheader()
+        for row in sorted(rows, key=lambda item: item.stock_code):
+            writer.writerow(
+                {
+                    "stock_code": row.stock_code,
+                    "stock_name": row.stock_name,
+                    "industry_code": row.industry_code,
+                    "peer_stock_codes": "|".join(row.peer_stock_codes),
+                    "peer_stock_names": "|".join(row.peer_stock_names),
+                    "business_tags": "|".join(row.business_tags),
+                    "sector": row.sector,
+                    "industry": row.industry,
+                    "business_model": row.business_model,
+                    "source": row.source,
+                }
+            )
+
+
 def write_global_peer_fundamentals(
     path: Path,
     rows: Sequence[GlobalPeerFundamentals],
@@ -779,16 +905,22 @@ def train_global_peer_model(
     fundamentals_path: Path,
     model_path: Path,
     report_path: Path,
+    korea_industry_path: Path | None = None,
 ) -> PeerTrainingResult:
     korea_universe = load_stock_universe(korea_stock_universe_path)
     us_universe = load_us_stock_universe(us_stock_universe_path)
     fundamentals = load_global_peer_fundamentals(fundamentals_path)
+    korea_industries = (
+        load_korea_industry_profiles(korea_industry_path) if korea_industry_path else {}
+    )
     if len(korea_universe) < 3_000:
         raise ValueError("global peer training requires the full Korean stock universe")
     if len(us_universe) < 5_000:
         raise ValueError("global peer training requires the full United States stock universe")
 
-    korea_profiles = [build_korea_profile(stock, fundamentals) for stock in korea_universe]
+    korea_profiles = [
+        build_korea_profile(stock, fundamentals, korea_industries) for stock in korea_universe
+    ]
     us_profiles = [build_us_profile(stock, fundamentals) for stock in us_universe]
     eligible_us_profiles = [profile for profile in us_profiles if profile.eligible_peer]
     if not eligible_us_profiles:
@@ -801,6 +933,7 @@ def train_global_peer_model(
         sublinear_tf=True,
         lowercase=True,
         strip_accents="unicode",
+        dtype=np.float32,
     )
     corpus = [profile.profile_text for profile in [*korea_profiles, *us_profiles]]
     corpus_matrix = vectorizer.fit_transform(corpus)
@@ -847,7 +980,7 @@ def train_global_peer_model(
         "us_anchors": _anchors_to_payload(US_ANCHORS),
     }
     model_path.parent.mkdir(parents=True, exist_ok=True)
-    joblib.dump(artifact, model_path, compress=6)
+    joblib.dump(artifact, model_path, compress=9)
 
     report = build_global_peer_training_report(
         version=version,
@@ -855,10 +988,12 @@ def train_global_peer_model(
         korea_stock_universe_path=korea_stock_universe_path,
         us_stock_universe_path=us_stock_universe_path,
         fundamentals_path=fundamentals_path,
+        korea_industry_path=korea_industry_path,
         model_path=model_path,
         korea_profiles=korea_profiles,
         us_profiles=us_profiles,
         eligible_us_profiles=eligible_us_profiles,
+        korea_industry_profiles=korea_industries,
         vectorizer=vectorizer,
         eligible_us_matrix=eligible_us_matrix,
         pairwise_ranker_report=pairwise_ranker_report,
@@ -877,10 +1012,12 @@ def build_global_peer_training_report(
     korea_stock_universe_path: Path,
     us_stock_universe_path: Path,
     fundamentals_path: Path,
+    korea_industry_path: Path | None,
     model_path: Path,
     korea_profiles: Sequence[CompanyPeerProfile],
     us_profiles: Sequence[CompanyPeerProfile],
     eligible_us_profiles: Sequence[CompanyPeerProfile],
+    korea_industry_profiles: dict[str, KoreaIndustryProfile],
     vectorizer: TfidfVectorizer,
     eligible_us_matrix: object,
     pairwise_ranker_report: dict[str, object],
@@ -891,6 +1028,12 @@ def build_global_peer_training_report(
     )
     korea_fundamental_count = sum(1 for profile in korea_profiles if profile.financial_data_source)
     us_fundamental_count = sum(1 for profile in us_profiles if profile.financial_data_source)
+    korea_industry_specific_count = sum(
+        1
+        for profile in korea_profiles
+        if profile.sector not in {"Unclassified", GENERIC_LISTED_SECTOR}
+        and profile.industry not in {"Unclassified", GENERIC_LISTED_INDUSTRY}
+    )
     all_profiles = [*korea_profiles, *us_profiles]
     minimum_korea_universe_count = 3_000
     actual_korea_universe_count = len(korea_profiles)
@@ -931,9 +1074,12 @@ def build_global_peer_training_report(
         "korea_stock_universe_path": _report_path(korea_stock_universe_path),
         "us_stock_universe_path": _report_path(us_stock_universe_path),
         "fundamentals_path": _report_path(fundamentals_path),
+        "korea_industry_path": _report_path(korea_industry_path) if korea_industry_path else "",
         "model_path": _report_path(model_path),
         "korea_universe_count": len(korea_profiles),
         "us_universe_count": len(us_profiles),
+        "korea_industry_profile_count": len(korea_industry_profiles),
+        "korea_industry_specific_profile_count": korea_industry_specific_count,
         "korea_fundamental_coverage_count": korea_fundamental_count,
         "us_fundamental_coverage_count": us_fundamental_count,
         "fundamental_field_coverage": {
@@ -1214,6 +1360,8 @@ def pairwise_feature_vector(
         1.0 if same_scale else 0.0,
         1.0 if specific_sector_mismatch else 0.0,
         1.0 if specific_industry_mismatch else 0.0,
+        _normalized_log_feature(peer_profile.market_cap_usd),
+        _normalized_log_feature(peer_profile.revenue_usd),
         _log_gap(stock_profile.market_cap_usd, peer_profile.market_cap_usd),
         _log_gap(stock_profile.revenue_usd, peer_profile.revenue_usd),
         abs(
@@ -1270,18 +1418,37 @@ def _log_gap(left: float | None, right: float | None) -> float:
     return abs(left_value - right_value)
 
 
+def _normalized_log_feature(value: float | None) -> float:
+    if value is None or value <= 0:
+        return 0.0
+    return max(0.0, min(1.0, math.log10(value) / 12.0))
+
+
 def build_korea_profile(
     stock: StockUniverseEntry,
     fundamentals: dict[tuple[str, str], GlobalPeerFundamentals] | None = None,
+    industry_profiles: dict[str, KoreaIndustryProfile] | None = None,
 ) -> CompanyPeerProfile:
     anchor = KOREA_ANCHORS.get(stock.stock_code)
+    industry_profile = industry_profiles.get(stock.stock_code) if industry_profiles else None
     fundamental = _fundamental_for("KR", stock.stock_code, anchor, fundamentals)
     stock_name_en = stock.stock_name_en or _english_name_fallback(stock)
     inferred_tags = tuple(infer_business_tags(stock.stock_name, stock_name_en))
-    tags = anchor.business_tags if anchor else inferred_tags
-    sector = anchor.sector if anchor else infer_sector(tags)
-    industry = anchor.industry if anchor else infer_industry(tags)
-    business_model = anchor.business_model if anchor else infer_business_model(tags)
+    if anchor:
+        tags = anchor.business_tags
+        sector = anchor.sector
+        industry = anchor.industry
+        business_model = anchor.business_model
+    elif industry_profile and industry_profile.sector != GENERIC_LISTED_SECTOR:
+        tags = industry_profile.business_tags
+        sector = industry_profile.sector
+        industry = industry_profile.industry
+        business_model = industry_profile.business_model
+    else:
+        tags = inferred_tags
+        sector = infer_sector(tags)
+        industry = infer_industry(tags)
+        business_model = infer_business_model(tags)
     scale_bucket = derive_scale_bucket(fundamental.market_cap_usd)
     if scale_bucket == "UNKNOWN" and anchor:
         scale_bucket = anchor.scale_bucket
@@ -1295,6 +1462,8 @@ def build_korea_profile(
             stock.market,
             " ".join(stock.aliases),
             anchor.profile_text if anchor else "",
+            industry_profile.industry_code if industry_profile else "",
+            " ".join(industry_profile.peer_stock_names[:20]) if industry_profile else "",
             " ".join(tags),
             sector,
             industry,
@@ -1324,7 +1493,11 @@ def build_korea_profile(
         financial_data_source=fundamental.source,
         financial_feature_vector=build_financial_feature_vector(fundamental),
         eligible_peer=False,
-        source="KOREA_STOCK_UNIVERSE",
+        source=(
+            "KOREA_STOCK_UNIVERSE+NAVER_STOCK_INDUSTRY_COMPARE"
+            if industry_profile
+            else "KOREA_STOCK_UNIVERSE"
+        ),
     )
 
 
@@ -1481,7 +1654,10 @@ def infer_business_tags(stock_name: str, stock_name_en: str) -> list[str]:
         (("motor", "auto", "vehicle", "자동차", "모터스", "기아"), "automotive"),
         (("tire", "mobility", "타이어", "모빌리티", "오토"), "automotive"),
         (("motion", "모션", "부품"), "automotive"),
-        (("battery", "energy solution", "sdi", "배터리", "에너지솔루션", "전지"), "battery"),
+        (
+            ("battery", "lg energy solution", "sdi", "삼성sdi", "배터리", "에너지솔루션", "전지"),
+            "battery",
+        ),
         (("electric", "electrical", "전기", "전선"), "electrical equipment"),
         (
             (
@@ -2291,6 +2467,10 @@ def _anchors_to_payload(anchors: dict[str, PeerAnchor]) -> dict[str, dict[str, o
         }
         for key, anchor in anchors.items()
     }
+
+
+def _split_pipe(value: str) -> tuple[str, ...]:
+    return tuple(item.strip() for item in value.split("|") if item.strip())
 
 
 def _report_path(path: Path) -> str:

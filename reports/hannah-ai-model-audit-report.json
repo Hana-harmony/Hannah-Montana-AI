@@ -1,7 +1,7 @@
 {
   "schema_version": "hannah-ai-model-audit/v1",
-  "generated_at": "2026-06-29T21:50:10.116790+00:00",
-  "overall_status": "conditional_pass",
+  "generated_at": "2026-06-30T03:32:56.817214+00:00",
+  "overall_status": "pass",
   "models": [
     {
       "name": "financial_news_disclosure_classifier",
@@ -115,34 +115,28 @@
     {
       "name": "global_peer_matcher",
       "artifact": "src/hannah_montana_ai/model_store/global_peer_ml.joblib",
-      "version": "global-peer-hybrid-ranker-20260629214642",
+      "version": "global-peer-hybrid-ranker-20260630032925",
       "model_type": "TF-IDF retrieval + SVD semantic embedding + financial features + pairwise LogisticRegression reranker",
       "serving_surface": "Korean stock detail global peer popup",
       "release_status": "pass",
       "training_samples": 574,
       "evaluation": {
-        "curated_pairwise_top1_accuracy": 1.0,
+        "curated_pairwise_top1_accuracy": 0.9285714285714286,
         "curated_anchor_top1_accuracy": 0.8571428571428571,
         "full_coverage_success_ratio": 1.0,
         "full_coverage_quality_gate": "pass",
         "confidence_monitoring": {
           "maximum_low_confidence_ratio": 0.35,
-          "actual_low_confidence_ratio": 0.754726,
+          "actual_low_confidence_ratio": 0.297454,
           "maximum_generic_sector_ratio": 0.85,
-          "actual_generic_sector_ratio": 0.688177,
-          "status": "needs_improvement"
+          "actual_generic_sector_ratio": 0.273506,
+          "status": "pass"
         },
         "smoke_sample_count": 15
       },
-      "gate_status": "conditional_pass",
-      "remaining_risk": "국내 master에 섹터/업종 컬럼이 없어 전종목 LOW confidence 비율은 개선 필요다."
+      "gate_status": "pass",
+      "remaining_risk": "국내 업종 profile은 Naver 동일업종 비교 데이터로 보강했지만 미국 상장 universe 밖의 비미국 peer는 후보에 없다."
     }
   ],
-  "required_next_improvements": [
-    {
-      "area": "global_peer_matcher",
-      "reason": "LOW confidence ratio remains above monitoring target.",
-      "action": "KRX/WICS/GICS 또는 공시 사업보고서 기반 국내 업종 feature를 학습 데이터에 추가한다."
-    }
-  ]
+  "required_next_improvements": []
 }

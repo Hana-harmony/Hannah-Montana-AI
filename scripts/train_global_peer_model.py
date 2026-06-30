@@ -10,6 +10,7 @@ def main() -> None:
         fundamentals_path=settings.global_peer_fundamentals_path,
         model_path=settings.global_peer_model_path,
         report_path=settings.global_peer_training_report_path,
+        korea_industry_path=settings.global_peer_korea_industry_path,
     )
     print(
         "글로벌 피어 모델 학습 완료: "

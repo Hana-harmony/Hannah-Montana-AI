@@ -284,6 +284,8 @@ class GlobalPeerMatcher:
             1.0 if stock_scale != "UNKNOWN" and stock_scale == peer_scale else 0.0,
             1.0 if specific_sector_mismatch else 0.0,
             1.0 if specific_industry_mismatch else 0.0,
+            self._normalized_log_feature(peer_profile.get("market_cap_usd")),
+            self._normalized_log_feature(peer_profile.get("revenue_usd")),
             self._log_gap(
                 stock_profile.get("market_cap_usd"),
                 peer_profile.get("market_cap_usd"),
@@ -498,6 +500,13 @@ class GlobalPeerMatcher:
                 return 0.0
             return float(np.log10(number))
         return 0.0
+
+    @classmethod
+    def _normalized_log_feature(cls, value: object) -> float:
+        log_value = cls._log_feature(value)
+        if log_value <= 0:
+            return 0.0
+        return max(0.0, min(1.0, log_value / 12.0))
 
     @staticmethod
     def _margin_feature(numerator: object, denominator: object) -> float:

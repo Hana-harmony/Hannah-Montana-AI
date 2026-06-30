@@ -32,10 +32,17 @@ def build_hannah_ai_model_audit_report(report_path: Path = REPORT_PATH) -> dict[
     peer_coverage = _load_json("reports/global-peer-full-coverage-report.json")
     peer_smoke = _load_json("reports/global-peer-ai-smoke-report.json")
 
+    peer_gate_status = (
+        "pass"
+        if peer_training["coverage_gate"]["status"] == "pass"
+        and peer_coverage["quality_gate"]["status"] == "pass"
+        and peer_coverage["confidence_monitoring"]["status"] == "pass"
+        else "conditional_pass"
+    )
     audit = {
         "schema_version": "hannah-ai-model-audit/v1",
         "generated_at": datetime.now(UTC).isoformat(),
-        "overall_status": "conditional_pass",
+        "overall_status": "pass" if peer_gate_status == "pass" else "conditional_pass",
         "models": [
             {
                 "name": "financial_news_disclosure_classifier",
@@ -132,23 +139,14 @@ def build_hannah_ai_model_audit_report(report_path: Path = REPORT_PATH) -> dict[
                     "confidence_monitoring": peer_coverage["confidence_monitoring"],
                     "smoke_sample_count": peer_smoke["sample_count"],
                 },
-                "gate_status": "conditional_pass",
+                "gate_status": peer_gate_status,
                 "remaining_risk": (
-                    "국내 master에 섹터/업종 컬럼이 없어 전종목 LOW confidence "
-                    "비율은 개선 필요다."
+                    "국내 업종 profile은 Naver 동일업종 비교 데이터로 보강했지만 "
+                    "미국 상장 universe 밖의 비미국 peer는 후보에 없다."
                 ),
             },
         ],
-        "required_next_improvements": [
-            {
-                "area": "global_peer_matcher",
-                "reason": "LOW confidence ratio remains above monitoring target.",
-                "action": (
-                    "KRX/WICS/GICS 또는 공시 사업보고서 기반 국내 업종 feature를 "
-                    "학습 데이터에 추가한다."
-                ),
-            }
-        ],
+        "required_next_improvements": [],
     }
     report_path.parent.mkdir(parents=True, exist_ok=True)
     report_path.write_text(json.dumps(audit, ensure_ascii=False, indent=2) + "\n")

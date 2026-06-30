@@ -43,6 +43,7 @@ docker run --rm --network hana-internal hannah-montana-ai
 ```bash
 uv run python scripts/sync_us_stock_universe.py
 uv run python scripts/sync_global_peer_fundamentals.py
+uv run python scripts/sync_korea_stock_industries.py
 uv run python scripts/train_global_peer_model.py
 uv run python scripts/build_global_peer_ai_smoke_report.py
 uv run python scripts/build_global_peer_full_coverage_report.py
