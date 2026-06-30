@@ -36,6 +36,8 @@ docker run --rm --network hana-internal hannah-montana-ai
 ## 글로벌 피어 종목 매칭
 - `POST /api/v1/market/global-peers/match`는 OmniLens가 넘긴 한국 종목 metadata를 입력으로 받아 미국 상장 peer 후보를 반환한다.
 - 응답은 외국인 투자자용 영어 headline, summary, primary peer, 후보 peer 목록, confidence, model version을 포함한다.
+- 사용자에게 보이는 headline/summary에는 `confidence`, `similarity score`, ranker 점수를 쓰지 않는다. 해당 값은 API/리포트의 품질 관측 메타데이터로만 사용한다.
+- 검증된 영어 종목명이 없으면 임의 번역을 만들지 않고 `Korean stock <code>`로 표시한다.
 - 각 peer는 `sector`, `industry`, `business_model`, `scale_bucket`, `market_cap_usd`, `revenue_usd`, `operating_income_usd`, `net_income_usd`, `financial_data_source`, `financial_similarity_score`, `matched_factors`, `rationale`을 포함해 왜 해당 글로벌 peer로 매칭됐는지 설명한다.
 - 현재 운영 artifact는 한국 종목 3,967개와 미국 symbol 12,916개를 학습한 `src/hannah_montana_ai/model_store/global_peer_ml.joblib`다.
 - 미국 universe 갱신은 NASDAQ Trader symbol directory를 사용한다. 재무/규모 dataset은 OpenDART, KRX Open API, Naver mobile stock JSON, SEC companyfacts, NASDAQ quote summary를 사용한다.
@@ -55,7 +57,7 @@ uv run python scripts/build_hannah_ai_model_audit_report.py
 uv run pytest tests/test_global_peer_matcher.py tests/test_global_peer_api.py -q
 ```
 - 실제 AI 품질 smoke 결과는 `reports/global-peer-ai-smoke-report.json`과 `docs/GLOBAL_PEER_AI_SMOKE.md`에 저장한다. 전종목 coverage 결과는 `reports/global-peer-full-coverage-report.json`에 저장하며, API 계약 테스트와 별도로 전체 한국 master 3,967개가 추론 가능한지 확인한다. 전종목별 현재 primary peer 결과와 성능은 `docs/GLOBAL_PEER_ALL_RESULTS.md`, `reports/global-peer-all-results.json`, `reports/global-peer-all-results.csv`에 저장한다. Qwen3 설명 LLM 학습 데이터와 결과는 `data/training/global_peer_explanation_sft.jsonl`, `data/training/global_peer_explanation_mlx`, `reports/global-peer-explanation-llm-readiness.json`, `reports/global-peer-qwen3-explainer-training.json`, `reports/global-peer-qwen3-generation-eval.json`에 저장한다. 전체 AI 기능 감사는 `reports/hannah-ai-model-audit-report.json`과 `docs/HANNAH_AI_MODEL_AUDIT.md`에 저장한다.
-- 설명 LLM 운영은 기본 off다. `HANNAH_GLOBAL_PEER_EXPLANATION_MODE=local_llm`, `HANNAH_GLOBAL_PEER_LLM_ENDPOINT=http://127.0.0.1:<port>`, `HANNAH_GLOBAL_PEER_LLM_MODEL=<served-model-name>`을 설정하면 llama.cpp 같은 OpenAI-compatible local server를 호출한다. t4g.medium에서는 Qwen3-0.6B GGUF Q4를 별도 프로세스로 띄우고 API는 짧은 structured prompt만 전달한다. endpoint 장애, 비정상 JSON, display name 누락, peer 근거 불일치, headline/summary exact mismatch, peer명 반복/축약, 투자조언 문구는 모두 template fallback으로 처리한다.
+- 설명 LLM 운영은 기본 off다. `HANNAH_GLOBAL_PEER_EXPLANATION_MODE=local_llm`, `HANNAH_GLOBAL_PEER_LLM_ENDPOINT=http://127.0.0.1:<port>`, `HANNAH_GLOBAL_PEER_LLM_MODEL=<served-model-name>`을 설정하면 llama.cpp 같은 OpenAI-compatible local server를 호출한다. t4g.medium에서는 Qwen3-0.6B GGUF Q4를 별도 프로세스로 띄우고 API는 짧은 structured prompt만 전달한다. endpoint 장애, 비정상 JSON, display name 누락, peer 근거 불일치, headline/summary exact mismatch, peer명 반복/축약, 점수 노출, 투자조언 문구는 모두 template fallback으로 처리한다.
 
 ## 추론 audit log
 - 분석 API는 요청마다 `hannah_montana_ai.audit.analysis` logger에 JSON audit log를 남긴다.
