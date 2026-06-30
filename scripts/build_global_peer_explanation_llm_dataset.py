@@ -122,6 +122,9 @@ def _target_is_grounded(
     stock_terms = [stock.stock_name.lower()]
     if stock.stock_name_en:
         stock_terms.append(stock.stock_name_en.lower())
+    stock_terms.append(
+        GlobalPeerExplanationGenerator._stock_display_name(_request_for(stock)).lower()
+    )
     anchor = KOREA_ANCHORS.get(stock.stock_code)
     if anchor and anchor.display_name:
         stock_terms.append(anchor.display_name.lower())

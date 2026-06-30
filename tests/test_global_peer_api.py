@@ -22,7 +22,10 @@ def test_global_peer_match_api_returns_alteogen_halozyme_popup_copy() -> None:
     assert payload["success"] is True
     data = payload["data"]
     assert data["primary_peer"]["ticker"] == "HALO"
+    assert data["stock_name_en"] == "Alteogen"
     assert data["headline"].startswith("Alteogen Is The 'Halozyme Therapeutics'")
     assert data["source"] == "HANNAH_GLOBAL_PEER_HYBRID_RANKER"
     assert data["explanation_source"] == "GROUNDED_TEMPLATE_STRUCTURED_RAG"
-    assert data["explanation_prompt_version"] == "global-peer-structured-rag-explainer-v6"
+    assert data["explanation_prompt_version"] == "global-peer-structured-rag-explainer-v7"
+    assert "similarity score" not in data["summary"].lower()
+    assert "confidence" not in data["summary"].lower()

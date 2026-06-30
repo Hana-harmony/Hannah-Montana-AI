@@ -12,8 +12,41 @@ from hannah_montana_ai.core.config import Settings
 from hannah_montana_ai.domain.schemas import GlobalPeerMatch, GlobalPeerMatchRequest
 from hannah_montana_ai.training.global_peer_trainer import KOREA_ANCHORS
 
-EXPLANATION_PROMPT_VERSION = "global-peer-structured-rag-explainer-v6"
+EXPLANATION_PROMPT_VERSION = "global-peer-structured-rag-explainer-v7"
 TEMPLATE_EXPLANATION_MODEL_VERSION = "grounded-template-structured-rag-v1"
+KOREA_ENGLISH_DISPLAY_NAMES = {
+    "000270": "Kia",
+    "000660": "SK hynix",
+    "003550": "LG Corp.",
+    "005380": "Hyundai Motor",
+    "005930": "Samsung Electronics",
+    "006400": "Samsung SDI",
+    "010130": "Korea Zinc",
+    "012330": "Hyundai Mobis",
+    "015760": "Korea Electric Power",
+    "017670": "SK Telecom",
+    "018260": "Samsung SDS",
+    "028260": "Samsung C&T",
+    "032640": "LG Uplus",
+    "033780": "KT&G",
+    "035420": "NAVER",
+    "035720": "Kakao",
+    "051910": "LG Chem",
+    "055550": "Shinhan Financial Group",
+    "066570": "LG Electronics",
+    "068270": "Celltrion",
+    "086520": "EcoPro",
+    "086790": "Hana Financial Group",
+    "090430": "Amorepacific",
+    "096770": "SK Innovation",
+    "105560": "KB Financial Group",
+    "196170": "Alteogen",
+    "207940": "Samsung Biologics",
+    "247540": "EcoPro BM",
+    "251270": "Netmarble",
+    "352820": "HYBE",
+    "373220": "LG Energy Solution",
+}
 
 
 @dataclass(frozen=True)
@@ -167,9 +200,7 @@ class GlobalPeerExplanationGenerator:
         summary = (
             f"{stock_name} is best understood as a Korean {business_label.lower()} with a "
             f"similar role to {peer_name}. {self._domain_sentence(peer)} "
-            f"{self._financial_sentence(peer)} "
-            f"Hannah's global peer ranker assigns {context.confidence_level.lower()} "
-            f"confidence with a similarity score of {context.confidence_score:.4f}."
+            f"{self._financial_sentence(peer)}"
         )
         return GlobalPeerExplanation(
             headline=headline,
@@ -441,7 +472,22 @@ class GlobalPeerExplanationGenerator:
         anchor = KOREA_ANCHORS.get(request.stock_code)
         if anchor and anchor.display_name:
             return anchor.display_name
-        return request.stock_name_en or request.stock_name
+        curated_name = KOREA_ENGLISH_DISPLAY_NAMES.get(request.stock_code)
+        if curated_name:
+            return curated_name
+        if request.stock_name_en and not GlobalPeerExplanationGenerator._contains_hangul(
+            request.stock_name_en
+        ):
+            return request.stock_name_en
+        if request.stock_name and not GlobalPeerExplanationGenerator._contains_hangul(
+            request.stock_name
+        ):
+            return request.stock_name
+        return f"Korean stock {request.stock_code}"
+
+    @staticmethod
+    def _contains_hangul(value: str) -> bool:
+        return bool(re.search(r"[가-힣]", value))
 
     @staticmethod
     def _display_peer_name(company_name: str) -> str:
@@ -479,11 +525,10 @@ class GlobalPeerExplanationGenerator:
                 f"Financial context is limited, so {peer_name} is used primarily "
                 "as a business-domain proxy."
             )
-        scale = peer.scale_bucket.replace("_", " ").lower()
+        scale = peer.scale_bucket.replace("_", "-").lower()
         return (
-            f"Financial context is included with a similarity score of "
-            f"{peer.financial_similarity_score:.4f}; {peer_name} is treated as a "
-            f"{scale} US-market reference rather than a strict size match."
+            f"Scale and financial data are used as secondary context: {peer_name} is treated "
+            f"as a {scale} US-market reference, not as a one-for-one size match."
         )
 
     @staticmethod

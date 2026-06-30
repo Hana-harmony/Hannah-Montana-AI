@@ -1,5 +1,13 @@
 # 구현 기록
 
+## 2026-07-01 글로벌 피어 Qwen3 설명 LLM v7 사용자 노출 문구 정정
+- 사용자 지적에 따라 LLM `headline`/`summary`에서 `similarity score`, `confidence`, `Hannah ranker` 같은 내부 점수 문구를 제거했다.
+- 글로벌 투자자용 팝업에서 한국 종목명이 한글로 노출되지 않도록 `stock_name_en`이 비어 있는 대표 종목은 검수된 영어 표시명을 우선 사용한다. 검증된 영문명이 없는 종목은 임의 번역 대신 `Korean stock <code>`로 표시한다.
+- prompt를 `global-peer-structured-rag-explainer-v7`로 승격하고 한국 종목 3,967개 전체 SFT 데이터셋을 재생성했다. grounded target failure 0건, readiness `pass`를 기록했다.
+- `mlx-community/Qwen3-0.6B-4bit` LoRA를 500 iters 재학습했다. final validation loss 0.000, test loss 0.000, test perplexity 1.000, peak memory 2.238GB를 기록했다.
+- 실제 `mlx_lm.generate` raw output 대표 30종목 검증에서 JSON valid 30/30, exact headline 30/30, exact summary 30/30, grounded 30/30, pass rate 100%를 기록했다.
+- 대표 출력은 `Samsung Electronics Is South Korea's 'Micron Technology'`, `SK hynix Is South Korea's 'Micron Technology'`, `LG Energy Solution Is South Korea's 'Tesla'`처럼 영어 표시명과 점수 없는 설명으로 고정했다. 전 종목 결과와 raw generation 평가 모두 사용자 문구 기준 한글 종목명 0건, 점수 문구 0건을 확인했다.
+
 ## 2026-06-30 글로벌 피어 Qwen3 설명 LLM v6 strict raw generation 개선
 - 사용자 지적에 따라 template fallback 품질이 아니라 Qwen3 raw generation 자체 품질을 goal로 재정의했다.
 - v3 raw 직접 생성은 대표 10개 모두 grounded fail이었고, v4/v5 반복 학습 중 `Thermo Fisher Fisher`, 미제공 `US$...` 숫자 생성 같은 사람이 보는 품질 오류를 발견했다.
