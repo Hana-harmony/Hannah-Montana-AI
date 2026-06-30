@@ -110,7 +110,7 @@ class GlobalPeerMatcher:
         return GlobalPeerMatchResponse(
             stock_code=request.stock_code,
             stock_name=request.stock_name,
-            stock_name_en=request.stock_name_en or str(stock_profile["display_name"]),
+            stock_name_en=GlobalPeerExplanationGenerator._stock_display_name(request),
             headline=explanation.headline,
             summary=explanation.summary,
             primary_peer=primary_peer,

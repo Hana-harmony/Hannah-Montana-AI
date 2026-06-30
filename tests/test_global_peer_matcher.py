@@ -1,4 +1,5 @@
 import json
+import re
 from pathlib import Path
 
 from hannah_montana_ai.domain.schemas import GlobalPeerMatchRequest
@@ -56,7 +57,7 @@ def test_global_peer_model_matches_alteogen_to_halozyme() -> None:
     assert "drug-delivery technology" in response.summary
     assert response.model_version.startswith("global-peer-hybrid-ranker-")
     assert response.explanation_source == "GROUNDED_TEMPLATE_STRUCTURED_RAG"
-    assert response.explanation_prompt_version == "global-peer-structured-rag-explainer-v6"
+    assert response.explanation_prompt_version == "global-peer-structured-rag-explainer-v7"
 
 
 def test_global_peer_model_quality_smoke_matches_core_korean_stocks() -> None:
@@ -221,6 +222,44 @@ def test_global_peer_llm_explainer_falls_back_when_anchor_display_name_is_missin
     assert explanation.summary.startswith("Alteogen is a high-margin")
 
 
+def test_global_peer_explanation_uses_english_display_name_without_user_score_copy() -> None:
+    matcher = GlobalPeerMatcher(Path("src/hannah_montana_ai/model_store/global_peer_ml.joblib"))
+
+    response = matcher.match(
+        GlobalPeerMatchRequest(
+            stock_code="005930",
+            stock_name="삼성전자",
+            market="KOSPI",
+        )
+    )
+
+    user_copy = f"{response.headline} {response.summary}"
+    assert response.stock_name_en == "Samsung Electronics"
+    assert response.headline.startswith("Samsung Electronics Is South Korea's")
+    assert "삼성전자" not in user_copy
+    assert "similarity score" not in user_copy.lower()
+    assert "confidence" not in user_copy.lower()
+    assert "hannah" not in user_copy.lower()
+
+
+def test_global_peer_explanation_uses_stock_code_when_verified_english_name_is_missing() -> None:
+    matcher = GlobalPeerMatcher(Path("src/hannah_montana_ai/model_store/global_peer_ml.joblib"))
+
+    response = matcher.match(
+        GlobalPeerMatchRequest(
+            stock_code="000010",
+            stock_name="신한은행",
+            market="KOSPI",
+        )
+    )
+
+    user_copy = f"{response.stock_name_en} {response.headline} {response.summary}"
+    assert response.stock_name_en == "Korean stock 000010"
+    assert "신한은행" not in user_copy
+    assert "similarity score" not in user_copy.lower()
+    assert "confidence" not in user_copy.lower()
+
+
 def test_global_peer_request_accepts_krx_alphanumeric_stock_codes() -> None:
     request = GlobalPeerMatchRequest(
         stock_code="0001A0",
@@ -259,6 +298,12 @@ def test_global_peer_all_results_report_documents_every_stock() -> None:
     assert Path("reports/global-peer-all-results.csv").exists()
     assert report["results"][0]["explanation_source"]
     assert report["results"][0]["explanation_prompt_version"]
+    user_copy = " ".join(
+        f"{row['headline']} {row['summary']}" for row in report["results"]
+    )
+    assert not re.search(r"[가-힣]", user_copy)
+    assert "similarity score" not in user_copy.lower()
+    assert "confidence" not in user_copy.lower()
 
 
 def test_global_peer_qwen3_explainer_training_artifacts_are_ready() -> None:
@@ -266,7 +311,7 @@ def test_global_peer_qwen3_explainer_training_artifacts_are_ready() -> None:
     training = json.loads(Path("reports/global-peer-qwen3-explainer-training.json").read_text())
 
     assert readiness["schema_version"] == "global-peer-explanation-llm-readiness/v1"
-    assert readiness["prompt_version"] == "global-peer-structured-rag-explainer-v6"
+    assert readiness["prompt_version"] == "global-peer-structured-rag-explainer-v7"
     assert readiness["recommended_train_model"] == "Qwen/Qwen3-0.6B-MLX-4bit LoRA"
     assert readiness["sample_count"] >= 3_000
     assert readiness["failure_count"] == 0
@@ -293,7 +338,7 @@ def test_global_peer_qwen3_raw_generation_report_passes_strict_gate() -> None:
     report = json.loads(Path("reports/global-peer-qwen3-generation-eval.json").read_text())
 
     assert report["schema_version"] == "global-peer-qwen3-generation-eval/v1"
-    assert report["prompt_version"] == "global-peer-structured-rag-explainer-v6"
+    assert report["prompt_version"] == "global-peer-structured-rag-explainer-v7"
     assert report["stock_count"] == 30
     assert report["pass_count"] == 30
     assert report["pass_rate"] == 1.0
@@ -302,3 +347,13 @@ def test_global_peer_qwen3_raw_generation_report_passes_strict_gate() -> None:
     assert report["exact_summary_count"] == 30
     assert report["grounded_count"] == 30
     assert report["quality_status"] == "pass"
+    parsed_outputs = [
+        f"{row['parsed']['headline']} {row['parsed']['summary']}" for row in report["results"]
+    ]
+    combined_outputs = " ".join(parsed_outputs)
+    assert "Samsung Electronics Is South Korea's" in combined_outputs
+    assert "LG Energy Solution Is South Korea's" in combined_outputs
+    assert "SK hynix Is South Korea's" in combined_outputs
+    assert "similarity score" not in combined_outputs.lower()
+    assert "confidence" not in combined_outputs.lower()
+    assert "Hannah's global peer ranker" not in combined_outputs
